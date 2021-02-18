@@ -1,0 +1,16 @@
+Job procedure
+
+cd /global/homes/k/kbhimani/siggen_2d/
+
+./ehdrift ppc_1_calc_wp.config  -a 15
+
+./ehdrift ppc_1.config  -a 5
+./ehdrift ppc_1.config  -a 10
+./ehdrift ppc_1.config  -a 15
+./ehdrift ppc_1.config  -a 25
+./ehdrift ppc_1.config  -a 30
+
+
+
+
+rsync -e ssh -avP /home/kevinhbhimani/Desktop/Siggen_simulations/ehdrift/Siggen_2D_Cori/ kbhimani@cori.nersc.gov:/global/homes/k/kbhimani/siggen_2d/
