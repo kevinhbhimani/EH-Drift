@@ -101,6 +101,7 @@ int main(int argc, char **argv)
   WV = setup.write_field;
   setup.rho_z_spe[0] = 0;
 
+  //the lines below set the input options
   for (i=2; i<argc-1; i++) {
     if (strstr(argv[i], "-b")) {
       BV = setup.xtal_HV = atof(argv[++i]);   // bias volts
