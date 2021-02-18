@@ -471,7 +471,7 @@ int main(int argc, char **argv)
            grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
 
     ev_calc2(&setup);
-
+    //To do: implement drift_rho function in GPU
     drift_rho(&setup, LL, R, grid, rho_e, -1, &egone);
     drift_rho(&setup, LL, R, grid, rho_h,  1, &hgone);
     if (n%10 == 0) {
