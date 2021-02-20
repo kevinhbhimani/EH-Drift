@@ -140,6 +140,9 @@ int main(int argc, char **argv)
       return 1;
     }
   }
+
+  // Kevin: I am ignoring the error of too small grid size. The program ran
+  // fine on 0.01 m grid size (most likely becuase we are only looking at 1/8th of length)
  /*
   if (setup.xtal_length/setup.xtal_grid * setup.xtal_radius/setup.xtal_grid > 2500*2500) {
     printf("Error: Crystal size divided by grid size is too large!\n");
@@ -251,7 +254,7 @@ int main(int argc, char **argv)
   r = alpha_r_mm/grid + 1;  // CHANGEME : starting radius, converted from mm to grid points; see -a command line option
   z = alpha_z_mm/grid + 1; // CHANGEME currently z = 0.1 mm
 
-  /* CHANGEME?
+  /* CHANGEME
        at this point, you can either read in some starting charge distribution
        or just put charge at the surface, at some specified radius r
    */
