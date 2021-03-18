@@ -5,7 +5,12 @@
 
 CC = gcc
 CPP = g++
+NVCC := nvcc
+
+
 CFLAGS = -O3 -Wall
+NVCCFLAGS = -rdc=true
+
 RM = rm -f
 
 # common files and headers
@@ -21,11 +26,11 @@ stester: $(mk_signal_files) $(mk_signal_headers) signal_tester.c
 mjd_fieldgen: mjd_fieldgen.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h
 	$(CC) $(CFLAGS) -o $@ mjd_fieldgen.c read_config.c detector_geometry.c -lm
 
-ehdrift: ehdrift.c ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h
-	$(CC) $(CFLAGS) -o $@ ehdrift.c ehd_subs.c read_config.c detector_geometry.c -lm
-
 ehd_siggen: ehd_siggen.c ehd_subs.c $(mk_signal_files) $(mk_signal_headers) 
 	$(CC) $(CFLAGS) -o $@ ehd_siggen.c ehd_subs.c read_config.c detector_geometry.c fields.c cyl_point.c -lm
+
+ehdrift: ehdrift.c cuda_hello_world.cu ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h
+	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c cuda_hello_world.cu ehd_subs.c read_config.c detector_geometry.c -lm
 
 FORCE:
 
