@@ -431,6 +431,7 @@ int main(int argc, char **argv)
   write_rho(LL, R, grid, rho_e[0], "ed.dat");
   write_rho(LL, R, grid, rho_h[0], "hd.dat");
   gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
+  return 0;
   gpu_drift(&setup, LL, R, grid, rho_h,  1, &hgone);
 
   /* -----------------------------------------

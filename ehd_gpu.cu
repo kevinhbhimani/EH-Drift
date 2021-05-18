@@ -117,12 +117,12 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
     ve_r = (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
     deltaer = grid * ve_r * f_drift / E;
   }
-  if (1 && r == 100 && z == 10)
+  if (0 && r == 100 && z == 10)
     printf("r z: %d %d; E_r deltaer: %f %f; E_z deltaez: %f %f; rho[0] = %f\n",
           r, z, E_r, deltaer, E_z, deltaez, rho[(0*L*R)+(R*z)+r]);
 
   /* reduce diffusion at passivated surfaces by a factor of surface_drift_vel_factor */
-  if (1 &&
+  if (0 &&
       ((r == idid && z < idd) ||
       (r < idid  && z == 1 ) ||
       (r >= idid && r <= idod && z == idd))) {
@@ -133,7 +133,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
 
   // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
   rho[(1*L*R)+(R*z)+r] += rho[(0*L*R)+(R*z)+r];
-  if (1 && z == 1) 
+  if (0 && z == 1) 
   printf("r,z = %d, %d E_r,z = %f, %f  deltaer,z = %f, %f  s1,s2 = %f, %f\n",
                     r, z, E_r, E_z, deltaer, deltaez, s1[r], s2[r]);
 
@@ -297,7 +297,7 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
 
   
 
-  if (1 && r == 100 && z == 10)
+  if (0 && r == 100 && z == 10)
     printf("r z: %d %d; E_r i dre: %f %d %f; fr = %f\n"
           "r z: %d %d; E_z k dze: %f %d %f; fz = %f\n",
           r, z, E_r, i, dre, fr, r, z, E_z, k, dze, fz);
@@ -334,24 +334,24 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
 // do the diffusion and drifting of the charge cloud densities
 extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, double *gone){
   
-  // float **rho_test[3];
-  //   for (int j=0; j<3; j++) {
-  //     if ((rho_test[j] = (float **)malloc(L * sizeof(*rho[j])))   == NULL) {
-  //       printf("malloc failed\n");
-  //       return -1;
-  //     }
-  //     for (int i = 0; i < L; i++) {
-  //       if ((rho_test[j][i] = (float *)malloc(R * sizeof(**rho[j])))   == NULL) {
-  //         printf("malloc failed\n");
-  //         return -1;
-  //       }
-  //     }
-  //   }
-  // for (int j=0; j<3; j++) {
-  //   for (int i = 0; i < L; i++) {
-  //     memcpy(rho_test[j][i], rho[j][i], R * sizeof(float));
-  //   }
-  // }
+  float **rho_test[3];
+    for (int j=0; j<3; j++) {
+      if ((rho_test[j] = (float **)malloc(L * sizeof(*rho[j])))   == NULL) {
+        printf("malloc failed\n");
+        return -1;
+      }
+      for (int i = 0; i < L; i++) {
+        if ((rho_test[j][i] = (float *)malloc(R * sizeof(**rho[j])))   == NULL) {
+          printf("malloc failed\n");
+          return -1;
+        }
+      }
+    }
+  for (int j=0; j<3; j++) {
+    for (int i = 0; i < L; i++) {
+      memcpy(rho_test[j][i], rho[j][i], R * sizeof(float));
+    }
+  }
 
 
 
@@ -613,45 +613,36 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
       }
     }
 
-  // printf("Done copying. \n");
+  printf("Running on CPU \n");
 
-  // #define MAX_ERR 1e-7
+  drift_rho(setup, L, R, grid, rho_test, q, gone);
 
-  //   if(rho[i][j][k] - rho_test[i][j][k] > MAX_ERR){
-  //     printf("The error is %f\n", rho[i][j][k]-rho_test[i][j][k]);
-  //   }
+  printf("Done running on CPU \n");
 
-
-//   printf("Running on CPU \n");
-
-//   drift_rho(setup, L, R, grid, rho_test, q, gone);
-
-//   printf("Done running on CPU \n");
-
-//   for(int i=0; i<3; i++) {
-//     for(int j=0; j<L; j++){
-//       for(int k=0; k<R; k++){
-//         if(rho_test[i][j][k]>0 || rho[i][j][k]>0){
-//           printf("Actual density is %.10f, density by GPU calculation is %.10f. The error is %.10f \n",rho_test[i][j][k], rho[i][j][k], rho[i][j][k]-rho_test[i][j][k]);
-//         } 
-//       }
-//     }
-//   }
-// #define MAX_ERR 1e-6
-// for(int i=0; i<3; i++) {
-//   for(int j=0; j<L; j++){
-//     for(int k=0; k<R; k++){
-//       if(rho[i][j][k] - rho_test[i][j][k] > MAX_ERR){
-//         printf("The error is %f\n", rho[i][j][k]-rho_test[i][j][k]);
-//       }
-//     }
-//   }
-// }
-// for(int i=0; i<3; i++) {
-//   for(int j=0; j<L; j++){
-//       free(rho_test[i][j]);
-//     }
-//   }
+  for(int i=0; i<3; i++) {
+    for(int j=0; j<L; j++){
+      for(int k=0; k<R; k++){
+        if(rho_test[i][j][k]>0 || rho[i][j][k]>0){
+          printf("Actual density is %.5f, density by GPU calculation is %.5f. The error is %.5f \n",rho_test[i][j][k], rho[i][j][k], rho[i][j][k]-rho_test[i][j][k]);
+        } 
+      }
+    }
+  }
+#define MAX_ERR 1e-6
+for(int i=0; i<3; i++) {
+  for(int j=0; j<L; j++){
+    for(int k=0; k<R; k++){
+      if(rho[i][j][k] - rho_test[i][j][k] > MAX_ERR){
+        printf("--------------The error is %f--------------\n", rho[i][j][k]-rho_test[i][j][k]);
+      }
+    }
+  }
+}
+for(int i=0; i<3; i++) {
+  for(int j=0; j<L; j++){
+      free(rho_test[i][j]);
+    }
+  }
 
 
   cudaFree(rho_gpu);
@@ -682,7 +673,6 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   return 0;
 
 }
-
 
 /* -------------------------------------- drift_rho ------------------- */
 // do the diffusion and drifting of the charge cloud densities
@@ -759,27 +749,22 @@ for (i=0; E_r > drift_E[i+1]; i++);
 ve_r = fq * (drift_offset[i] + drift_slope[i]*(E_r - drift_E[i]))/E_r;
 deltaer = grid * ve_r * f;
 printf ("D_z, D_r values (q=%d) at 100 V/cm: %f %f\n", q, deltaez, deltaer);
+
 for (z=0; z<L; z++) {
 for (r=0; r<R; r++) {
 rho[1][z][r] = rho[2][z][r] = 0;
 }
 }
-
 /* NOTE that impurity and field arrays in setup start at (i,j)=(1,1) for (r,z)=(0,0) */
 int idid = lrint((setup->wrap_around_radius - setup->ditch_thickness)/grid) + 1; // ditch ID
 int idod = lrint(setup->wrap_around_radius/grid) + 1; // ditch OD
 int idd =  lrint(setup->ditch_depth/grid) + 1;        // ditch depth
 for (r=1; r<R; r++) {
 for (z=1; z<L-2; z++) {
-
 if (rho[0][z][r] < 1.0e-14) {
-  if(rho[0][z][r]>0){
-  }
 rho[1][z][r] += rho[0][z][r];
 continue;
 }
-
-
 // calc E in r-direction
 if (r == 1) {  // r = 0; symmetry implies E_r = 0
 E_r = 0;
@@ -830,7 +815,7 @@ for (i=0; E > drift_E[i+1]; i++);
 ve_r = (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
 deltaer = grid * ve_r * f / E;
 }
-if (1 && r == 100 && z == 10)
+if (0 && r == 100 && z == 10)
 printf("r z: %d %d; E_r deltaer: %f %f; E_z deltaez: %f %f; rho[0] = %f\n",
    r, z, E_r, deltaer, E_z, deltaez, rho[0][z][r]);
 
@@ -846,77 +831,38 @@ deltaez *= setup->surface_drift_vel_factor * grid/0.002; // * grid/0.002;
 
 // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
 rho[1][z][r]   += rho[0][z][r];
-if (1 && z == 1) 
-printf("r,z = %d, %d E_r,z = %f, %f  deltaer,z = %f, %f  s1,s2 = %f, %f\n",
+if (0 && z == 1) printf("r,z = %d, %d E_r,z = %f, %f  deltaer,z = %f, %f  s1,s2 = %f, %f\n",
              r, z, E_r, E_z, deltaer, deltaez, setup->s1[r], setup->s2[r]);
 if (r < R-1 && setup->point_type[z][r+1] != DITCH) {
 //if (setup->point_type[z][r+1] > HVC)
-
 rho[1][z][r+1] += rho[0][z][r]*deltaer * setup->s1[r] * (double) (r-1) / (double) (r);
 rho[1][z][r]   -= rho[0][z][r]*deltaer * setup->s1[r];
 }
 if (z > 1 && setup->point_type[z-1][r] != DITCH) {
-
-  //if (setup->point_type[z-1][r] > HVC)
+//if (setup->point_type[z-1][r] > HVC)
 rho[1][z-1][r] += rho[0][z][r]*deltaez;
-//printf("value of rho in CPU at checkpoint 3 is %f \n",rho[1][z-1][r]);
-
 rho[1][z][r]   -= rho[0][z][r]*deltaez;
-//printf("value of rho in CPU at checkpoint 4 is %f \n",rho[1][z][r] );
-
 }
-
 if (z < L-1 && setup->point_type[z+1][r] != DITCH) {
-
-//printf("in part 3 and value of char is %c \n", setup->point_type[z+1][r]);
-
 //if (setup->point_type[z+1][r] > HVC)
 rho[1][z+1][r] += rho[0][z][r]*deltaez;
-//printf("value of rho in CPU at checkpoint 5 is %f \n",rho[1][z+1][r]);
-
 rho[1][z][r]   -= rho[0][z][r]*deltaez;
-//printf("value of rho in CPU at checkpoint 6 is %f \n",rho[1][z][r]);
-
-
-
 }
 if (r > 2 && setup->point_type[z][r-1] != DITCH) {
-
-//printf("in part 4 and value of char is %c \n", setup->point_type[z][r-1]);
-
 //if (setup->point_type[z][r-1] > HVC)
 rho[1][z][r-1] += rho[0][z][r]*deltaer * setup->s2[r] * (double) (r-1) / (double) (r-2);
-//printf("value of rho in CPU at checkpoint 7 is %f \n",rho[1][z][r-1]);
-
 rho[1][z][r]   -= rho[0][z][r]*deltaer * setup->s2[r];
-//printf("value of rho in CPU at checkpoint 8 is %f \n",rho[1][z][r]);
-
 }
 
 //-----------------------------------------------------------
 }
 }
-
-// for(int i=0; i<3; i++) {
-//   for(int j=0; j<L; j++){
-//       for(int k=0; k<R; k++){
-//         if(rho[i][j][k]>0){
-//           printf("Value of rho is %f at (%d, %d, %d)\n", rho[i][j][k],i,j,k);
-//         }
-//       }
-//     }
-//   }
-
 for (r=1; r<R; r++) {
 for (z=1; z<L-2; z++) {
 if (rho[1][z][r] < 1.0e-14) {
 rho[2][z][r] += rho[1][z][r];
 continue;
 }
-printf("Value of rho at this point is %f \n", rho[1][z][r]);
-
-printf("Second part is simulating r=%d and z=%d\n",r,z);
-
 // need to r-calculate all the fields
 // calc E in r-direction
 if (r == 1) {  // r = 0; symmetry implies E_r = 0
@@ -1032,7 +978,7 @@ if (dze < 0 && r > idid && r < idod && k < idd) { // ditch depth
 k   = idd;
 fr  = 1.0;
 }
-//if (1 && r == 100 && z == 10)
+if (0 && r == 100 && z == 10)
 printf("r z: %d %d; E_r i dre: %f %d %f; fr = %f\n"
    "r z: %d %d; E_z k dze: %f %d %f; fz = %f\n",
    r, z, E_r, i, dre, fr, r, z, E_z, k, dze, fz);
