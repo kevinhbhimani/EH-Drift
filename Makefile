@@ -5,11 +5,17 @@
 
 CC = gcc
 CPP = g++
+
 NVCC := nvcc
 
 
-CFLAGS = -O3 -Wall
-NVCCFLAGS = -rdc=true
+CFLAGS = -O3 -Wall 
+
+# gencode and code flags are for following GPUs:
+# GTX 1080, GTX 1070, GTX 1060, GTX 1050, GTX 1030, Titan Xp, Tesla P40, Tesla P4
+
+NVCCFLAGS = -rdc=true -gencode=arch=compute_61,code=sm_61
+
 
 RM = rm -f
 
@@ -29,8 +35,9 @@ mjd_fieldgen: mjd_fieldgen.c read_config.c detector_geometry.c mjd_siggen.h dete
 ehd_siggen: ehd_siggen.c ehd_subs.c $(mk_signal_files) $(mk_signal_headers) 
 	$(CC) $(CFLAGS) -o $@ ehd_siggen.c ehd_subs.c read_config.c detector_geometry.c fields.c cyl_point.c -lm
 
-ehdrift: ehdrift.c cuda_hello_world.cu ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h
-	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c cuda_hello_world.cu ehd_subs.c read_config.c detector_geometry.c -lm
+# nvcc -rdc=true ehdrift.c ehd_gpu.cu ehd_subs.c read_config.c detector_geometry.c -o ccd_test
+ehdrift: ehdrift.c ehd_gpu.cu ev_gpu.cu ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h gpu_vars.h
+	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ehd_gpu.cu ev_gpu.cu ehd_subs.c read_config.c detector_geometry.c -lm
 
 FORCE:
 
