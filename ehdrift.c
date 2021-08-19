@@ -321,12 +321,12 @@ int main(int argc, char **argv)
     setup1.write_field = 0; // no need to save intermediate calculations
     setup2.write_field = 0;
     if (setup.xtal_grid > 0.4) {
-      ev_calc(&setup2, NULL);
+      ev_calc_gpu_initial(&setup2, NULL);
     } else {
-      ev_calc(&setup1, NULL);
-      ev_calc(&setup2, &setup1);
+      ev_calc_gpu_initial(&setup1, NULL);
+      ev_calc_gpu_initial(&setup2, &setup1);
     }
-    ev_calc(&setup, &setup2);
+    ev_calc_gpu_initial(&setup, &setup2);
   }
 
   /* -------------- calculate weighting potential */
@@ -430,9 +430,8 @@ int main(int argc, char **argv)
 
   write_rho(LL, R, grid, rho_e[0], "ed.dat");
   write_rho(LL, R, grid, rho_h[0], "hd.dat");
-  gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
-  return 0;
-  gpu_drift(&setup, LL, R, grid, rho_h,  1, &hgone);
+  drift_rho(&setup, LL, R, grid, rho_e, -1, &egone);
+  drift_rho(&setup, LL, R, grid, rho_h,  1, &hgone);
 
   /* -----------------------------------------
    *   This loop starting here is crucial.
@@ -489,9 +488,10 @@ int main(int argc, char **argv)
   
     ev_calc_gpu(&setup);
     
-    gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
-    gpu_drift(&setup, LL, R, grid, rho_h,  1, &hgone);
+    drift_rho(&setup, LL, R, grid, rho_e, -1, &egone);
+    drift_rho(&setup, LL, R, grid, rho_h,  1, &hgone);
 
+    break;
 
     if (n%10 == 0) {
       break;

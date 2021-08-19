@@ -47,7 +47,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
 
   //printf("Simulating at radius=%d and z position=%d\n",r,z);
 
-  int i, new_gpu = 0;
+  int i, new_gpu_relax = 0;
   float E, E_r, E_z;
   double ve_z, ve_r, deltaez, deltaer;
   // if((r>=R) || (z>=L-2)){
@@ -62,43 +62,42 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
   if (rho[(0*L*R)+(R*z)+r] < 1.0e-14) {
     rho[(1*L*R)+(R*z)+r] += rho[(0*L*R)+(R*z)+r];
     //printf("-----------EXCITING THE KERNAL-----------\n");
+    return;
   }
-  else {
-
   // calc E in r-direction
   if (r == 1) {  // r = 0; symmetry implies E_r = 0
     E_r = 0;
   } else if (point_type[(R*z)+r] == CONTACT_EDGE) {
-    E_r = ((v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*z)+r+1])*dr[(1*L*R)+(R*z)+r] +
-          (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r])*dr[(0*L*R)+(R*z)+r]) / (0.2*grid);
+    E_r = ((v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*z)+r+1])*dr[(1*L*R)+(R*z)+r] +
+          (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r])*dr[(0*L*R)+(R*z)+r]) / (0.2*grid);
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*z)+r-1] == CONTACT_EDGE) {
-    E_r =  (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r]) * dr[(1*L*R)+(R*z)+r-1] / ( 0.1*grid) ;
+    E_r =  (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r]) * dr[(1*L*R)+(R*z)+r-1] / ( 0.1*grid) ;
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*z)+r+1] == CONTACT_EDGE) {
-    E_r =  (v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*z)+r+1]) * dr[(0*L*R)+(R*z)+r+1] / ( 0.1*grid) ;
+    E_r =  (v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*z)+r+1]) * dr[(0*L*R)+(R*z)+r+1] / ( 0.1*grid) ;
   } else if (r == R-1) {
-    E_r = (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r])/(0.1*grid);
+    E_r = (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r])/(0.1*grid);
   } else {
-    E_r = (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r+1])/(0.2*grid);
+    E_r = (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r+1])/(0.2*grid);
   }
   // calc E in z-direction
   // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
   if (point_type[(R*z)+r] == CONTACT_EDGE) {
-    E_z = ((v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*(z+1))+r])*dz[(1*L*R)+(R*z)+r] +
-          (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*z)+r])*dz[(0*L*R)+(R*z)+r]) / (0.2*grid);
+    E_z = ((v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r])*dz[(1*L*R)+(R*z)+r] +
+          (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*z)+r])*dz[(0*L*R)+(R*z)+r]) / (0.2*grid);
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*(z-1))+r] == CONTACT_EDGE) {
-    E_z =  (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*z)+r]) * dz[(1*L*R)+(R*(z-1))+r] / ( 0.1*grid) ;
+    E_z =  (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*z)+r]) * dz[(1*L*R)+(R*(z-1))+r] / ( 0.1*grid) ;
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*(z+1))+r] == CONTACT_EDGE) {
-    E_z =  (v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*(z+1))+r]) * dz[(0*L*R)+(R*(z+1))+r] / ( 0.1*grid) ;
+    E_z =  (v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r]) * dz[(0*L*R)+(R*(z+1))+r] / ( 0.1*grid) ;
   } else if (z == 1) {
-    E_z = (v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*(z+1))+r])/(0.1*grid);
+    E_z = (v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r])/(0.1*grid);
   } else if (z == L-1) {
-    E_z = (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*z)+r])/(0.1*grid);
+    E_z = (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*z)+r])/(0.1*grid);
   } else {
-    E_z = (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*(z+1))+r])/(0.2*grid);
+    E_z = (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r])/(0.2*grid);
   }
 
 
@@ -110,13 +109,13 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
     for (i=0; E > drift_E[i+1]; i++);
     ve_z = (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
     deltaez = grid * ve_z * f_drift / E;
-  }
+    }
   E = fabs(E_r);
   if (E > 1.0) {
     for (i=0; E > drift_E[i+1]; i++);
     ve_r = (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
     deltaer = grid * ve_r * f_drift / E;
-  }
+    }
   if (0 && r == 100 && z == 10)
     printf("r z: %d %d; E_r deltaer: %f %f; E_z deltaez: %f %f; rho[0] = %f\n",
           r, z, E_r, deltaer, E_z, deltaez, rho[(0*L*R)+(R*z)+r]);
@@ -129,7 +128,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
     // assume 2-micron-thick roughness/passivation in z
     deltaer *= surface_drift_vel_factor;
     deltaez *= surface_drift_vel_factor * grid/0.002; // * grid/0.002;
-  }
+    }
 
   // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
   rho[(1*L*R)+(R*z)+r] += rho[(0*L*R)+(R*z)+r];
@@ -143,30 +142,28 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
     rho[(1*L*R)+(R*z)+r]   -= rho[(0*L*R)+(R*z)+r]*deltaer * s1[r];
     //printf("value of rho at checkpoint 2 is %f \n",rho[(1*L*R)+(R*z)+r]);
 
-  }
+    }
   if (z > 1 && point_type[(R*(z-1))+r] != DITCH) {
     rho[(1*L*R)+(R*(z-1))+r] += rho[(0*L*R)+(R*z)+r]*deltaez;
     rho[(1*L*R)+(R*z)+r] -= rho[(0*L*R)+(R*z)+r]*deltaez;
-  }
+    }
   if (z < L-1 && point_type[(R*(z+1))+r] != DITCH) {
     rho[(1*L*R)+(R*(z+1))+r] += rho[(0*L*R)+(R*z)+r]*deltaez;
     rho[(1*L*R)+(R*z)+r]   -= rho[(0*L*R)+(R*z)+r]*deltaez;
-  }
+    }
   if (r > 2 && point_type[(R*z)+r-1] != DITCH) {
 
     rho[(1*L*R)+(R*z)+(r-1)] += rho[(0*L*R)+(R*z)+r]*deltaer * s2[r] * (double) (r-1) / (double) (r-2);
     rho[(1*L*R)+(R*z)+r]   -= rho[(0*L*R)+(R*z)+r]*deltaer * s2[r];
-  }
-
-
     }
+
   }
 
 
 __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, double *v, char *point_type,  
   double *dr, double *dz, double *s1, double *s2, float *drift_offset, float *drift_slope){
 
-    int i,k, new_gpu = 0;
+    int i,k, new_gpu_relax = 0;
     float E, E_r, E_z;
     double dre, dze, fr, fz;
     double ve_z, ve_r;
@@ -177,43 +174,43 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
 
   if (rho[(1*L*R)+(R*z)+r] < 1.0e-14) {
     rho[(2*L*R)+(R*z)+r] += rho[(1*L*R)+(R*z)+r];
+    return;
   }
-  else{
   // need to r-calculate all the fields
   // calc E in r-direction
   if (r == 1) {  // r = 0; symmetry implies E_r = 0
     E_r = 0;
   } else if (point_type[(R*z)+r] == CONTACT_EDGE) {
-    E_r = ((v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*z)+r+1])*dr[(1*L*R)+(R*z)+r] +
-          (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r])*dr[(0*L*R)+(R*z)+r]) / (0.2*grid);
+    E_r = ((v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*z)+r+1])*dr[(1*L*R)+(R*z)+r] +
+          (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r])*dr[(0*L*R)+(R*z)+r]) / (0.2*grid);
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*z)+r-1] == CONTACT_EDGE) {
-    E_r =  (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r]) * dr[(1*L*R)+(R*z)+r-1] / ( 0.1*grid) ;
+    E_r =  (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r]) * dr[(1*L*R)+(R*z)+r-1] / ( 0.1*grid) ;
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*z)+r+1] == CONTACT_EDGE) {
-    E_r =  (v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*z)+r+1]) * dr[(0*L*R)+(R*z)+r+1] / ( 0.1*grid) ;
+    E_r =  (v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*z)+r+1]) * dr[(0*L*R)+(R*z)+r+1] / ( 0.1*grid) ;
   } else if (r == R-1) {
-    E_r = (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r])/(0.1*grid);
+    E_r = (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r])/(0.1*grid);
   } else {
-    E_r = (v[(new_gpu*L*R)+(R*z)+r-1] - v[(new_gpu*L*R)+(R*z)+r+1])/(0.2*grid);
+    E_r = (v[(new_gpu_relax*L*R)+(R*z)+r-1] - v[(new_gpu_relax*L*R)+(R*z)+r+1])/(0.2*grid);
   }
   // calc E in z-direction
   // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
   if (point_type[(R*z)+r] == CONTACT_EDGE) {
-    E_z = ((v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*(z+1))+r])*dz[(1*L*R)+(R*z)+r] +
-          (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*z)+r])*dz[(0*L*R)+(R*z)+r]) / (0.2*grid);
+    E_z = ((v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r])*dz[(1*L*R)+(R*z)+r] +
+          (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*z)+r])*dz[(0*L*R)+(R*z)+r]) / (0.2*grid);
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*(z-1))+r] == CONTACT_EDGE) {
-    E_z =  (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*z)+r]) * dz[(1*L*R)+(R*(z-1))+r] / ( 0.1*grid) ;
+    E_z =  (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*z)+r]) * dz[(1*L*R)+(R*(z-1))+r] / ( 0.1*grid) ;
   } else if (point_type[(R*z)+r] < INSIDE &&
             point_type[(R*(z+1))+r] == CONTACT_EDGE) {
-    E_z =  (v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*(z+1))+r]) * dz[(0*L*R)+(R*(z+1))+r] / ( 0.1*grid) ;
+    E_z =  (v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r]) * dz[(0*L*R)+(R*(z+1))+r] / ( 0.1*grid) ;
   } else if (z == 1) {
-    E_z = (v[(new_gpu*L*R)+(R*z)+r] - v[(new_gpu*L*R)+(R*(z+1))+r])/(0.1*grid);
+    E_z = (v[(new_gpu_relax*L*R)+(R*z)+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r])/(0.1*grid);
   } else if (z == L-1) {
-    E_z = (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*z)+r])/(0.1*grid);
+    E_z = (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*z)+r])/(0.1*grid);
   } else {
-    E_z = (v[(new_gpu*L*R)+(R*(z-1))+r] - v[(new_gpu*L*R)+(R*(z+1))+r])/(0.2*grid);
+    E_z = (v[(new_gpu_relax*L*R)+(R*(z-1))+r] - v[(new_gpu_relax*L*R)+(R*(z+1))+r])/(0.2*grid);
   }
   ve_z = ve_r = 0;
   E = fabs(E_z);
@@ -297,7 +294,7 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
 
   
 
-  if (0 && r == 100 && z == 10)
+  if (1 && r == 100 && z == 10)
     printf("r z: %d %d; E_r i dre: %f %d %f; fr = %f\n"
           "r z: %d %d; E_z k dze: %f %d %f; fz = %f\n",
           r, z, E_r, i, dre, fr, r, z, E_z, k, dze, fz);
@@ -324,7 +321,6 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
       rho[(2*L*R)+(R*(k+1))+i] += rho[(1*L*R)+(R*z)+r] * fr      *(1.0-fz);
       rho[(2*L*R)+(R*(k+1))+i+1] += rho[(1*L*R)+(R*z)+r] * (1.0-fr)*(1.0-fz) / 8.0;
     }
-  }
   }
 }
 
@@ -376,79 +372,69 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
     idd =  lrint(ditch_depth/grid) + 1;        // ditch depth
 
 
-  double *s1_gpu, *s2_gpu;
 
-
-  
-
+   
   double *v_gpu;
   double *v_flat;
-
-
-
-  v_flat = (double*)malloc(3*sizeof(double)*L*R);
-  cudaMalloc(&v_gpu, 3*sizeof(double)*L*R);
-
-
-
+  v_flat = (double*)malloc(2*sizeof(double)*L*R);
+  cudaMalloc((void**)&v_gpu, 2*sizeof(double)*L*R);
   for(int i=0; i<2; i++) {
     for(int j=0; j<L; j++){
         for(int k=0; k<R; k++){
-          v_flat[(i*L*R)+(R*j)+k]=setup->v[i][j][k];
+          v_flat[(i*L*R)+(R*j)+k] = setup->v[i][j][k];
         }
       }
     }
-
-  cudaMemcpy(v_gpu, v_flat, 3*sizeof(double)*L*R, cudaMemcpyHostToDevice);
-
-
-  double *dr_gpu;
-  
-  cudaMalloc(&dr_gpu, 3*sizeof(float)*L*R);
-  for(int i=0; i<2; i++) {
-    for(int j=0; j<L; j++){
-      cudaMemcpy(&dr_gpu[(i*L*R)+(R*j)], setup->dr[i][j], sizeof(setup->dr[i][j])*R, cudaMemcpyHostToDevice);
-    }
-  }
-
-  double *dz_gpu;
-
-  cudaMalloc(&dz_gpu, 3*sizeof(float)*L*R);
-  for(int i=0; i<2; i++) {
-    for(int j=0; j<L; j++){
-      cudaMemcpy(&dz_gpu[(i*L*R)+(R*j)], setup->dz[i][j], sizeof(setup->dz[i][j])*R, cudaMemcpyHostToDevice);
-    }
-  }
+  cudaMemcpy(v_gpu, v_flat, 2*sizeof(double)*L*R, cudaMemcpyHostToDevice);
 
 
-  char  *point_type_gpu;
   char  *point_type_flat;
-
-  // cudaMalloc(&point_type_gpu, sizeof(char)*L*R);
-  //   for(int j=0; j<L; j++){
-  //     cudaMemcpy(&point_type_gpu[(R*j)], setup->point_type[j], sizeof(char)*R, cudaMemcpyHostToDevice);
-  // }
-  
+  char  *point_type_gpu;
   point_type_flat = (char*)malloc(sizeof(char)*L*R);
-  cudaMalloc(&point_type_gpu, sizeof(char)*L*R);
-
-
+  cudaMalloc((void**)&point_type_gpu, sizeof(char)*L*R);
     for(int j=0; j<L; j++){
         for(int k=0; k<R; k++){
+          //printf("The value of point type at r = %d and z = %d is %.4c \n", k, j, setup->point_type[j][k]);
           point_type_flat[(R*j)+k] = setup->point_type[j][k];
         }
       }
-
-
   cudaMemcpy(point_type_gpu, point_type_flat, sizeof(char)*L*R, cudaMemcpyHostToDevice);
-
-
-  cudaMalloc(&s1_gpu, sizeof(double)*R);
+  
+  double *dr_flat;
+  double *dr_gpu;
+  dr_flat = (double*)malloc(2*sizeof(double)*L*R);
+  cudaMalloc((void**)&dr_gpu, 2*sizeof(double)*L*R);
+    for(int i=0; i<2; i++) {
+      for(int j=1; j<L; j++){
+          for(int k=0; k<R; k++){
+            dr_flat[(i*L*R)+(R*j)+k] = setup->dr[i][j][k];
+          }
+        }
+      }
+  cudaMemcpy(dr_gpu, dr_flat, 2*sizeof(double)*L*R, cudaMemcpyHostToDevice);
+  
+  double *dz_flat;
+  double *dz_gpu;
+  dz_flat = (double*)malloc(2*sizeof(double)*L*R);
+  cudaMalloc((void**)&dz_gpu, 2*sizeof(double)*L*R);
+    for(int i=0; i<2; i++) {
+      for(int j=1; j<L; j++){
+          for(int k=0; k<R; k++){
+            dz_flat[(i*L*R)+(R*j)+k] = setup->dz[i][j][k];
+          }
+        }
+      }
+  cudaMemcpy(dz_gpu, dz_flat, 2*sizeof(double)*L*R, cudaMemcpyHostToDevice);
+  
+  double *s1_gpu, *s2_gpu;
+  
+  cudaMalloc((void**)&s1_gpu, sizeof(double)*R);
   cudaMemcpy(s1_gpu, setup->s1, sizeof(double)*R, cudaMemcpyHostToDevice);
-
-
-  cudaMalloc(&s2_gpu, sizeof(double)*R);
+  
+  
+  cudaMalloc((void**)&s2_gpu, sizeof(double)*R);
   cudaMemcpy(s2_gpu, setup->s2, sizeof(double)*R, cudaMemcpyHostToDevice);
+  
 
   // int index = 0;
   // for(int i=0; i<3; i++) {
@@ -456,7 +442,7 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   //     for(int k=0; k<R; k++){
   //       printf("Value at i=%d, j=%d, k=%d is=%f\n", i, j, k,rho[i][j][k]);
   //       printf("index is: %d\n",index);
-  //       printf("Simulated index is: %d\n",((i*L*R)+(R*j)+k));
+  //       printf("Simulated index is: %d\n",(i*L*R)+(R*j)+k);
   //       index++;
   //     }
   //   }
@@ -536,10 +522,10 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
 
   float *drift_offset_gpu, *drift_slope_gpu;
   
-  cudaMalloc(&drift_offset_gpu, sizeof(float)*20);
+  cudaMalloc((void**)&drift_offset_gpu, sizeof(float)*20);
   cudaMemcpy(drift_offset_gpu, drift_offset, sizeof(float)*20, cudaMemcpyHostToDevice);
 
-  cudaMalloc(&drift_slope_gpu, sizeof(float)*20);
+  cudaMalloc((void**)&drift_slope_gpu, sizeof(float)*20);
   cudaMemcpy(drift_slope_gpu, drift_slope, sizeof(float)*20, cudaMemcpyHostToDevice);
 
 
@@ -549,14 +535,12 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   float *rho_gpu;
 
   rho_cpu_flat = (float*)malloc(3*sizeof(float)*L*R);
-  cudaMalloc(&rho_gpu, 3*sizeof(float)*L*R);
+  cudaMalloc((void**)&rho_gpu, 3*sizeof(float)*L*R);
 
-  int index = 0;
   for(int i=0; i<3; i++) {
     for(int j=0; j<L; j++){
         for(int k=0; k<R; k++){
           rho_cpu_flat[(i*L*R)+(R*j)+k]=rho[i][j][k];
-          index++;
         }
       }
     }
@@ -580,10 +564,9 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
     gpu_diffusion<<<R-1,L-3>>>(L, R, grid, rho_gpu, q, v_gpu, point_type_gpu, dr_gpu, dz_gpu, s1_gpu, s2_gpu, drift_offset_gpu, drift_slope_gpu);
     cudaDeviceSynchronize();
     gpu_self_repulsion<<<R-1,L-3>>>(L, R, grid, rho_gpu, q, v_gpu, point_type_gpu, dr_gpu, dz_gpu, s1_gpu, s2_gpu, drift_offset_gpu, drift_slope_gpu);
-
   }
   else{
-    printf("Pick a smaller block please \n");
+    printf("----------------Pick a smaller block please----------------\n");
     return 0;
   }
 
@@ -608,7 +591,7 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   for(int i=0; i<3; i++) {
     for(int j=0; j<L; j++){
         for(int k=0; k<R; k++){
-          rho[i][j][k]=rho_cpu_flat[(i*L*R)+(R*j)+k];
+          memcpy(&rho[i][j][k], &rho_cpu_flat[(i*L*R)+(R*j)+k], sizeof(float));
         }
       }
     }
@@ -619,21 +602,13 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
 
   printf("Done running on CPU \n");
 
-  for(int i=0; i<3; i++) {
-    for(int j=0; j<L; j++){
-      for(int k=0; k<R; k++){
-        if(rho_test[i][j][k]>0 || rho[i][j][k]>0){
-          printf("Actual density is %.5f, density by GPU calculation is %.5f. The error is %.5f \n",rho_test[i][j][k], rho[i][j][k], rho[i][j][k]-rho_test[i][j][k]);
-        } 
-      }
-    }
-  }
-#define MAX_ERR 1e-6
+#define MAX_ERR 1e-5
 for(int i=0; i<3; i++) {
   for(int j=0; j<L; j++){
     for(int k=0; k<R; k++){
-      if(rho[i][j][k] - rho_test[i][j][k] > MAX_ERR){
-        printf("--------------The error is %f--------------\n", rho[i][j][k]-rho_test[i][j][k]);
+      if(fabs(rho[i][j][k] - rho_test[i][j][k]) > MAX_ERR){
+        printf("--------------The error is %4f--------------\n", fabs(rho[i][j][k]-rho_test[i][j][k]));
+        printf("Occurs at i=%d, z=%d and r=%d\n",i,j,k);
       }
     }
   }
@@ -655,7 +630,10 @@ for(int i=0; i<3; i++) {
   cudaFree(drift_offset_gpu);
   cudaFree(drift_slope_gpu);
   free(rho_cpu_flat);
-
+  free(v_flat);
+  free(point_type_flat);
+  free(dr_flat);
+  free(dz_flat);
 
   // printf("memory freed. \n");
 
