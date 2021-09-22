@@ -31,8 +31,8 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.20 -g P42575A -s 0.00
-  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.2 -g P42575A -s 0.00
+  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
+  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
 */
 
 #include <stdio.h>
@@ -43,8 +43,6 @@
 #include <time.h>
 #include "mjd_siggen.h"
 #include "detector_geometry.h"
-#include "gpu_vars.h"
-
 
 #define MAX_ITS 50000     // default max number of iterations for relaxation
 
@@ -61,18 +59,14 @@ int wp_relax_undep(MJD_Siggen_Setup *setup);
 int interpolate(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup);
 
 int write_rho(int L, int R, float grid, float **rho, char *fname);
-int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, double *gone);
+int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
+              int q, double *gone);
 int read_rho(int L, int R, float grid, float **rho, char *fname);
 
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
 {
-  // printf("You have entered %d arguments\n",argc);
-  // int var_argv;
-  //   for (var_argv = 0; var_argv < argc; ++var_argv)
-  //       printf("Arguments are %s\n", argv[var_argv]);
-        
-  // MJD_Siggen_Setup is a data structure that stores all the information about the detector
+
   MJD_Siggen_Setup setup, setup1, setup2;
 
   float BV;      // bias voltage
@@ -88,7 +82,7 @@ int main(int argc, char **argv)
   float **rho_e[4], **rho_h[3];
   double egone=0, hgone=0;
   float  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
-  float  alpha_z_mm = 0.1;   // impact z position of alpha on passivated surface; change with -z option
+  float  alpha_z_mm = 0.1;
   char det_name[8];
   if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
     printf("Usage: %s <config_file_name> [options]\n"
@@ -109,7 +103,6 @@ int main(int argc, char **argv)
   WV = setup.write_field;
   setup.rho_z_spe[0] = 0;
 
-  //the lines below set the input options
   for (i=2; i<argc-1; i++) {
     if (strstr(argv[i], "-b")) {
       BV = setup.xtal_HV = atof(argv[++i]);   // bias volts
@@ -148,9 +141,6 @@ int main(int argc, char **argv)
       return 1;
     }
   }
-
-  // Kevin: I am ignoring the error of too small grid size. The program ran
-  // fine on 0.01 m grid size (most likely because we are only looking at 1/8th of length)
  /*
   if (setup.xtal_length/setup.xtal_grid * setup.xtal_radius/setup.xtal_grid > 2500*2500) {
     printf("Error: Crystal size divided by grid size is too large!\n");
@@ -262,7 +252,7 @@ int main(int argc, char **argv)
   r = alpha_r_mm/grid + 1;  // CHANGEME : starting radius, converted from mm to grid points; see -a command line option
   z = alpha_z_mm/grid + 1; // CHANGEME currently z = 0.1 mm
 
-  /* CHANGEME
+  /* CHANGEME?
        at this point, you can either read in some starting charge distribution
        or just put charge at the surface, at some specified radius r
    */
@@ -291,7 +281,6 @@ int main(int argc, char **argv)
       hcentz += rho_h[0][zz][rr] * (double) (rr * zz);
       hrmsr += rho_h[0][zz][rr] * (double) (rr * rr * rr);
       hrmsz += rho_h[0][zz][rr] * (double) (rr * zz * zz) ;
-      //sets up the impurity values based on detector configuration
       setup.impurity[zz][rr] = rho_e[3][zz][rr] +
         (rho_h[0][zz][rr] - rho_e[0][zz][rr]) * e_over_E * grid*grid/2.0;
     }
@@ -329,7 +318,7 @@ int main(int argc, char **argv)
     ev_calc_gpu_initial(&setup, &setup2);
   }
 
-  /* -------------- calculate weighting potential */
+   /* -------------- calculate weighting potential */
   if (setup.write_WP) {
     setup1.write_WP = 0; // no need to save intermediate calculations
     setup2.write_WP = 0;
@@ -366,7 +355,6 @@ int main(int argc, char **argv)
         }
       }
     }
-    // Capacitance can be approximated using a hemispherical capacitor model
     esum  *= 2.0 * pi * 0.01 * Epsilon * pow(grid, 3.0);
     // Epsilon is in pF/mm
     // 0.01 converts (V/cm)^2 to (V/mm)^2, pow() converts to grid^3 to mm3
@@ -440,6 +428,8 @@ int main(int argc, char **argv)
    * ----------------------------------------- */
   int n;
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
+    // if(n==2){
+    //   break;}
 
     printf("\n\n -=-=-=-=-=-=-=-=-=-=-=- n = %3d  -=-=-=-=-=-=-=-=-=-=-=-\n\n", n);
     // copy new_var_values of rho_e
@@ -484,21 +474,17 @@ int main(int argc, char **argv)
     hrmsz /= hsum2;
     printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
            grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
-    
-  
+           
     ev_calc_gpu(&setup);
     
     drift_rho(&setup, LL, R, grid, rho_e, -1, &egone);
     drift_rho(&setup, LL, R, grid, rho_h,  1, &hgone);
 
-    break;
-
     if (n%10 == 0) {
-      break;
       char fn[256];
-      sprintf(fn, "sim_data/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat",det_name,setup.impurity_surface,alpha_r_mm,alpha_z_mm, n/10);
+      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat",det_name,setup.impurity_surface,alpha_r_mm,alpha_z_mm, n/10);
       if (esum2 > 0.1) write_rho(LL, R, grid, rho_e[0], fn);
-      sprintf(fn, "sim_data/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat",det_name,setup.impurity_surface,alpha_r_mm,alpha_z_mm, n/10);
+      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat",det_name,setup.impurity_surface,alpha_r_mm,alpha_z_mm, n/10);
       if (hsum2 > 0.1) write_rho(LL, R, grid, rho_h[0], fn);
     }
   }

@@ -1,40 +1,36 @@
-#!/bin/bash 
+#!/bin/bash
 #
-# Cori slurm submission script            
-# must be on Cori to use!!
+# Longleaf slurm submission script            
 # execute as:                                           
-#      sbatch set_Slurm.slr <radius> <z Position> <detector ID> <Surface_Charge>
+#      sbatch set_slurm.slr <radius> <z Position> <detector ID> <Surface_Charge>
 #      MAKE SURE THAT ALL NUMBERS ARE AT TWO DECIMAL POINTS
-#      for example sbatch set_Slurm.slr 15.00 0.02 P42575A -0.50
-# see http://www.nersc.gov/users/computational-systems/cori/running-jobs/batch-jobs/ 
-# check job detail: jobstats or scontrol show job <JobID>  or squeue --job 37985561  <JobID> or sqs                 
+#      for example sbatch set_slurm.slr 15.00 0.10 P42575A 0.00
+# Check job status: squeue -u kbhimani (ONYEN)
 #--------------------------------------------------------------------------      
 #            
-# SBATCH --job-name=khb-siggen2d-cori
+#SBATCH --job-name=khb-siggen2d
 #                                                                                             
 # directories to put log files ... so you know what is happening to your jobs   
 #                                                                  
-#SBATCH --output=/global/homes/k/kbhimani/siggen_2d/logs/job_log_.sh.o%j       
-#SBATCH --error=/global/homes/k/kbhimani/siggen_2d/logs/job_error_log_.sh.o%j     
-#                                                                                     
-# name of the queue and shifter image to load                  
-#                                                                                                          
-#SBATCH -p shared --image=docker:registry.services.nersc.gov/dave/centos:latest -C haswell
-#
-#SBATCH -A majorana
-
+#SBATCH --output=/nas/longleaf/home/kbhimani/siggen_ccd/logs/job_log_.sh.o%j       
+#SBATCH --error=/nas/longleaf/home/kbhimani/siggen_ccd/logs/job_error_log_.sh.o%j     
+#            
+#SBATCH --partition=volta-gpu
+#SBATCH --qos=gpu_access
+#SBATCH --gres=gpu:1
+#SBATCH --mem-per-cpu=32g
+#SBATCH --time=5:00:00                                         
 # set the time for your job here. Job will terminate if run time exceeds it.
 #SBATCH --nodes=1
-#SBATCH --time=02:00:00                                         
-#SBATCH -L project
 # uncomment the lines below to get email notification about your job                       
 # SBATCH --mail-type=begin,end,fail
 # SBATCH --mail-user=kevin_bhimani@unc.edu
 #---------------------------------------------------------------------------   
-# write the location of you .sh file below
+source /nas/longleaf/home/kbhimani/.bash_profile
+module load cuda/11.2
 radius=$1 #make sure to keep these at 1 decimal point
 zPos=$2
 detector=$3
 surface_charge=$4
 echo "Submitting job for simulation at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge"
-shifter   /bin/bash  /global/homes/k/kbhimani/siggen_2d/setRun.sh $radius $zPos $detector $surface_charge
+bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge
