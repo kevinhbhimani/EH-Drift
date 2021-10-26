@@ -27,6 +27,8 @@ WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -
 #include <thrust/sequence.h>
 
 #include <time.h>
+#include "gpu_vars.h"
+
 
 extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup);
 extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup);
@@ -225,8 +227,16 @@ extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *ol
   }
 
   if (!old_setup || !old_setup->fully_depleted) ev_relax_undep_gpu(setup);
-  else do_relax_gpu(setup, 1);
-  //else do_relax_rb(setup, 1);
+  else {
+    printf("Performing calculations on GPU\n");
+    clock_t start, end;
+    double gpu_time_used;
+    start = clock();
+    do_relax_gpu(setup, 1);
+    end = clock();
+    gpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Time used by GPU in seconds: %f for grid of %f \n\n", gpu_time_used, setup->xtal_grid);
+  }  //else do_relax_rb(setup, 1);
 
 
   if (setup->write_field) write_ev_gpu(setup);
@@ -279,7 +289,13 @@ extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup) {
     }
   }
 
+
+if(last_iter<=5){
+  do_relax_rb(setup, 1);
+}
+else{
   do_relax_gpu(setup, 1);
+}
  
   // if (setup->write_field) write_ev_gpu(setup);
 
@@ -304,7 +320,10 @@ extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup) {
 /* -------------------------------------- do_relax_gpu ------------------- */
 int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc) {
 
-  cudaDeviceReset();
+  // printf("EV checkpoint 1 \n");
+  // cudaDeviceSynchronize();
+  // printf("EV checkpoint 2 \n");
+
   int    iter, r, z;
   float  grid = setup->xtal_grid;
   int    L  = lrint(setup->xtal_length/grid)+2;
@@ -337,7 +356,7 @@ Below we allocate and copy values to GPU. For better memory management and index
 The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)*j)+k]
 */
 
-// printf("Checkpoint 0\n");
+// printf("EV checkpoint 3 \n");
 
 double *v_gpu;
 double *v_flat;
@@ -352,6 +371,9 @@ for(int i=0; i<2; i++) {
 }
 cudaMemcpy(v_gpu, v_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
+// printf("EV checkpoint 4 \n");
+
+
 char  *point_type_flat;
 char  *point_type_gpu;
 point_type_flat = (char*)malloc(sizeof(char)*(L+1)*(R+1));
@@ -363,6 +385,9 @@ for(int j=0; j<=L; j++){
     }
   }
 cudaMemcpy(point_type_gpu, point_type_flat, sizeof(char)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+
+
+// printf("EV checkpoint 5 \n");
 
 double *dr_flat;
 double *dr_gpu;
@@ -377,6 +402,9 @@ cudaMalloc((void**)&dr_gpu, 2*sizeof(double)*(L+1)*(R+1));
     }
 cudaMemcpy(dr_gpu, dr_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
+// printf("EV checkpoint 6 \n");
+
+
 double *dz_flat;
 double *dz_gpu;
 dz_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
@@ -390,6 +418,9 @@ cudaMalloc((void**)&dz_gpu, 2*sizeof(double)*(L+1)*(R+1));
     }
 cudaMemcpy(dz_gpu, dz_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
+
+// printf("EV checkpoint 7 \n");
+
 double *s1_gpu, *s2_gpu;
 
 cudaMalloc((void**)&s1_gpu, sizeof(double)*(R+1));
@@ -398,6 +429,9 @@ cudaMemcpy(s1_gpu, setup->s1, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
 
 cudaMalloc((void**)&s2_gpu, sizeof(double)*(R+1));
 cudaMemcpy(s2_gpu, setup->s2, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
+
+// printf("EV checkpoint 8 \n");
+
 
 double *eps_dr_flat;
 double *eps_dr_gpu;
@@ -410,6 +444,7 @@ for(int j=0; j<=L; j++){
 }
 cudaMemcpy(eps_dr_gpu, eps_dr_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
+
 double *eps_dz_flat;
 double *eps_dz_gpu;
 eps_dz_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
@@ -420,6 +455,9 @@ for(int j=0; j<=L; j++){
   }
 }
 cudaMemcpy(eps_dz_gpu, eps_dz_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+
+// printf("EV checkpoint 9 \n");
+
 
 double *impurity_flat;
 double *impurity_gpu;
@@ -432,6 +470,9 @@ for(int j=0; j<=L; j++){
 }
 cudaMemcpy(impurity_gpu, impurity_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
+// printf("EV checkpoint 10 \n");
+
+
 double *diff_array_cpu;
 double *diff_array;
 
@@ -442,6 +483,9 @@ for (int i = 0; i<(L+1)*(R+1); i++){
   diff_array_cpu[i] =0.00;
 }
 cudaMemcpy(diff_array, diff_array_cpu, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+
+// printf("EV checkpoint 11 \n");
+
 
 
 for (iter = 0; iter < setup->max_iterations; iter++) {
@@ -541,7 +585,7 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   }
   */
   } // end of iter loop
-
+  last_iter = iter;
   printf(">> %d\n", iter);
 
 //copy values that were changed back to CPU
@@ -752,7 +796,7 @@ int do_relax_rb(MJD_Siggen_Setup *setup, int ev_calc) {
     if (!ev_calc && max_dif < 0.0000000001) break;
     if (!ev_calc && max_dif < 0.000001) break;  // comment out if you want convergence at the numerical error level
   }
-
+  last_iter=iter;
   printf(">> %d %.16f\n\n", iter, sum_dif);
   if (setup->vacuum_gap > 0) {   // restore impurity value along passivated surface
     for (r = 1; r < R; r++)

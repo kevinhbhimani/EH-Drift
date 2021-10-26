@@ -31,7 +31,7 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
+  Can be run as ./ehdrift config_files/P42575A.config -a 25.00 -z 0.10 -g P42575A -s 0.00
   WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
 */
 
@@ -43,6 +43,11 @@
 #include <time.h>
 #include "mjd_siggen.h"
 #include "detector_geometry.h"
+#include "gpu_vars.h"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 
 #define MAX_ITS 50000     // default max number of iterations for relaxation
 
@@ -68,6 +73,8 @@ int main(int argc, char **argv)
 {
 
   MJD_Siggen_Setup setup, setup1, setup2;
+
+  last_iter = 100;
 
   float BV;      // bias voltage
   int   WV = 0;  // 0: do not write the V and E values to ppc_ev.dat
@@ -199,6 +206,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
+
   /* add electrons and holes at a specific point location near passivated surface */
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
@@ -206,7 +214,8 @@ int main(int argc, char **argv)
   int    L  = lrint(setup.xtal_length/grid)+2;
   int    LL = L/8;
   int    R  = lrint(setup.xtal_radius/grid)+2;
-  int    r, z, rr,zz;
+  int    r, z, rr,zz, k;
+
 
   /* malloc and clear space for electron density arrays */
   for (j=0; j<4; j++) {
@@ -416,10 +425,54 @@ int main(int argc, char **argv)
   if (setup.write_WP) return 0; //CHANGED : Why are we quiting here?
     /* we need **v to have electric potential, not WP, so we quit here */
 
+  float **rho_test_e[4];
+    for ( j=0; j<4; j++) {
+      if ((rho_test_e[j] = (float **)malloc(LL * sizeof(*rho_e[j])))   == NULL) {
+        printf("malloc failed\n");
+        return -1;
+      }
+      for ( i = 0; i < LL; i++) {
+        if ((rho_test_e[j][i] = (float *)malloc(R * sizeof(**rho_e[j])))   == NULL) {
+          printf("malloc failed\n");
+          return -1;
+        }
+      }
+    }
+  for ( j=0; j<4; j++) {
+    for ( i = 0; i < LL; i++) {
+      memcpy(rho_test_e[j][i], rho_e[j][i], R * sizeof(float));
+    }
+  }
+
+  // printf("check 3\n");
+
+  float **rho_test_h[3];
+    for ( j=0; j<3; j++) {
+      if ((rho_test_h[j] = (float **)malloc(LL * sizeof(*rho_h[j])))   == NULL) {
+        printf("malloc failed\n");
+        return -1;
+      }
+      for ( i = 0; i < LL; i++) {
+        if ((rho_test_h[j][i] = (float *)malloc(R * sizeof(**rho_h[j])))   == NULL) {
+          printf("malloc failed\n");
+          return -1;
+        }
+      }
+    }
+  for ( j=0; j<3; j++) {
+    for ( i = 0; i < LL; i++) {
+      memcpy(rho_test_h[j][i], rho_h[j][i], R * sizeof(float));
+    }
+  }
+
+  // printf("check 5\n");
+
   write_rho(LL, R, grid, rho_e[0], "ed.dat");
   write_rho(LL, R, grid, rho_h[0], "hd.dat");
-  drift_rho(&setup, LL, R, grid, rho_e, -1, &egone);
-  drift_rho(&setup, LL, R, grid, rho_h,  1, &hgone);
+
+  gpu_drift(&setup, LL, R, grid, rho_e, rho_test_e, -1, &egone);
+  return 0;
+  gpu_drift(&setup, LL, R, grid, rho_h, rho_test_h, 1, &hgone);
 
   /* -----------------------------------------
    *   This loop starting here is crucial.
@@ -443,6 +496,11 @@ int main(int argc, char **argv)
         hsum2 += rho_h[2][z][r] * (double) r;
         rho_e[0][z][r] = rho_e[2][z][r];
         rho_h[0][z][r] = rho_h[2][z][r];
+
+        rho_test_e[0][z][r] = rho_test_e[2][z][r];
+        rho_test_h[0][z][r] = rho_test_h[2][z][r];
+
+
         ecentr += rho_e[0][z][r] * (double) (r * r);
         ecentz += rho_e[0][z][r] * (double) (r * z);
         ermsr += rho_e[0][z][r] * (double) (r * r * r);
@@ -474,11 +532,16 @@ int main(int argc, char **argv)
     hrmsz /= hsum2;
     printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
            grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
-           
+
+    if(n<=1550){
+      last_iter = 1000;
+    }
+
     ev_calc_gpu(&setup);
-    
-    drift_rho(&setup, LL, R, grid, rho_e, -1, &egone);
-    drift_rho(&setup, LL, R, grid, rho_h,  1, &hgone);
+
+    //printf("Last iteration was %d\n",last_iter);
+    gpu_drift(&setup, LL, R, grid, rho_e, rho_test_e, -1, &egone);
+    gpu_drift(&setup, LL, R, grid, rho_h, rho_test_h,  1, &hgone);
 
     if (n%10 == 0) {
       char fn[256];

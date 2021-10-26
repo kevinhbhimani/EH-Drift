@@ -39,8 +39,8 @@ ehd_siggen: ehd_siggen.c ehd_subs.c $(mk_signal_files) $(mk_signal_headers)
 # nvcc -rdc=true ehdrift.c ehd_gpu.cu ehd_subs.c read_config.c detector_geometry.c -o ccd_test
 # ehdrift: ehdrift.c ehd_gpu.cu ev_gpu.cu ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h gpu_vars.h  relax_gpu_vars.h
 # 	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ehd_gpu.cu ev_gpu.cu ehd_subs.c read_config.c detector_geometry.c -lm
-ehdrift: ehdrift.c ev_gpu.cu ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h gpu_vars.h  relax_gpu_vars.h
-	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ev_gpu.cu ehd_subs.c read_config.c detector_geometry.c -lm
+ehdrift: ehdrift.c ev_gpu.cu ehd_gpu.cu ehd_subs.c read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h gpu_vars.h relax_gpu_vars.h
+	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ev_gpu.cu ehd_gpu.cu ehd_subs.c read_config.c detector_geometry.c -lm
 
 FORCE:
 

@@ -2,7 +2,6 @@
    author:           D.C. Radford
    first written:         Oct 2020
    Can be ran as ./ehd_siggen config_files/P42575A.config -a 25.00 -z 0.10 -g P42575A -s 0.00
-
 */
 
 #include <stdio.h>

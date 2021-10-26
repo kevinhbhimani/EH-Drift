@@ -2,6 +2,7 @@
 import sys
 import math
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.colors as colors
 import numpy as np
 import matplotlib.pyplot as plt
@@ -98,7 +99,7 @@ def make_png(fname1):
 
     #plt.tight_layout()
     #plt.show()
-    fname3 = "eh" + fname1[1:5] + ".png"
+    fname3 = "gif_data/eh" + fname1[1:5] + ".png"
     print('Saving frame', fname3)
     plt.savefig(fname3)
     plt.close("all")
