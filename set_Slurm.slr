@@ -18,7 +18,7 @@
 #SBATCH --partition=volta-gpu
 #SBATCH --qos=gpu_access
 #SBATCH --gres=gpu:1
-#SBATCH --mem-per-cpu=32g
+# SBATCH --mem-per-cpu=32g
 #SBATCH --time=5:00:00                                         
 # set the time for your job here. Job will terminate if run time exceeds it.
 #SBATCH --nodes=1
