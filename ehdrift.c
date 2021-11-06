@@ -480,8 +480,7 @@ int main(int argc, char **argv)
    * ----------------------------------------- */
   int n;
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
-    // if(n==8){
-    //   break;}
+    // if(n==3) {break;}
 
     printf("\n\n -=-=-=-=-=-=-=-=-=-=-=- n = %3d  -=-=-=-=-=-=-=-=-=-=-=-\n\n", n);
     // copy new_var_values of rho_e

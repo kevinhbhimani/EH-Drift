@@ -59,7 +59,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
 
   
   if (rho[(0*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
-    rho[(1*(L+1)*(R+1))+((R+1)*z)+r] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r];
+    atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]);
     return;
   }
 
@@ -104,9 +104,9 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
   /* do diffusion to neighboring pixels */
   deltaez = deltaer = ve_z = ve_r = 0;
 
-  if(z==6 && r==1253){
-    printf("In GPU at 1, at z=%d and r=%d, the value of rho is %.7f deltaez is %.7f and deltaer is %.7f\n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r], deltaez, deltaer);
-  }
+  // if(z==6 && r==1253){
+  //   printf("In GPU at 1, at z=%d and r=%d, the value of rho is %.7f deltaez is %.7f and deltaer is %.7f\n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r], deltaez, deltaer);
+  // }
 
   E = fabs(E_z);
   if (E > 1.0) {
@@ -122,9 +122,6 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
     deltaer = grid * ve_r * f_drift / E;
     }
 
-    if(z==6 && r==1253){
-      printf("In GPU at 2, at z=%d and r=%d, the value of rho is %.7f deltaez is %.7f and deltaer is %.7f\n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r], deltaez, deltaer);
-    }
   if (0 && r == 100 && z == 10)
     printf("r z: %d %d; E_r deltaer: %f %f; E_z deltaez: %f %f; rho[0] = %f\n",
           r, z, E_r, deltaer, E_z, deltaez, rho[(0*(L+1)*(R+1))+((R+1)*z)+r]);
@@ -144,91 +141,56 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
   printf("r,z = %d, %d E_r,z = %f, %f  deltaer,z = %f, %f  s1,s2 = %f, %f\n",
                     r, z, E_r, E_z, deltaer, deltaez, s1[r], s2[r]);
 
-  if(z==6 && r==1253){
-    printf("In GPU at 3, at z=%d and r=%d, the value of rho is %.7f deltaez is %.7f and deltaer is %.7f\n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r], deltaez, deltaer);
-  }
-
   deltaez_array[((R+1)*z)+r] = deltaez;
   deltaer_array[((R+1)*z)+r] = deltaer;
 
-  // if (r < R-1 && point_type[((R+1)*z)+r+1] != DITCH) {
-  //   rho[(1*(L+1)*(R+1))+((R+1)*z)+r+1] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r] * (double) (r-1) / (double) (r);
-  //   rho[(1*(L+1)*(R+1))+((R+1)*z)+r]   -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r];
-  //   //printf("value of rho at checkpoint 2 is %f \n",rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-
-  //   }
-  // if (z > 1 && point_type[((R+1)*(z-1))+r] != DITCH) {
-  //   rho[(1*(L+1)*(R+1))+((R+1)*(z-1))+r] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-  //   rho[(1*(L+1)*(R+1))+((R+1)*z)+r] -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-  //   }
-  // if (z < L-1 && point_type[((R+1)*(z+1))+r] != DITCH) {
-  //   rho[(1*(L+1)*(R+1))+((R+1)*(z+1))+r] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-  //   rho[(1*(L+1)*(R+1))+((R+1)*z)+r]   -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-  //   }
-  // if (r > 2 && point_type[((R+1)*z)+r-1] != DITCH) {
-
-  //   rho[(1*(L+1)*(R+1))+((R+1)*z)+(r-1)] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s2[r] * (double) (r-1) / (double) (r-2);
-  //   rho[(1*(L+1)*(R+1))+((R+1)*z)+r]   -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s2[r];
-  // }
-
 }
 
-  __global__ void diff_update(int L, int R, float *rho, char *point_type, double *s1, double *s2, double *deltaez_array, double *deltaer_array){
-    for (int r=1; r<R; r++) {
-      for (int z=1; z<L-2; z++) {
-        if (rho[(0*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
-          //printf("-----------EXCITING THE KERNAL-----------\n");
-          continue;
-        }
-        double deltaez = deltaez_array[((R+1)*z)+r];
-        double deltaer = deltaer_array[((R+1)*z)+r];
+  __global__ void diff_update(int L, int R, float *rho, char *point_type, double *s1, double *s2, double *deltaez_array, double *deltaer_array, int max_threads){
 
-          // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
-        rho[(1*(L+1)*(R+1))+((R+1)*z)+r] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r];
-
-        if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-          printf("In GPU at 1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-        }
-
-        if (r < R-1 && point_type[((R+1)*z)+r+1] != DITCH) {
-          rho[(1*(L+1)*(R+1))+((R+1)*z)+r+1] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r] * (double) (r-1) / (double) (r);
-          rho[(1*(L+1)*(R+1))+((R+1)*z)+r]   -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r];
-          //printf("value of rho at checkpoint 2 is %f \n",rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-      
-          }
-
-          if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-            printf("In GPU at 2, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-          }
-        if (z > 1 && point_type[((R+1)*(z-1))+r] != DITCH) {
-          rho[(1*(L+1)*(R+1))+((R+1)*(z-1))+r] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-          rho[(1*(L+1)*(R+1))+((R+1)*z)+r] -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-          }
-
-          if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-            printf("In GPU at 3, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-          }
-        if (z < L-1 && point_type[((R+1)*(z+1))+r] != DITCH) {
-          rho[(1*(L+1)*(R+1))+((R+1)*(z+1))+r] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-          rho[(1*(L+1)*(R+1))+((R+1)*z)+r]   -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez;
-          }
-
-          if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-            printf("In GPU at 4, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-          }
-        if (r > 2 && point_type[((R+1)*z)+r-1] != DITCH) {
-      
-          rho[(1*(L+1)*(R+1))+((R+1)*z)+(r-1)] += rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s2[r] * (double) (r-1) / (double) (r-2);
-          rho[(1*(L+1)*(R+1))+((R+1)*z)+r]   -= rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s2[r];
-        }
-
-        if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-          printf("In GPU at 5, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-        }
-      }
+    int r = blockIdx.x%R;
+    int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
+    
+    if(r==0 || z==0 || r>=R || z>=(L-2)){
+      return;
     }
-    printf("In GPU at 7, at z=%d and r=%d, the value of rho is %.7f \n", 6, 1253, rho[(1*(L+1)*(R+1))+((R+1)*6)+1253]);
+    if (rho[(0*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
+      //printf("-----------EXCITING THE KERNAL-----------\n");
+      return;
+    }
+    double deltaez = deltaez_array[((R+1)*z)+r];
+    double deltaer = deltaer_array[((R+1)*z)+r];
 
+      // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]);
+
+    // if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
+    //   printf("In GPU at 1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
+    // }
+
+    if (r < R-1 && point_type[((R+1)*z)+r+1] != DITCH) {
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r+1], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r] * (double) (r-1) / (double) (r));
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r],-rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r]);
+      //printf("value of rho at checkpoint 2 is %f \n",rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
+  
+      }
+
+    if (z > 1 && point_type[((R+1)*(z-1))+r] != DITCH) {
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*(z-1))+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez);
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], -rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez);
+      }
+
+    if (z < L-1 && point_type[((R+1)*(z+1))+r] != DITCH) {
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*(z+1))+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez);
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], -rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez);
+      }
+
+
+    if (r > 2 && point_type[((R+1)*z)+r-1] != DITCH) {
+  
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+(r-1)], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s2[r] * (double) (r-1) / (double) (r-2));
+      atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], -rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s2[r]);
+    }
   }
 
   __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, double *v, char *point_type,  double *dr, double *dz, 
@@ -247,7 +209,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
       }
     
     if (rho[(1*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
-      rho[(2*(L+1)*(R+1))+((R+1)*z)+r] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r];
+      atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*z)+r], rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
       return;
     }
     // need to r-calculate all the fields
@@ -376,42 +338,52 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
 
   }
   
-  __global__ void gpu_sr_update(int L, int R, float *rho, double *fr_array, double *fz_array, int *i_array, int *k_array){
+  __global__ void gpu_sr_update(int L, int R, float *rho, double *fr_array, double *fz_array, int *i_array, int *k_array, int max_threads){
 
-    for (int r=1; r<R; r++) {
-      for (int z=1; z<L-2; z++) {
+    int r = blockIdx.x%R;
+    int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
+    
+    if(r==0 || z==0 || r>=R || z>=(L-2)){
+      return;
+    }
       
-      if (rho[(1*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
-        continue;
-      }
+  if (rho[(1*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
+    return;
+  }
 
-        if (i_array[((R+1)*z)+r]>=1 && i_array[((R+1)*z)+r]<R && k_array[((R+1)*z)+r]>=1 && k_array[((R+1)*z)+r]<L) {
-          if (i_array[((R+1)*z)+r] > 1 && r > 1) {
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       * (double) (r-1) / (double) (i_array[((R+1)*z)+r]-1);
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       * (double) (r-1) / (double) (i_array[((R+1)*z)+r]);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1) / (double) (i_array[((R+1)*z)+r]-1);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1) / (double) (i_array[((R+1)*z)+r]);
-
-          } 
-          else if (i_array[((R+1)*z)+r] > 1) {  // r == 0
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       / (double) (8*i_array[((R+1)*z)+r]-8);
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       / (double) (8*i_array[((R+1)*z)+r]);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) / (double) (8*i_array[((R+1)*z)+r]-8);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) / (double) (8*i_array[((R+1)*z)+r]);
-          } 
-          else if (r > 1) {  // i_array[((R+1)*z)+r] == 0
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       * (double) (8*(R+1)-8);
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       * (double) (r-1);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) * (double) (8*(R+1)-8);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1);
-          } 
-          else {             // r == i_array[((R+1)*z)+r] == 0
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r];
-            rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       / 8.0; // vol_0 / vol_1 = 1/8
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]);
-            rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1] += rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) / 8.0;
-          }
-        }
+    if (i_array[((R+1)*z)+r]>=1 && i_array[((R+1)*z)+r]<R && k_array[((R+1)*z)+r]>=1 && k_array[((R+1)*z)+r]<L) {
+      if (i_array[((R+1)*z)+r] > 1 && r > 1) {
+        // rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       * (double) (r-1) / (double) (i-1);
+        // if((z==4) && (r==501)){
+        //   printf("Before modification, rho =%.7f\n", rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]]);
+        // }
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       * (double) (r-1) / (double) (i_array[((R+1)*z)+r]-1));
+        // if((z==4) && (r==501)){
+        //   printf("In GPU at 2.1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(2*(L+1)*(R+1))+((R+1)*4)+500]);
+        //   printf("rho after diffusion is %.7f; fr=%.7f, fz=%.7f, i=%d, k=%d\n", rho[(1*(L+1)*(R+1))+((R+1)*z)+r], fr_array[((R+1)*z)+r],fz_array[((R+1)*z)+r],i_array[((R+1)*z)+r]-1, k_array[((R+1)*z)+r]);
+        //   printf("After modification, rho =%.7f\n", rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]]);
+        // }
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       * (double) (r-1) / (double) (i_array[((R+1)*z)+r]));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1) / (double) (i_array[((R+1)*z)+r]-1));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1) / (double) (i_array[((R+1)*z)+r]));
+      } 
+      else if (i_array[((R+1)*z)+r] > 1) {  // r == 0
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       / (double) (8*i_array[((R+1)*z)+r]-8));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       / (double) (8*i_array[((R+1)*z)+r]));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) / (double) (8*i_array[((R+1)*z)+r]-8));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) / (double) (8*i_array[((R+1)*z)+r]));
+      } 
+      else if (r > 1) {  // i_array[((R+1)*z)+r] == 0
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       * (double) (8*(R+1)-8));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       * (double) (r-1));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) * (double) (8*(R+1)-8));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1));
+      } 
+      else {             // r == i_array[((R+1)*z)+r] == 0
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]);
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       / 8.0); // vol_0 / vol_1 = 1/8
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]));
+        atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) / 8.0);
       }
     }
   }
@@ -636,11 +608,11 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   if(num_blocks<65535){
     gpu_diffusion<<<num_blocks,num_threads>>>(L, R, grid, rho_gpu, q, v_gpu, point_type_gpu, dr_gpu, dz_gpu, s1_gpu, s2_gpu, drift_offset_gpu, drift_slope_gpu, num_threads, deltaez_array, deltaer_array);
     cudaDeviceSynchronize();
-    diff_update<<<1,1>>>(L, R, rho_gpu, point_type_gpu, s1_gpu, s2_gpu, deltaez_array, deltaer_array);
+    diff_update<<<num_blocks,num_threads>>>(L, R, rho_gpu, point_type_gpu, s1_gpu, s2_gpu, deltaez_array, deltaer_array,num_threads);
     cudaDeviceSynchronize();
     gpu_self_repulsion<<<num_blocks,num_threads>>>(L, R, grid, rho_gpu, q, v_gpu, point_type_gpu, dr_gpu, dz_gpu, s1_gpu, s2_gpu, drift_offset_gpu, drift_slope_gpu, num_threads, fr_array, fz_array, i_array, k_array);
     cudaDeviceSynchronize();
-    gpu_sr_update<<<1,1>>>(L, R, rho_gpu, fr_array, fz_array, i_array, k_array);
+    gpu_sr_update<<<num_blocks,num_threads>>>(L, R, rho_gpu, fr_array, fz_array, i_array, k_array, num_threads);
   }
   else{
     printf("----------------Pick a smaller block please----------------\n");
@@ -689,14 +661,28 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   // printf("R=%d, Z=%d\n",R,L);
   printf("\n--------Running tests to compare the outcomes of CPU and GPU--------\n");
 
-  #define MAX_ERR 1e-7
+  #define MAX_ERR 1e-5
   int error_count = 0;
   for(int i=0; i<3; i++) {
     for(int j=0; j<L; j++){
       for(int k=0; k<R; k++){
-        if(fabs(rho[i][j][k] - rho_test[i][j][k]) > MAX_ERR){
+
+        float relative_error;
+        float absolute_error = fabs(rho[i][j][k] - rho_test[i][j][k]);
+
+        if(fabs(rho[i][j][k]<MAX_ERR) && fabs(rho[i][j][k]) < MAX_ERR){
+          relative_error = 0;
+        }
+        else if(fabs(rho[i][j][k]<MAX_ERR)){
+          relative_error = fabs((rho[i][j][k] - rho_test[i][j][k])/rho_test[i][j][k]);
+        }
+        else{
+          relative_error = fabs((rho[i][j][k] - rho_test[i][j][k])/rho[i][j][k]);
+        }
+        if(absolute_error > MAX_ERR){
           error_count++;
-          printf("Error at i=%d, z=%d and r=%d, actual answer is %f, calculated answer is %f \n",i,j,k, rho[i][j][k], rho_test[i][j][k]);
+          printf("Error at i=%d, z=%d and r=%d; actual answer=%.7f, calculated answer=%.7f; relative error=%.7f \n",i,j,k, rho[i][j][k], rho_test[i][j][k],relative_error);
+          //printf("Error at i=%d, z=%d and r=%d, actual answer is %f, calculated answer is %f \n",i,j,k, rho[i][j][k], rho_test[i][j][k]);
         }
       }
     }
@@ -913,17 +899,13 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
       }
 
 
-      if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-        printf("In CPU at 1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
-      }
+      // if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
+      //   printf("In CPU at 1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
+      // }
       // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
       rho[1][z][r]   += rho[0][z][r];
       if (0 && z == 1) printf("r,z = %d, %d E_r,z = %f, %f  deltaer,z = %f, %f  s1,s2 = %f, %f\n",
                   r, z, E_r, E_z, deltaer, deltaez, setup->s1[r], setup->s2[r]);
-
-                  if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-                    printf("In CPU at 2, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
-      }
 
       if (r < R-1 && setup->point_type[z][r+1] != DITCH) {
       //if (setup->point_type[z][r+1] > HVC)
@@ -931,9 +913,7 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
       rho[1][z][r]   -= rho[0][z][r]*deltaer * setup->s1[r];
       }
 
-      if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-        printf("In CPU at 3, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
-      }
+
 
       if (z > 1 && setup->point_type[z-1][r] != DITCH) {
       //if (setup->point_type[z-1][r] > HVC)
@@ -941,37 +921,22 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
       rho[1][z][r]   -= rho[0][z][r]*deltaez;
       }
 
-      if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-        printf("In CPU at 4, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
-      }
       if (z < L-1 && setup->point_type[z+1][r] != DITCH) {
       //if (setup->point_type[z+1][r] > HVC)
       rho[1][z+1][r] += rho[0][z][r]*deltaez;
       rho[1][z][r]   -= rho[0][z][r]*deltaez;
       }
 
-      if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-        printf("In CPU at 5, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
-      }
       if (r > 2 && setup->point_type[z][r-1] != DITCH) {
       //if (setup->point_type[z][r-1] > HVC)
       rho[1][z][r-1] += rho[0][z][r]*deltaer * setup->s2[r] * (double) (r-1) / (double) (r-2);
       rho[1][z][r]   -= rho[0][z][r]*deltaer * setup->s2[r];
       }
 
-      if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-        printf("In CPU at 6, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[1][z][r]);
-      }
-
-      if(rho[1][6][1253]-14.731561<0.000001){
-        printf("The change happnds at z=%d and r=%d \n", z, r);
-      }
-
       //-----------------------------------------------------------
     }
   }
 
-  printf("In CPU at 7, at z=%d and r=%d, the value of rho is %.7f \n", 6, 1253, rho[1][6][1253]);
 
     
 
@@ -1117,11 +1082,20 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
 
       if (i>=1 && i<R && k>=1 && k<L) {
         if (i > 1 && r > 1) {
+          // if((z==4) && (r==501)){
+          //   printf("Before modification, rho =%.7f\n", rho[2][k][i]);
+          // }
           rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       * (double) (r-1) / (double) (i-1);
+          // if((z==4) && (r==501)){
+          //   printf("In CPU at 2.1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[2][4][500]);
+          //   printf("rho after diffusion is %.7f; fr=%.7f, fz=%.7f, i=%d, k=%d\n", rho[1][z][r], fr,fz, i-1, k);
+          //   printf("After modification, rho =%.7f\n", rho[2][k][i]);
+          // } 
           rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       * (double) (r-1) / (double) (i);
           rho[2][k+1][i  ] += rho[1][z][r] * fr      *(1.0-fz) * (double) (r-1) / (double) (i-1);
           rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) * (double) (r-1) / (double) (i);
-        } 
+        }
+         
         else if (i > 1) {  // r == 0
           rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       / (double) (8*i-8);
           rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       / (double) (8*i);
@@ -1138,11 +1112,13 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
           rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz;
           rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       / 8.0; // vol_0 / vol_1 = 1/8
           rho[2][k+1][i  ] += rho[1][z][r] * fr      *(1.0-fz);
-          rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) / 8.0;
+          rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) / 8.0; 
         }
       }
+    
     }
   }
+  
 
   for (z=0; z<L; z++) {
     for (r=0; r<R; r++) {
