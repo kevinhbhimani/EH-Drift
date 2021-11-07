@@ -425,53 +425,14 @@ int main(int argc, char **argv)
   if (setup.write_WP) return 0; //CHANGED : Why are we quiting here?
     /* we need **v to have electric potential, not WP, so we quit here */
 
-  float **rho_test_e[4];
-    for ( j=0; j<4; j++) {
-      if ((rho_test_e[j] = (float **)malloc(LL * sizeof(*rho_e[j])))   == NULL) {
-        printf("malloc failed\n");
-        return -1;
-      }
-      for ( i = 0; i < LL; i++) {
-        if ((rho_test_e[j][i] = (float *)malloc(R * sizeof(**rho_e[j])))   == NULL) {
-          printf("malloc failed\n");
-          return -1;
-        }
-      }
-    }
-  for ( j=0; j<4; j++) {
-    for ( i = 0; i < LL; i++) {
-      memcpy(rho_test_e[j][i], rho_e[j][i], R * sizeof(float));
-    }
-  }
-
-  // printf("check 3\n");
-
-  float **rho_test_h[3];
-    for ( j=0; j<3; j++) {
-      if ((rho_test_h[j] = (float **)malloc(LL * sizeof(*rho_h[j])))   == NULL) {
-        printf("malloc failed\n");
-        return -1;
-      }
-      for ( i = 0; i < LL; i++) {
-        if ((rho_test_h[j][i] = (float *)malloc(R * sizeof(**rho_h[j])))   == NULL) {
-          printf("malloc failed\n");
-          return -1;
-        }
-      }
-    }
-  for ( j=0; j<3; j++) {
-    for ( i = 0; i < LL; i++) {
-      memcpy(rho_test_h[j][i], rho_h[j][i], R * sizeof(float));
-    }
-  }
-
+  
   // printf("check 5\n");
 
   write_rho(LL, R, grid, rho_e[0], "ed.dat");
   write_rho(LL, R, grid, rho_h[0], "hd.dat");
 
-  gpu_drift(&setup, LL, R, grid, rho_e, rho_test_e, -1, &egone);
-  gpu_drift(&setup, LL, R, grid, rho_h, rho_test_h, 1, &hgone);
+  gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
+  gpu_drift(&setup, LL, R, grid, rho_h, 1, &hgone);
 
   /* -----------------------------------------
    *   This loop starting here is crucial.
@@ -479,8 +440,10 @@ int main(int argc, char **argv)
    *    the self-consistent field and letting the charge densities diffuse and drift.
    * ----------------------------------------- */
   int n;
+  float  sig[1024] = {0};
+
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
-    // if(n==3) {break;}
+    // if(n==5) {break;}
 
     printf("\n\n -=-=-=-=-=-=-=-=-=-=-=- n = %3d  -=-=-=-=-=-=-=-=-=-=-=-\n\n", n);
     // copy new_var_values of rho_e
@@ -494,10 +457,6 @@ int main(int argc, char **argv)
         hsum2 += rho_h[2][z][r] * (double) r;
         rho_e[0][z][r] = rho_e[2][z][r];
         rho_h[0][z][r] = rho_h[2][z][r];
-
-        rho_test_e[0][z][r] = rho_test_e[2][z][r];
-        rho_test_h[0][z][r] = rho_test_h[2][z][r];
-
 
         ecentr += rho_e[0][z][r] * (double) (r * r);
         ecentz += rho_e[0][z][r] * (double) (r * z);
@@ -538,8 +497,8 @@ int main(int argc, char **argv)
     ev_calc_gpu(&setup);
 
     //printf("Last iteration was %d\n",last_iter);
-    gpu_drift(&setup, LL, R, grid, rho_e, rho_test_e, -1, &egone);
-    gpu_drift(&setup, LL, R, grid, rho_h, rho_test_h,  1, &hgone);
+    gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
+    gpu_drift(&setup, LL, R, grid, rho_h,  1, &hgone);
 
     if (n%10 == 0) {
       char fn[256];
