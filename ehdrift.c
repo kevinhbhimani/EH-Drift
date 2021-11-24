@@ -68,13 +68,17 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
               int q, double *gone);
 int read_rho(int L, int R, float grid, float **rho, char *fname);
 
+int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup);
+void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
+void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
+
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
 {
+  int write_densities = 1;
 
   MJD_Siggen_Setup setup, setup1, setup2;
-
-  last_iter = 100;
+  GPU_data gpu_setup;
 
   float BV;      // bias voltage
   int   WV = 0;  // 0: do not write the V and E values to ppc_ev.dat
@@ -212,7 +216,8 @@ int main(int argc, char **argv)
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
   float  grid = setup.xtal_grid;
   int    L  = lrint(setup.xtal_length/grid)+2;
-  int    LL = L/8;
+  int    LL = lrint(setup.xtal_length/grid)+2;
+  // int    LL = L/8;
   int    R  = lrint(setup.xtal_radius/grid)+2;
   int    r, z, rr,zz, k;
 
@@ -294,7 +299,7 @@ int main(int argc, char **argv)
         (rho_h[0][zz][rr] - rho_e[0][zz][rr]) * e_over_E * grid*grid/2.0;
     }
   }
-  printf("n: %3d  esums: %.0f %.0f   gone, total:  %.0f %.0f", 0, esum1, esum2, egone, egone+esum2);
+  printf("n: %3d  esums: %.0f %.0f", 0, esum1, esum2);
   ecentr /= esum1;
   ermsr -= esum1 * ecentr*ecentr;
   ermsr /= esum1;
@@ -304,7 +309,7 @@ int main(int argc, char **argv)
   printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
          grid*(ecentr-1.0), grid*(ecentz-1.0), grid*sqrt(ermsr), grid*sqrt(ermsz));
 
-  printf("n: %3d  hsums: %.0f %.0f   gone, total:  %.0f %.0f", 0, hsum1, hsum2, hgone, hgone+hsum2);
+  printf("n: %3d  hsums: %.0f %.0f", 0, hsum1, hsum2);
   hcentr /= hsum1;
   hrmsr -= hsum1 * hcentr*hcentr;
   hrmsr /= hsum1;
@@ -319,12 +324,12 @@ int main(int argc, char **argv)
     setup1.write_field = 0; // no need to save intermediate calculations
     setup2.write_field = 0;
     if (setup.xtal_grid > 0.4) {
-      ev_calc_gpu_initial(&setup2, NULL);
+      ev_calc_gpu_initial(&setup2, NULL, &gpu_setup);
     } else {
-      ev_calc_gpu_initial(&setup1, NULL);
-      ev_calc_gpu_initial(&setup2, &setup1);
+      ev_calc_gpu_initial(&setup1, NULL, &gpu_setup);
+      ev_calc_gpu_initial(&setup2, &setup1, &gpu_setup);
     }
-    ev_calc_gpu_initial(&setup, &setup2);
+    ev_calc_gpu_initial(&setup, &setup2, &gpu_setup);
   }
 
    /* -------------- calculate weighting potential */
@@ -425,14 +430,18 @@ int main(int argc, char **argv)
   if (setup.write_WP) return 0; //CHANGED : Why are we quiting here?
     /* we need **v to have electric potential, not WP, so we quit here */
 
-  
-  // printf("check 5\n");
+    if(write_densities){
+    //get_densities(L, R, rho_e, rho_h, &gpu_setup);
+    char fn_1[256], fn_2[256];
+    sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+    sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+    write_rho(LL/8, R, grid, rho_e[0], fn_1);
+    write_rho(LL/8, R, grid, rho_h[0], fn_2);
+  }
 
-  write_rho(LL, R, grid, rho_e[0], "ed.dat");
-  write_rho(LL, R, grid, rho_h[0], "hd.dat");
-
-  gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
-  gpu_drift(&setup, LL, R, grid, rho_h, 1, &hgone);
+  gpu_init(&setup, rho_e, rho_h, &gpu_setup);
+  gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
+  gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
 
   /* -----------------------------------------
    *   This loop starting here is crucial.
@@ -440,78 +449,131 @@ int main(int argc, char **argv)
    *    the self-consistent field and letting the charge densities diffuse and drift.
    * ----------------------------------------- */
   int n;
-  float  sig[1024] = {0};
+  int num_threads = 300;
+  int num_blocks = R * (ceil(LL/num_threads)+1);
 
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
-    // if(n==5) {break;}
-
+    
     printf("\n\n -=-=-=-=-=-=-=-=-=-=-=- n = %3d  -=-=-=-=-=-=-=-=-=-=-=-\n\n", n);
-    // copy new_var_values of rho_e
-    esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
-    hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
-    for (z=1; z<LL; z++) {
-      for (r=1; r<R; r++) {
-        esum1 += rho_e[0][z][r] * (double) r;
-        esum2 += rho_e[2][z][r] * (double) r;
-        hsum1 += rho_h[0][z][r] * (double) r;
-        hsum2 += rho_h[2][z][r] * (double) r;
-        rho_e[0][z][r] = rho_e[2][z][r];
-        rho_h[0][z][r] = rho_h[2][z][r];
+    cudaDeviceSynchronize();
+    set_rho_zero_gpu(&gpu_setup, LL, R, num_blocks, num_threads);
+    cudaDeviceSynchronize();
+    update_impurities_gpu(&gpu_setup, LL, R, num_blocks, num_threads, e_over_E, grid);
 
-        ecentr += rho_e[0][z][r] * (double) (r * r);
-        ecentz += rho_e[0][z][r] * (double) (r * z);
-        ermsr += rho_e[0][z][r] * (double) (r * r * r);
-        ermsz += rho_e[0][z][r] * (double) (r * z * z) ;
-        hcentr += rho_h[0][z][r] * (double) (r * r);
-        hcentz += rho_h[0][z][r] * (double) (r * z);
-        hrmsr += rho_h[0][z][r] * (double) (r * r * r);
-        hrmsz += rho_h[0][z][r] * (double) (r * z * z) ;
-        setup.impurity[z][r] = rho_e[3][z][r] +
-          (rho_h[0][z][r] - rho_e[0][z][r]) * e_over_E * grid*grid/2.0;
+    // get_densities(L, R, rho_e, rho_h, &gpu_setup);
+    // // copy new values of rho_e
+    // esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
+    // hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
+    // for (z=1; z<LL; z++) {
+    //   for (r=1; r<R; r++) {
+    //     // rho_e[0][z][r] = rho_e[2][z][r];
+    //     // rho_h[0][z][r] = rho_h[2][z][r];
+    //     esum1 += rho_e[0][z][r] * (double) r;
+    //     esum2 += rho_e[0][z][r] * (double) r;
+    //     hsum1 += rho_h[0][z][r] * (double) r;
+    //     hsum2 += rho_h[0][z][r] * (double) r;
+    //     ecentr += rho_e[0][z][r] * (double) (r * r);
+    //     ecentz += rho_e[0][z][r] * (double) (r * z);
+    //     ermsr += rho_e[0][z][r] * (double) (r * r * r);
+    //     ermsz += rho_e[0][z][r] * (double) (r * z * z) ;
+    //     hcentr += rho_h[0][z][r] * (double) (r * r);
+    //     hcentz += rho_h[0][z][r] * (double) (r * z);
+    //     hrmsr += rho_h[0][z][r] * (double) (r * r * r);
+    //     hrmsz += rho_h[0][z][r] * (double) (r * z * z) ;
+    //     // setup.impurity[z][r] = rho_e[3][z][r] +
+    //     //   (rho_h[0][z][r] - rho_e[0][z][r]) * e_over_E * grid*grid/2.0;
+    //   }
+    // }
+
+    // printf("n: %3d  esums: %.0f %.0f", n, esum1, esum2);
+    // ecentr /= esum2;
+    // ermsr -= esum2 * ecentr*ecentr;
+    // ermsr /= esum2;
+    // ecentz /= esum2;
+    // ermsz -= esum2 * ecentz*ecentz;
+    // ermsz /= esum2;
+    // printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
+    //        grid*(ecentr-1.0), grid*(ecentz-1.0), grid*sqrt(ermsr), grid*sqrt(ermsz));
+
+    // printf("n: %3d  hsums: %.0f %.0f", n, hsum1, hsum2);
+    // hcentr /= hsum2;
+    // hrmsr -= hsum2 * hcentr*hcentr;
+    // hrmsr /= hsum2;
+    // hcentz /= hsum2;
+    // hrmsz -= hsum2 * hcentz*hcentz;
+    // hrmsz /= hsum2;
+    // printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
+    //        grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
+
+    cudaDeviceSynchronize();
+    ev_calc_gpu(1, &setup, &gpu_setup);
+
+    cudaDeviceSynchronize();
+    gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
+    cudaDeviceSynchronize();
+    gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
+
+    if (write_densities && n%10 == 0) {
+      cudaDeviceSynchronize();
+      get_densities(L, R, rho_e, rho_h, &gpu_setup);
+          // copy new values of rho_e
+      esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
+      hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
+      for (z=1; z<LL; z++) {
+        for (r=1; r<R; r++) {
+          // rho_e[0][z][r] = rho_e[2][z][r];
+          // rho_h[0][z][r] = rho_h[2][z][r];
+          esum1 += rho_e[0][z][r] * (double) r;
+          esum2 += rho_e[0][z][r] * (double) r;
+          hsum1 += rho_h[0][z][r] * (double) r;
+          hsum2 += rho_h[0][z][r] * (double) r;
+          ecentr += rho_e[0][z][r] * (double) (r * r);
+          ecentz += rho_e[0][z][r] * (double) (r * z);
+          ermsr += rho_e[0][z][r] * (double) (r * r * r);
+          ermsz += rho_e[0][z][r] * (double) (r * z * z) ;
+          hcentr += rho_h[0][z][r] * (double) (r * r);
+          hcentz += rho_h[0][z][r] * (double) (r * z);
+          hrmsr += rho_h[0][z][r] * (double) (r * r * r);
+          hrmsz += rho_h[0][z][r] * (double) (r * z * z) ;
+          // setup.impurity[z][r] = rho_e[3][z][r] +
+          //   (rho_h[0][z][r] - rho_e[0][z][r]) * e_over_E * grid*grid/2.0;
+        }
       }
-    }
-    printf("n: %3d  esums: %.0f %.0f   gone, total:  %.0f %.0f", n, esum1, esum2, egone, egone+esum2);
-    ecentr /= esum2;
-    ermsr -= esum2 * ecentr*ecentr;
-    ermsr /= esum2;
-    ecentz /= esum2;
-    ermsz -= esum2 * ecentz*ecentz;
-    ermsz /= esum2;
-    printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
-           grid*(ecentr-1.0), grid*(ecentz-1.0), grid*sqrt(ermsr), grid*sqrt(ermsz));
 
-    printf("n: %3d  hsums: %.0f %.0f   gone, total:  %.0f %.0f", n, hsum1, hsum2, hgone, hgone+hsum2);
-    hcentr /= hsum2;
-    hrmsr -= hsum2 * hcentr*hcentr;
-    hrmsr /= hsum2;
-    hcentz /= hsum2;
-    hrmsz -= hsum2 * hcentz*hcentz;
-    hrmsz /= hsum2;
-    printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
-           grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
+      printf("n: %3d  esums: %.0f %.0f", n, esum1, esum2);
+      ecentr /= esum2;
+      ermsr -= esum2 * ecentr*ecentr;
+      ermsr /= esum2;
+      ecentz /= esum2;
+      ermsz -= esum2 * ecentz*ecentz;
+      ermsz /= esum2;
+      printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
+            grid*(ecentr-1.0), grid*(ecentz-1.0), grid*sqrt(ermsr), grid*sqrt(ermsz));
 
-    if(n<=1550){
-      last_iter = 1000;
-    }
+      printf("n: %3d  hsums: %.0f %.0f", n, hsum1, hsum2);
+      hcentr /= hsum2;
+      hrmsr -= hsum2 * hcentr*hcentr;
+      hrmsr /= hsum2;
+      hcentz /= hsum2;
+      hrmsz -= hsum2 * hcentz*hcentz;
+      hrmsz /= hsum2;
+      printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
+            grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
 
-    ev_calc_gpu(&setup);
-
-    //printf("Last iteration was %d\n",last_iter);
-    gpu_drift(&setup, LL, R, grid, rho_e, -1, &egone);
-    gpu_drift(&setup, LL, R, grid, rho_h,  1, &hgone);
-
-    if (n%10 == 0) {
       char fn[256];
-      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat",det_name,setup.impurity_surface,alpha_r_mm,alpha_z_mm, n/10);
-      if (esum2 > 0.1) write_rho(LL, R, grid, rho_e[0], fn);
-      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat",det_name,setup.impurity_surface,alpha_r_mm,alpha_z_mm, n/10);
-      if (hsum2 > 0.1) write_rho(LL, R, grid, rho_h[0], fn);
+      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+      if (esum2 > 0.1) write_rho(LL/8, R, grid, rho_e[0], fn);
+      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+      if (hsum2 > 0.1) write_rho(LL/8, R, grid, rho_h[0], fn);
     }
   }
 
+  cudaDeviceSynchronize();
+  get_potential(L, R, &setup, &gpu_setup);
+
   strncpy(setup.field_name, "fields/ev_fin.dat", 64);
   write_ev(&setup);
-
+  free_gpu_mem(&gpu_setup);
   
   return 0;
 } /* main */
@@ -588,8 +650,7 @@ int read_rho(int L, int R, float grid, float **rho, char *fname) {
 /* -------------------------------------- drift_rho ------------------- */
 // do the diffusion and drifting of the charge cloud densities
 
-int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
-              int q, double *gone) {
+int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, double *gone) {
 
 #define TSTEP   setup-> step_time_calc  // time step of calculation, in ns; do not exceed 2.0 !!!
 #define DELTA   (0.07*TSTEP) /* Prob. of a charge moving to next 20-micron bin during a time step */

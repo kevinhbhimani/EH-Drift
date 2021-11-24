@@ -17,7 +17,6 @@ WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -
 #include <cuda_runtime.h>
 #include "mjd_siggen.h"
 #include "detector_geometry.h"
-#include "relax_gpu_vars.h"
 
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
@@ -27,24 +26,21 @@ WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -
 #include <thrust/sequence.h>
 
 #include <time.h>
+
 #include "gpu_vars.h"
 
 
-extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup);
-extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup);
-int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc);
+
+extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup, GPU_data *gpu_setup);
+extern "C" int ev_calc_rb_cpu(MJD_Siggen_Setup *setup);
+
+int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc, GPU_data *gpu_setup);
 int do_relax_rb(MJD_Siggen_Setup *setup, int ev_calc);
 int interpolate_gpu(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup);
 int ev_relax_undep_gpu(MJD_Siggen_Setup *setup);
 int write_ev_gpu(MJD_Siggen_Setup *setup);
 int report_config_gpu(FILE *fp_out, char *config_file_name);
 
-
-
-__managed__ float vacuum_gap_gpu;
-__managed__ double e_over_E_gpu;
-__managed__ double max_dif_gpu; //shared between GPU and CPU so that we can check for convergence at each step without copying back the potential
-__managed__ double sum_dif_gpu;
 
 
 __global__ void z_relection_set(double* v_gpu, int L, int R, int old_gpu_relax, int new_gpu_relax, double *eps_dr_gpu, double *eps_dz_gpu, char *point_type_gpu){
@@ -62,7 +58,7 @@ eps_dr_gpu[((R+1)*0)+r] = eps_dr_gpu[((R+1)*1)+r];
 eps_dz_gpu[((R+1)*0)+r] = eps_dz_gpu[((R+1)*1)+r];
 point_type_gpu[((R+1)*0)+r] = point_type_gpu[((R+1)*1)+r];
 }
-__global__ void vacuum_gap_calc(double *impurity_gpu,double *v_gpu, int L, int R, float grid, int old_gpu_relax, int new_gpu_relax){
+__global__ void vacuum_gap_calc(double *impurity_gpu,double *v_gpu, int L, int R, float grid, int old_gpu_relax, int new_gpu_relax, float vacuum_gap_gpu, double e_over_E_gpu){
 int r = blockIdx.x+1;
   //printf("in vaccuum gap chunk \n");
 impurity_gpu[((R+1)*1)+r] = impurity_gpu[((R+1)*0)+r] - v_gpu[(old_gpu_relax*(L+1)*(R+1))+((R+1)*1)+r] * 5.52e-4 * e_over_E_gpu * grid / vacuum_gap_gpu;
@@ -76,7 +72,7 @@ v_gpu[(old_gpu_relax*(L+1)*(R+1))+((R+1)*z)+0] = v_gpu[(new_gpu_relax*(L+1)*(R+1
 // called as:     relax_step<<<R-1,L-1>>>(ev_calc, L, R, grid, OR_fact, v_gpu, point_type_gpu, dr_gpu, dz_gpu, eps_dr_gpu, eps_dz_gpu, 
 //                  s1_gpu, s2_gpu, impurity_gpu, diff_array, old_gpu_relax, new_gpu_relax);   
 __global__ void relax_step(int is_red, int ev_calc, int L, int R, float grid, double OR_fact, double *v_gpu, char *point_type_gpu, double *dr_gpu, double *dz_gpu, 
-double *eps_dr_gpu, double *eps_dz_gpu, double *s1_gpu, double *s2_gpu, double *impurity_gpu, double *diff_array, int old_gpu_relax, int new_gpu_relax, int max_threads){
+double *eps_dr_gpu, double *eps_dz_gpu, double *s1_gpu, double *s2_gpu, double *impurity_gpu, double *diff_array, int old_gpu_relax, int new_gpu_relax, int max_threads, float vacuum_gap_gpu){
 
 int r = blockIdx.x%R;
 int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -161,33 +157,6 @@ diff_array[((R+1)*z)+r] = fabs(v_gpu[(old_gpu_relax*(L+1)*(R+1))+((R+1)*z)+r] - 
 //end of going through the detector
 }
 
-__global__ void find_max(int R, int L, double OR_fact, double *diff_array, int iter, int ev_calc, int old_gpu_relax, int new_gpu_relax, double *v_gpu){
-/*
-Finds the maximum value of the diff_array and prints some outputs
-*/
-for (int z = 1; z < L; z++) {
-  for (int r = 1; r < R; r++) {
-    sum_dif_gpu += diff_array[((R+1)*z)+r];
-    if (diff_array[((R+1)*z)+r] > max_dif_gpu){
-      max_dif_gpu = diff_array[((R+1)*z)+r];
-      //printf("max is %f \n", max);
-    }
-  }
-}
-__syncthreads();
-
-if (iter < 10 || (iter < 600 && iter%100 == 0) || iter%1000 == 0) {
-  if (0 && ev_calc) {
-    printf("%5d %d %d %.10f \n", iter, old_gpu_relax, new_gpu_relax, max_dif_gpu);
-  } else {
-    printf("GPU calculation: iter=%5d old=%d new=%d OR_fact=%f max_dif=%.10f sum_diff/(L-2)/(R-2)=%.10f; v_center=%.10f v_at_L/3_R/3=%.10f\n",
-            iter, old_gpu_relax, new_gpu_relax, OR_fact, max_dif_gpu, sum_dif_gpu/(L-2)/(R-2),
-            v_gpu[(new_gpu_relax*(L+1)*(R+1))+((R+1)*(L/2))+R/2], v_gpu[(new_gpu_relax*(L+1)*(R+1))+((R+1)*(L/3))+R/3]);
-  }  
-}
-}
-
-
 __global__ void print_output(int R, int L, double OR_fact, int iter, int ev_calc, int old_gpu_relax, int new_gpu_relax, double *v_gpu, double max_dif_gpu, double sum_dif_gpu){
   if (0 && ev_calc) {
     printf("%5d %d %d %.10f \n", iter, old_gpu_relax, new_gpu_relax, max_dif_gpu);
@@ -198,7 +167,7 @@ __global__ void print_output(int R, int L, double OR_fact, int iter, int ev_calc
   } 
 }
 
-extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup) {
+extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup, GPU_data *gpu_setup) {
   int    i, j;
   float  grid = setup->xtal_grid;
   int    L  = lrint(setup->xtal_length/grid)+3;
@@ -232,7 +201,7 @@ extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *ol
     // clock_t start, end;
     // double gpu_time_used;
     // start = clock();
-    do_relax_gpu(setup, 1);
+    do_relax_gpu(setup, 1, gpu_setup);
     // end = clock();
     // gpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     // printf("Time used by GPU in seconds: %f for grid of %f \n\n", gpu_time_used, setup->xtal_grid);
@@ -267,72 +236,63 @@ extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *ol
   return 0;
 } /* ev_calc */
 
+// /* -------------------------------------- ev_calc_gpu ------------------- */
+// extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup) {
+//   int    i, j;
+//   float  grid = setup->xtal_grid;
+//   int    L  = lrint(setup->xtal_length/grid)+3;
+//   int    R  = lrint(setup->xtal_radius/grid)+3;
+
+//   setup->fully_depleted = 1;
+//   setup->bubble_volts = 0;
+
+//   /* set boundary voltages */
+//   for (i = 1; i < L; i++) {
+//     for (j = 1; j < R; j++) {
+//       if (setup->point_type[i][j] == HVC)
+//         setup->v[0][i][j] = setup->v[1][i][j] = setup->xtal_HV;
+//       if (setup->point_type[i][j] == PC)
+//         setup->v[0][i][j] = setup->v[1][i][j] = 0.0;
+//     }
+//   }
 
 
-/* -------------------------------------- ev_calc_gpu ------------------- */
-extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup) {
-  int    i, j;
-  float  grid = setup->xtal_grid;
-  int    L  = lrint(setup->xtal_length/grid)+3;
-  int    R  = lrint(setup->xtal_radius/grid)+3;
 
-  setup->fully_depleted = 1;
-  setup->bubble_volts = 0;
+//   do_relax_gpu(setup, 1);
 
-  /* set boundary voltages */
-  for (i = 1; i < L; i++) {
-    for (j = 1; j < R; j++) {
-      if (setup->point_type[i][j] == HVC)
-        setup->v[0][i][j] = setup->v[1][i][j] = setup->xtal_HV;
-      if (setup->point_type[i][j] == PC)
-        setup->v[0][i][j] = setup->v[1][i][j] = 0.0;
-    }
-  }
-
-
-if(last_iter<=5){
-  do_relax_rb(setup, 1);
-}
-else{
-  do_relax_gpu(setup, 1);
-}
  
-  // if (setup->write_field) write_ev_gpu(setup);
+//   // if (setup->write_field) write_ev_gpu(setup);
 
-  if (setup->fully_depleted) {
-    printf("Detector is fully depleted.\n");
-    /* save potential close to point contact, to use later when calculating depletion voltage */
-    for (i = 1; i < L; i++) {
-      for (j = 1; j < R; j++) {
-        setup->vsave[i][j] = fabs(setup->v[1][i][j]);
-      }
-    }
-  } else {
-    printf("Detector is not fully depleted.\n");
-    if (setup->bubble_volts > 0)
-      printf("Pinch-off bubble at %.1f V potential\n", setup->bubble_volts);
-  }
+//   if (setup->fully_depleted) {
+//     printf("Detector is fully depleted.\n");
+//     /* save potential close to point contact, to use later when calculating depletion voltage */
+//     for (i = 1; i < L; i++) {
+//       for (j = 1; j < R; j++) {
+//         setup->vsave[i][j] = fabs(setup->v[1][i][j]);
+//       }
+//     }
+//   } else {
+//     printf("Detector is not fully depleted.\n");
+//     if (setup->bubble_volts > 0)
+//       printf("Pinch-off bubble at %.1f V potential\n", setup->bubble_volts);
+//   }
 
-  return 0;
-} /* ev_calc_gpu */
+//   return 0;
+// } /* ev_calc_gpu */
 
 
 /* -------------------------------------- do_relax_gpu ------------------- */
-int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc) {
+int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc, GPU_data *gpu_setup) {
 
   int    iter, r, z;
   float  grid = setup->xtal_grid;
   int    L  = lrint(setup->xtal_length/grid)+2;
   int    R  = lrint(setup->xtal_radius/grid)+2;
   int  old_gpu_relax = 1, new_gpu_relax = 0;
-  
 
+  double e_over_E_gpu = 11.310; // e/epsilon; for 1 mm2, charge units 1e10 e/cm3, espilon = 16*epsilon0
+  float vacuum_gap_gpu = setup->vacuum_gap;
   
-  e_over_E_gpu = 11.310; // e/epsilon; for 1 mm2, charge units 1e10 e/cm3, espilon = 16*epsilon0
-  vacuum_gap_gpu = setup->vacuum_gap;
-
-  max_dif_gpu = 0.00;
-  sum_dif_gpu = 0.00;
 
   if (ev_calc) {
     // for field calculation, save impurity value along passivated surface
@@ -352,10 +312,14 @@ Below we allocate and copy values to GPU. For better memory management and index
 The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)*j)+k]
 */
 
-double *v_gpu;
+
+
+// double *gpu_setup->v_gpu=gpu_setup->gpu_setup->v_gpu, *gpu_setup->dr_gpu=gpu_setup->gpu_setup->dr_gpu, *gpu_setup->dz_gpu=gpu_setup->gpu_setup->dz_gpu, *eps_gpu_setup->dr_gpu=gpu_setup->eps_gpu_setup->dr_gpu, *eps_gpu_setup->dz_gpu=gpu_setup->eps_gpu_setup->dz_gpu, *gpu_setup->s1_gpu=gpu_setup->gpu_setup->s1_gpu, *gpu_setup->s1_gpu=gpu_setup->gpu_setup->s1_gpu, *gpu_setup->impurity_gpu=gpu_setup->gpu_setup->impurity_gpu, *diff_array=gpu_setup->diff_array;
+// char *gpu_setup->point_type_gpu=gpu_setup->gpu_setup->point_type_gpu;
+
 double *v_flat;
 v_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&v_gpu, 2*sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->v_gpu, 2*sizeof(double)*(L+1)*(R+1));
 for(int i=0; i<2; i++) {
   for(int j=0; j<=L; j++){
     for(int k=0; k<=R; k++){
@@ -363,23 +327,21 @@ for(int i=0; i<2; i++) {
     }
   }
 }
-cudaMemcpy(v_gpu, v_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->v_gpu, v_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
-char  *point_type_flat;
-char  *point_type_gpu;
+char *point_type_flat;
 point_type_flat = (char*)malloc(sizeof(char)*(L+1)*(R+1));
-cudaMalloc((void**)&point_type_gpu, sizeof(char)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->point_type_gpu, sizeof(char)*(L+1)*(R+1));
 for(int j=0; j<=L; j++){
     for(int k=0; k<=R; k++){
       point_type_flat[((R+1)*j)+k] = setup->point_type[j][k];
     }
   }
-cudaMemcpy(point_type_gpu, point_type_flat, sizeof(char)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->point_type_gpu, point_type_flat, sizeof(char)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
-double *dr_flat;
-double *dr_gpu;
+double *dr_flat; 
 dr_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&dr_gpu, 2*sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->dr_gpu, 2*sizeof(double)*(L+1)*(R+1));
   for(int i=0; i<2; i++) {
     for(int j=1; j<=L; j++){
         for(int k=0; k<=R; k++){
@@ -387,12 +349,11 @@ cudaMalloc((void**)&dr_gpu, 2*sizeof(double)*(L+1)*(R+1));
         }
       }
     }
-cudaMemcpy(dr_gpu, dr_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->dr_gpu, dr_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
 double *dz_flat;
-double *dz_gpu;
 dz_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&dz_gpu, 2*sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->dz_gpu, 2*sizeof(double)*(L+1)*(R+1));
   for(int i=0; i<2; i++) {
     for(int j=1; j<=L; j++){
         for(int k=0; k<=R; k++){
@@ -400,62 +361,59 @@ cudaMalloc((void**)&dz_gpu, 2*sizeof(double)*(L+1)*(R+1));
         }
       }
     }
-cudaMemcpy(dz_gpu, dz_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->dz_gpu, dz_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
-double *s1_gpu, *s2_gpu;
-cudaMalloc((void**)&s1_gpu, sizeof(double)*(R+1));
-cudaMemcpy(s1_gpu, setup->s1, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
+cudaMalloc((void**)&gpu_setup->s1_gpu, sizeof(double)*(R+1));
+cudaMemcpy(gpu_setup->s1_gpu, setup->s1, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
 
 
-cudaMalloc((void**)&s2_gpu, sizeof(double)*(R+1));
-cudaMemcpy(s2_gpu, setup->s2, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
+cudaMalloc((void**)&gpu_setup->s2_gpu, sizeof(double)*(R+1));
+cudaMemcpy(gpu_setup->s2_gpu, setup->s2, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
 
 double *eps_dr_flat;
-double *eps_dr_gpu;
 eps_dr_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&eps_dr_gpu, sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->eps_dr_gpu, sizeof(double)*(L+1)*(R+1));
 for(int j=0; j<=L; j++){
   for(int k=0; k<=R; k++){
     eps_dr_flat[((R+1)*j)+k] = setup->eps_dr[j][k];
   }
 }
-cudaMemcpy(eps_dr_gpu, eps_dr_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->eps_dr_gpu, eps_dr_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
 
 double *eps_dz_flat;
-double *eps_dz_gpu;
 eps_dz_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&eps_dz_gpu, sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->eps_dz_gpu, sizeof(double)*(L+1)*(R+1));
 for(int j=0; j<=L; j++){
   for(int k=0; k<=R; k++){
     eps_dz_flat[((R+1)*j)+k] = setup->eps_dz[j][k];
   }
 }
-cudaMemcpy(eps_dz_gpu, eps_dz_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->eps_dz_gpu, eps_dz_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
 double *impurity_flat;
-double *impurity_gpu;
 impurity_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&impurity_gpu, sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->impurity_gpu, sizeof(double)*(L+1)*(R+1));
 for(int j=0; j<=L; j++){
   for(int k=0; k<=R; k++){
     impurity_flat[((R+1)*j)+k] = setup->impurity[j][k];
   }
 }
-cudaMemcpy(impurity_gpu, impurity_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-
+cudaMemcpy(gpu_setup->impurity_gpu, impurity_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
 
 double *diff_array_cpu;
-double *diff_array;
 
 diff_array_cpu = (double*)malloc(sizeof(double)*(L+1)*(R+1));
-cudaMalloc((void**)&diff_array, sizeof(double)*(L+1)*(R+1));
+cudaMalloc((void**)&gpu_setup->diff_array, sizeof(double)*(L+1)*(R+1));
 
 for (int i = 0; i<(L+1)*(R+1); i++){
   diff_array_cpu[i] =0.00;
 }
-cudaMemcpy(diff_array, diff_array_cpu, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+cudaMemcpy(gpu_setup->diff_array, diff_array_cpu, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+
+// thrust::device_ptr<double> dev_ptr;
+
 
 for (iter = 0; iter < setup->max_iterations; iter++) {
 
@@ -478,8 +436,6 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   old_gpu_relax = new_gpu_relax;
   new_gpu_relax = 1 - new_gpu_relax;
 
-  sum_dif_gpu = 0;
-  max_dif_gpu = 0;
 
   /*
   Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
@@ -491,22 +447,22 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   if(num_blocks<=65535 && num_threads<=1024){
     //dividing into R blocks of L threads
     if (vacuum_gap_gpu > 0) {   // modify impurity value along passivated surface due to surface charge induced by capacitance
-      vacuum_gap_calc<<<R-1,1>>>(impurity_gpu, v_gpu,L, R, grid, old_gpu_relax, new_gpu_relax);
+      vacuum_gap_calc<<<R-1,1>>>(gpu_setup->impurity_gpu, gpu_setup->v_gpu,L, R, grid, old_gpu_relax, new_gpu_relax, vacuum_gap_gpu, e_over_E_gpu);
     }
     cudaDeviceSynchronize();
 
-    z_relection_set<<<R-1,1>>>(v_gpu, L, R, old_gpu_relax, new_gpu_relax, eps_dr_gpu, eps_dz_gpu, point_type_gpu);
+    z_relection_set<<<R-1,1>>>(gpu_setup->v_gpu, L, R, old_gpu_relax, new_gpu_relax, gpu_setup->eps_dr_gpu, gpu_setup->eps_dr_gpu, gpu_setup->point_type_gpu);
     cudaDeviceSynchronize();
 
-    reflection_symmetry_set<<<L-1,1>>>(v_gpu, L, R, old_gpu_relax, new_gpu_relax);
+    reflection_symmetry_set<<<L-1,1>>>(gpu_setup->v_gpu, L, R, old_gpu_relax, new_gpu_relax);
     cudaDeviceSynchronize();
 
-    relax_step<<<num_blocks,num_threads>>>(1,ev_calc, L, R, grid, OR_fact, v_gpu, point_type_gpu, dr_gpu, dz_gpu, eps_dr_gpu, eps_dz_gpu, 
-      s1_gpu, s2_gpu, impurity_gpu, diff_array, old_gpu_relax, new_gpu_relax, num_threads);
+    relax_step<<<num_blocks,num_threads>>>(1,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
+      gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
     cudaDeviceSynchronize();
 
-    relax_step<<<num_blocks,num_threads>>>(0,ev_calc, L, R, grid, OR_fact, v_gpu, point_type_gpu, dr_gpu, dz_gpu, eps_dr_gpu, eps_dz_gpu, 
-      s1_gpu, s2_gpu, impurity_gpu, diff_array, old_gpu_relax, new_gpu_relax, num_threads);
+    relax_step<<<num_blocks,num_threads>>>(0,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
+      gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
     
   }
   else{
@@ -515,15 +471,18 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   }
   cudaDeviceSynchronize();
 
-  thrust::device_ptr<double> dev_ptr = thrust::device_pointer_cast(diff_array);
-  double sum_dif_thrust = thrust::reduce(dev_ptr, dev_ptr + R*L);
-  thrust::device_ptr<double> max_ptr = thrust::max_element(dev_ptr, dev_ptr+R*L);
-  double max_value_thrust = max_ptr[0];
+
+  double sum_dif_thrust = thrust::reduce(thrust::device_pointer_cast(gpu_setup->diff_array), thrust::device_pointer_cast(gpu_setup->diff_array) + (L+1)*(R+1));
+  double max_value_thrust = thrust::max_element(thrust::device_pointer_cast(gpu_setup->diff_array), thrust::device_pointer_cast(gpu_setup->diff_array)+(L+1)*(R+1))[0];
+  // thrust::device_ptr<double> dev_ptr = thrust::device_pointer_cast(gpu_setup->diff_array);
+  // double sum_dif_thrust = thrust::reduce(dev_ptr, dev_ptr + R*L);
+  // thrust::device_ptr<double> max_ptr = thrust::max_element(dev_ptr, dev_ptr+R*L);
+  // double max_value_thrust = max_ptr[0];
   cudaDeviceSynchronize();
 
 
   // if (iter < 10 || (iter < 600 && iter%100 == 0) || iter%1000 == 0) {
-  // print_output<<<1,1>>>(R, L, OR_fact, iter, ev_calc, old_gpu_relax, new_gpu_relax, v_gpu, max_value_thrust, sum_dif_thrust);
+  // print_output<<<1,1>>>(R, L, OR_fact, iter, ev_calc, old_gpu_relax, new_gpu_relax, gpu_setup->v_gpu, max_value_thrust, sum_dif_thrust);
   // }
   // cudaDeviceSynchronize();
 
@@ -537,7 +496,7 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   /*
   if (ev_calc && iter > 190 && iter%100 == 0) {
     for (z = 1; z < L; z++) {
-      setup->v[old_gpu_relax][z][0] = setup->v[old_gpu_relax][z][2];
+      gpu_setup->v_gpu[old_gpu_relax][z][0] = gpu_setup->v_gpu[old_gpu_relax][z][2];
       for (r = 1; r < R; r++) {
         if (setup->point_type[z][r] < INSIDE) continue;   // HV or point contact
         if (v[new_gpu_relax][z][r] < 0 ||
@@ -554,11 +513,10 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   }
   */
   } // end of iter loop
-  last_iter = iter;
   printf("Iterations taken by R-B SOR to converge: %d\n", iter);
 
 //copy values that were changed back to CPU
-  cudaMemcpy(v_flat, v_gpu, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyDeviceToHost);
+  cudaMemcpy(v_flat, gpu_setup->v_gpu, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyDeviceToHost);
 
   for(int i=0; i<2; i++) {
     for(int j=0; j<=L; j++){
@@ -574,25 +532,25 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   }
 
 
-  setup->v[0][0]   = setup->v[0][2];
-  setup->v[1][0]   = setup->v[1][2];
+  setup->v[0][0] = setup->v[0][2];
+  setup->v[1][0] = setup->v[1][2];
 
-if (setup->vacuum_gap > 0) {   // restore impurity value along passivated surface
-  for (r = 1; r < R; r++)
-    setup->impurity[1][r] = setup->impurity[0][r];
-}
+  if (setup->vacuum_gap > 0) {   // restore impurity value along passivated surface
+    for (r = 1; r < R; r++)
+      setup->impurity[1][r] = setup->impurity[0][r];
+  }
 
 //Free memory
-cudaFree(v_gpu);
-cudaFree(point_type_gpu);
-cudaFree(dr_gpu);
-cudaFree(dz_gpu);
-cudaFree(eps_dr_gpu);
-cudaFree(eps_dz_gpu);
-cudaFree(s1_gpu);
-cudaFree(s2_gpu);
-cudaFree(impurity_gpu);
-cudaFree(diff_array);
+cudaFree(gpu_setup->v_gpu);
+cudaFree(gpu_setup->point_type_gpu);
+cudaFree(gpu_setup->dr_gpu);
+cudaFree(gpu_setup->dz_gpu);
+cudaFree(gpu_setup->eps_dr_gpu);
+cudaFree(gpu_setup->eps_dz_gpu);
+cudaFree(gpu_setup->s1_gpu);
+cudaFree(gpu_setup->s1_gpu);
+cudaFree(gpu_setup->impurity_gpu);
+cudaFree(gpu_setup->diff_array);
 
 
 free(v_flat);
@@ -606,6 +564,49 @@ free(diff_array_cpu);
 
 return 0;
 } /* do_relax_gpu */
+
+/* -------------------------------------- ev_calc_rb_cpu ------------------- */
+extern "C" int ev_calc_rb_cpu(MJD_Siggen_Setup *setup) {
+  int    i, j;
+  float  grid = setup->xtal_grid;
+  int    L  = lrint(setup->xtal_length/grid)+3;
+  int    R  = lrint(setup->xtal_radius/grid)+3;
+
+  setup->fully_depleted = 1;
+  setup->bubble_volts = 0;
+
+  /* set boundary voltages */
+  for (i = 1; i < L; i++) {
+    for (j = 1; j < R; j++) {
+      if (setup->point_type[i][j] == HVC)
+        setup->v[0][i][j] = setup->v[1][i][j] = setup->xtal_HV;
+      if (setup->point_type[i][j] == PC)
+        setup->v[0][i][j] = setup->v[1][i][j] = 0.0;
+    }
+  }
+
+  do_relax_rb(setup, 1);
+  // if (setup->write_field) write_ev(setup);
+
+  if (setup->fully_depleted) {
+    printf("Detector is fully depleted.\n");
+    /* save potential close to point contact, to use later when calculating depletion voltage */
+    for (i = 1; i < L; i++) {
+      for (j = 1; j < R; j++) {
+        setup->vsave[i][j] = fabs(setup->v[1][i][j]);
+      }
+    }
+  } else {
+    printf("Detector is not fully depleted.\n");
+    if (setup->bubble_volts > 0)
+      printf("Pinch-off bubble at %.1f V potential\n", setup->bubble_volts);
+  }
+
+  return 0;
+} /* ev_calc_rb_cpu */
+
+
+
 
 /* -------------------------------------- do_relax_rb ------------------- */
 int do_relax_rb(MJD_Siggen_Setup *setup, int ev_calc) {
@@ -765,13 +766,11 @@ int do_relax_rb(MJD_Siggen_Setup *setup, int ev_calc) {
     if (!ev_calc && max_dif < 0.0000000001) break;
     if (!ev_calc && max_dif < 0.000001) break;  // comment out if you want convergence at the numerical error level
   }
-  last_iter=iter;
   printf(">> %d %.16f\n\n", iter, sum_dif);
   if (setup->vacuum_gap > 0) {   // restore impurity value along passivated surface
     for (r = 1; r < R; r++)
       setup->impurity[1][r] = setup->impurity[0][r];
   }
-
   return 0;
 } /* do_relax_rb */
 

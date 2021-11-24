@@ -10,31 +10,59 @@
 
 
 
-   #if __cplusplus
-  extern "C" {
-  #endif
+//    #if __cplusplus
+//   extern "C" {
+//   #endif
 
-// extern __managed__ float fq;
-// extern __managed__ int testVar;
-// extern __managed__ float drift_E[20];
-// extern __managed__ int idid,idod,idd;
-// extern __managed__ double f_drift;
+typedef struct {
 
-// extern __managed__ float tstep;
-// extern __managed__ float delta;
-// extern __managed__ float delta_r;
-// extern __managed__ float wrap_around_radius;
-// extern __managed__ float ditch_thickness;
-// extern __managed__ float ditch_depth;
-// extern __managed__ float surface_drift_vel_factor;
+double *v_gpu;
+char *point_type_gpu;
+double *dr_gpu;
+double *dz_gpu; 
+double *eps_dr_gpu;
+double *eps_dz_gpu;
+double *s1_gpu; 
+double *s2_gpu; 
+double *impurity_gpu;
+double *diff_array;
 
-//  extern int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, double *gone);
-//  extern int ev_calc_gpu(MJD_Siggen_Setup *setup);
+float *rho_e_gpu;
+float *rho_h_gpu;
+float *drift_offset_e_gpu;
+float *drift_offset_h_gpu;
+float *drift_slope_e_gpu;
+float *drift_slope_h_gpu;
+double *deltaez_array;
+double *deltaer_array;
+double *fr_array;
+double *fz_array;
+int *i_array;
+int *k_array;
 
-int last_iter;
+// __managed__ float vacuum_gap_gpu;
+// __managed__ double e_over_E_gpu;
+// __managed__ float fq;
+// __managed__ int idid,idod,idd;
+// __managed__ double f_drift;
+// __managed__ float tstep;
+// __managed__ float delta;
+// __managed__ float delta_r;
+// __managed__ float wrap_around_radius;
+// __managed__ float ditch_thickness;
+// __managed__ float ditch_depth;
+// __managed__ float surface_drift_vel_factor;
 
-  #if __cplusplus
-  }
-  #endif
+} GPU_data;
 
 
+extern __global__ void vacuum_gap_calc(double *impurity_gpu,double *v_gpu, int L, int R, float grid, int old_gpu_relax, int new_gpu_relax, float vacuum_gap_gpu, double e_over_E_gpu);
+extern __global__ void z_relection_set(double* v_gpu, int L, int R, int old_gpu_relax, int new_gpu_relax, double *eps_dr_gpu, double *eps_dz_gpu, char *point_type_gpu);
+extern __global__ void reflection_symmetry_set(double *v_gpu, int L, int R, int old_gpu_relax, int new_gpu_relax);
+extern __global__ void relax_step(int is_red, int ev_calc, int L, int R, float grid, double OR_fact, double *v_gpu, char *point_type_gpu, double *dr_gpu, double *dz_gpu, 
+              double *eps_dr_gpu, double *eps_dz_gpu, double *s1_gpu, double *s2_gpu, double *impurity_gpu, double *diff_array, int old_gpu_relax, int new_gpu_relax, int max_threads, float vacuum_gap_gpu);
+extern __global__ void print_output(int R, int L, double OR_fact, int iter, int ev_calc, int old_gpu_relax, int new_gpu_relax, double *v_gpu, double max_dif_gpu, double sum_dif_gpu);
+
+  // #if __cplusplus
+  // }
+  // #endif
