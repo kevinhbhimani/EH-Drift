@@ -31,7 +31,7 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 25.00 -z 0.10 -g P42575A -s 0.00
+  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
   WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
 */
 
@@ -76,6 +76,7 @@ void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, in
 int main(int argc, char **argv)
 {
   int write_densities = 1;
+  int do_self_repulsion =1;
 
   MJD_Siggen_Setup setup, setup1, setup2;
   GPU_data gpu_setup;
@@ -104,6 +105,9 @@ int main(int argc, char **argv)
 	   "      -p {0,1}  (do_not/do write the WP file)\n"
 	   "      -a <alpha radius in mm>\n"
      "      -z <z position in mm>\n"
+     "      -g detector name\n"
+     "      -s <surface charge in in 1e10 e/cm2>"
+     "      -e {0,1}  (do_not/do re-calculate field)"
      "      -r rho_spectrum_file_name\n", argv[0]);
     return 1;
   }
@@ -131,6 +135,8 @@ int main(int argc, char **argv)
       strcpy(det_name, argv[++i]);        // name of the detector
     } else if (strstr(argv[i], "-s")) {
       setup.impurity_surface =  atof(argv[++i]);  // surface charge
+    } else if (strstr(argv[i], "-e")) {      //flag to turn off or on self-repulsion
+      do_self_repulsion = atof(argv[++i]);
     } else if (strstr(argv[i], "-r")) {
       if (!(fp = fopen(argv[++i], "r"))) {   // impurity-profile-spectrum file name
         printf("\nERROR: cannot open impurity profile spectrum file %s\n\n", argv[i+1]);
@@ -459,54 +465,11 @@ int main(int argc, char **argv)
     set_rho_zero_gpu(&gpu_setup, LL, R, num_blocks, num_threads);
     cudaDeviceSynchronize();
     update_impurities_gpu(&gpu_setup, LL, R, num_blocks, num_threads, e_over_E, grid);
-
-    // get_densities(L, R, rho_e, rho_h, &gpu_setup);
-    // // copy new values of rho_e
-    // esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
-    // hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
-    // for (z=1; z<LL; z++) {
-    //   for (r=1; r<R; r++) {
-    //     // rho_e[0][z][r] = rho_e[2][z][r];
-    //     // rho_h[0][z][r] = rho_h[2][z][r];
-    //     esum1 += rho_e[0][z][r] * (double) r;
-    //     esum2 += rho_e[0][z][r] * (double) r;
-    //     hsum1 += rho_h[0][z][r] * (double) r;
-    //     hsum2 += rho_h[0][z][r] * (double) r;
-    //     ecentr += rho_e[0][z][r] * (double) (r * r);
-    //     ecentz += rho_e[0][z][r] * (double) (r * z);
-    //     ermsr += rho_e[0][z][r] * (double) (r * r * r);
-    //     ermsz += rho_e[0][z][r] * (double) (r * z * z) ;
-    //     hcentr += rho_h[0][z][r] * (double) (r * r);
-    //     hcentz += rho_h[0][z][r] * (double) (r * z);
-    //     hrmsr += rho_h[0][z][r] * (double) (r * r * r);
-    //     hrmsz += rho_h[0][z][r] * (double) (r * z * z) ;
-    //     // setup.impurity[z][r] = rho_e[3][z][r] +
-    //     //   (rho_h[0][z][r] - rho_e[0][z][r]) * e_over_E * grid*grid/2.0;
-    //   }
-    // }
-
-    // printf("n: %3d  esums: %.0f %.0f", n, esum1, esum2);
-    // ecentr /= esum2;
-    // ermsr -= esum2 * ecentr*ecentr;
-    // ermsr /= esum2;
-    // ecentz /= esum2;
-    // ermsz -= esum2 * ecentz*ecentz;
-    // ermsz /= esum2;
-    // printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
-    //        grid*(ecentr-1.0), grid*(ecentz-1.0), grid*sqrt(ermsr), grid*sqrt(ermsz));
-
-    // printf("n: %3d  hsums: %.0f %.0f", n, hsum1, hsum2);
-    // hcentr /= hsum2;
-    // hrmsr -= hsum2 * hcentr*hcentr;
-    // hrmsr /= hsum2;
-    // hcentz /= hsum2;
-    // hrmsz -= hsum2 * hcentz*hcentz;
-    // hrmsz /= hsum2;
-    // printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
-    //        grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
-
-    cudaDeviceSynchronize();
-    ev_calc_gpu(1, &setup, &gpu_setup);
+    
+    if(do_self_repulsion){
+      cudaDeviceSynchronize();
+      ev_calc_gpu(1, &setup, &gpu_setup);
+    }
 
     cudaDeviceSynchronize();
     gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
