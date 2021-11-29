@@ -1,7 +1,7 @@
 /*
-This program is called to calculate electric field in each tme step of the signal.
-Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
-WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
+  This program is called to calculate electric field during initial setup of the detector
+  author:           Kevin H Bhimani
+  first written:    Nov 2021
 */
 
 
@@ -166,7 +166,10 @@ __global__ void print_output(int R, int L, double OR_fact, int iter, int ev_calc
             v_gpu[(new_gpu_relax*(L+1)*(R+1))+((R+1)*(L/2))+R/2], v_gpu[(new_gpu_relax*(L+1)*(R+1))+((R+1)*(L/3))+R/3]);
   } 
 }
-
+/* 
+    Performs relaxation on GPUs using Red- Black SOR method to calculate the new electric potentials.
+    This function is different that the one called in the time step loop because it uses different setups and grid sizes
+ */
 extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup, GPU_data *gpu_setup) {
   int    i, j;
   float  grid = setup->xtal_grid;
@@ -236,50 +239,6 @@ extern "C" int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *ol
   return 0;
 } /* ev_calc */
 
-// /* -------------------------------------- ev_calc_gpu ------------------- */
-// extern "C" int ev_calc_gpu(MJD_Siggen_Setup *setup) {
-//   int    i, j;
-//   float  grid = setup->xtal_grid;
-//   int    L  = lrint(setup->xtal_length/grid)+3;
-//   int    R  = lrint(setup->xtal_radius/grid)+3;
-
-//   setup->fully_depleted = 1;
-//   setup->bubble_volts = 0;
-
-//   /* set boundary voltages */
-//   for (i = 1; i < L; i++) {
-//     for (j = 1; j < R; j++) {
-//       if (setup->point_type[i][j] == HVC)
-//         setup->v[0][i][j] = setup->v[1][i][j] = setup->xtal_HV;
-//       if (setup->point_type[i][j] == PC)
-//         setup->v[0][i][j] = setup->v[1][i][j] = 0.0;
-//     }
-//   }
-
-
-
-//   do_relax_gpu(setup, 1);
-
- 
-//   // if (setup->write_field) write_ev_gpu(setup);
-
-//   if (setup->fully_depleted) {
-//     printf("Detector is fully depleted.\n");
-//     /* save potential close to point contact, to use later when calculating depletion voltage */
-//     for (i = 1; i < L; i++) {
-//       for (j = 1; j < R; j++) {
-//         setup->vsave[i][j] = fabs(setup->v[1][i][j]);
-//       }
-//     }
-//   } else {
-//     printf("Detector is not fully depleted.\n");
-//     if (setup->bubble_volts > 0)
-//       printf("Pinch-off bubble at %.1f V potential\n", setup->bubble_volts);
-//   }
-
-//   return 0;
-// } /* ev_calc_gpu */
-
 
 /* -------------------------------------- do_relax_gpu ------------------- */
 int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc, GPU_data *gpu_setup) {
@@ -311,11 +270,6 @@ int do_relax_gpu(MJD_Siggen_Setup *setup, int ev_calc, GPU_data *gpu_setup) {
 Below we allocate and copy values to GPU. For better memory management and indexing, all multidemensional arrays are flattened.
 The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)*j)+k]
 */
-
-
-
-// double *gpu_setup->v_gpu=gpu_setup->gpu_setup->v_gpu, *gpu_setup->dr_gpu=gpu_setup->gpu_setup->dr_gpu, *gpu_setup->dz_gpu=gpu_setup->gpu_setup->dz_gpu, *eps_gpu_setup->dr_gpu=gpu_setup->eps_gpu_setup->dr_gpu, *eps_gpu_setup->dz_gpu=gpu_setup->eps_gpu_setup->dz_gpu, *gpu_setup->s1_gpu=gpu_setup->gpu_setup->s1_gpu, *gpu_setup->s1_gpu=gpu_setup->gpu_setup->s1_gpu, *gpu_setup->impurity_gpu=gpu_setup->gpu_setup->impurity_gpu, *diff_array=gpu_setup->diff_array;
-// char *gpu_setup->point_type_gpu=gpu_setup->gpu_setup->point_type_gpu;
 
 double *v_flat;
 v_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
@@ -445,7 +399,6 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   int num_blocks = R * (ceil(L/num_threads)+1); //The +1 is just a precaution to make sure all R and Z values are included
 
   if(num_blocks<=65535 && num_threads<=1024){
-    //dividing into R blocks of L threads
     if (vacuum_gap_gpu > 0) {   // modify impurity value along passivated surface due to surface charge induced by capacitance
       vacuum_gap_calc<<<R-1,1>>>(gpu_setup->impurity_gpu, gpu_setup->v_gpu,L, R, grid, old_gpu_relax, new_gpu_relax, vacuum_gap_gpu, e_over_E_gpu);
     }
@@ -457,10 +410,11 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
     reflection_symmetry_set<<<L-1,1>>>(gpu_setup->v_gpu, L, R, old_gpu_relax, new_gpu_relax);
     cudaDeviceSynchronize();
 
+    // updates all the red cell in parallel
     relax_step<<<num_blocks,num_threads>>>(1,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
       gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
     cudaDeviceSynchronize();
-
+    // updates all the black cells in parallel
     relax_step<<<num_blocks,num_threads>>>(0,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
       gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
     
@@ -471,7 +425,7 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   }
   cudaDeviceSynchronize();
 
-
+  // The Thrust library uses parallel reduction methods to find the maximum difference between old and new iteration and sum of all differences
   double sum_dif_thrust = thrust::reduce(thrust::device_pointer_cast(gpu_setup->diff_array), thrust::device_pointer_cast(gpu_setup->diff_array) + (L+1)*(R+1));
   double max_value_thrust = thrust::max_element(thrust::device_pointer_cast(gpu_setup->diff_array), thrust::device_pointer_cast(gpu_setup->diff_array)+(L+1)*(R+1))[0];
   // thrust::device_ptr<double> dev_ptr = thrust::device_pointer_cast(gpu_setup->diff_array);
@@ -481,6 +435,7 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   cudaDeviceSynchronize();
 
 
+  // Uncomment next four lines to print some results of relaxation
   // if (iter < 10 || (iter < 600 && iter%100 == 0) || iter%1000 == 0) {
   // print_output<<<1,1>>>(R, L, OR_fact, iter, ev_calc, old_gpu_relax, new_gpu_relax, gpu_setup->v_gpu, max_value_thrust, sum_dif_thrust);
   // }
@@ -540,7 +495,7 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
       setup->impurity[1][r] = setup->impurity[0][r];
   }
 
-//Free memory
+// Free memory on GPU
 cudaFree(gpu_setup->v_gpu);
 cudaFree(gpu_setup->point_type_gpu);
 cudaFree(gpu_setup->dr_gpu);
@@ -552,7 +507,7 @@ cudaFree(gpu_setup->s1_gpu);
 cudaFree(gpu_setup->impurity_gpu);
 cudaFree(gpu_setup->diff_array);
 
-
+// Free memory on CPU
 free(v_flat);
 free(point_type_flat);
 free(dr_flat);

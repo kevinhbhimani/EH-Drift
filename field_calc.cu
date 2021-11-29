@@ -1,9 +1,8 @@
 /*
-This program is called to calculate electric field in each tme step of the signal.
-Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
-WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
+    This program is called to calculate electric field in each tme step of the signal.
+    author:           Kevin H Bhimani
+    first written:    Nov 2021
 */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,6 +76,10 @@ __global__ void restore_passivated_imp(int R, double *impurity_gpu){
     impurity_gpu[((R+1)*1)+r] = impurity_gpu[((R+1)*0)+r];
 }
 
+/* 
+    Performs relaxation on GPUs using Red- Black SOR method to calculate the new electric potentials
+ */
+
 extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_setup){
     int    iter;
     float  grid = setup->xtal_grid;
@@ -115,10 +118,6 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
                 and with increasing iteration number
           0.997 is maximum asymptote for very large pixel count and iteration number */
         
-        // if(iter==1){
-        //   break;
-        // }
-        
         double OR_fact;
         if (ev_calc)  OR_fact = (1.991 - 1500.0/(L*R));
         else          OR_fact = (1.992 - 1500.0/(L*R));
@@ -146,16 +145,19 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
       
           reflection_symmetry_set<<<L-1,1>>>(gpu_setup->v_gpu, L, R, old_gpu_relax, new_gpu_relax);
           cudaDeviceSynchronize();
-      
+          
+          // updates all the red cell in parallel
           relax_step<<<num_blocks,num_threads>>>(1,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
             gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
           cudaDeviceSynchronize();
-      
+          // updates all the black cells in parallel
           relax_step<<<num_blocks,num_threads>>>(0,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
             gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
                
         cudaDeviceSynchronize();
 
+        // The Thrust library uses parallel reduction methods to find the maximum difference between old and new iteration and sum of all differences
+        
         // thrust::host_vector<double> h_state(R*L);
         // thrust::device_vector<curandStatePhilox4_32_10_t> d_state = h_state;
         double sum_dif_thrust = thrust::reduce(thrust::device_pointer_cast(gpu_setup->diff_array), thrust::device_pointer_cast(gpu_setup->diff_array) + (L+1)*(R+1));
@@ -166,7 +168,7 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
         // double max_value_thrust = max_ptr[0];
         cudaDeviceSynchronize();
     
-    
+        // Uncomment next four lines to print some results of relaxation
         // if (iter < 10 || (iter < 600 && iter%100 == 0) || iter%1000 == 0) {
         // print_output<<<1,1>>>(R, L, OR_fact, iter, ev_calc, old_gpu_relax, new_gpu_relax, gpu_setup->v_gpu, max_value_thrust, sum_dif_thrust);
         // }

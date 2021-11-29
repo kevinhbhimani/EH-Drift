@@ -11,6 +11,8 @@
    author:           D.C. Radford
    first written:    Oct 2020
 
+   Modified in Nov 2021 by Kevin Bhimani to perform parallel calculations using GPUs
+
    ***** Places where some options may be hardcoded are flagged with // CHANGEME comments *****
 
    Grid size and time step are taken as specified in detector config file
@@ -437,7 +439,6 @@ int main(int argc, char **argv)
     /* we need **v to have electric potential, not WP, so we quit here */
 
     if(write_densities){
-    //get_densities(L, R, rho_e, rho_h, &gpu_setup);
     char fn_1[256], fn_2[256];
     sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
     sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
@@ -454,6 +455,9 @@ int main(int argc, char **argv)
    *   It loops over time steps (size = time_steps_calc in the config file) calculating
    *    the self-consistent field and letting the charge densities diffuse and drift.
    * ----------------------------------------- */
+
+
+  // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n;
   int num_threads = 300;
   int num_blocks = R * (ceil(LL/num_threads)+1);
@@ -484,8 +488,6 @@ int main(int argc, char **argv)
       hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
       for (z=1; z<LL; z++) {
         for (r=1; r<R; r++) {
-          // rho_e[0][z][r] = rho_e[2][z][r];
-          // rho_h[0][z][r] = rho_h[2][z][r];
           esum1 += rho_e[0][z][r] * (double) r;
           esum2 += rho_e[0][z][r] * (double) r;
           hsum1 += rho_h[0][z][r] * (double) r;
@@ -498,8 +500,6 @@ int main(int argc, char **argv)
           hcentz += rho_h[0][z][r] * (double) (r * z);
           hrmsr += rho_h[0][z][r] * (double) (r * r * r);
           hrmsz += rho_h[0][z][r] * (double) (r * z * z) ;
-          // setup.impurity[z][r] = rho_e[3][z][r] +
-          //   (rho_h[0][z][r] - rho_e[0][z][r]) * e_over_E * grid*grid/2.0;
         }
       }
 
@@ -606,352 +606,6 @@ int read_rho(int L, int R, float grid, float **rho, char *fname) {
     fgets(line, 256, file);  // blank line
   }
   fclose(file);
-
-  return 0;
-}
-
-/* -------------------------------------- drift_rho ------------------- */
-// do the diffusion and drifting of the charge cloud densities
-
-int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, double *gone) {
-
-#define TSTEP   setup-> step_time_calc  // time step of calculation, in ns; do not exceed 2.0 !!!
-#define DELTA   (0.07*TSTEP) /* Prob. of a charge moving to next 20-micron bin during a time step */
-#define DELTA_R (0.07*TSTEP) /* ... in r-direction */
-
-  /* ASSUMPTIONS:
-     0.1 mm grid size, 1 ns steps
-     detector temperature = REF_TEMP = 77 K
-     dealing only with electrons (no holes)
-  */
-
-  int    i, k, r, z, new_var = 0;
-  double dre, dze;
-  double ***v = setup->v;
-  float  E_r, E_z, E, fq = -q;
-  double ve_z, ve_r, f, fr, fz, deltaez = DELTA, deltaer = DELTA_R;
-  float drift_E[20]=       {0.000,  100.,  160.,  240.,  300.,  500.,  600.,
-			    750.0, 1000., 1250., 1500., 1750., 2000., 2500.,
-			    3000., 3500., 4000., 4500., 5000., 1e10};
-  float drift_offset_e[20]={0.0,   0.027, 0.038, 0.049 ,0.055, 0.074, 0.081,
-			    0.089, 0.101, 0.109, 0.116, 0.119, 0.122, 0.125,
-			    0.1275,0.1283,0.1288,0.1291,0.1293,0.1293};
-  float drift_slope_e[20];
-
-  float drift_offset_h[20]={0.0,   0.036, 0.047, 0.056, 0.06,  0.072, 0.077,
-			    0.081, 0.086, 0.089, 0.0925,0.095, 0.097, 0.1,
-			    0.1025,0.1036,0.1041,0.1045,0.1047,0.1047};
-  float drift_slope_h[20];
-  float *drift_offset, *drift_slope;
-
-
-  for (i=0; i<20; i++) {
-    drift_offset_e[i] /= grid;   // drift velocities in units of grid length
-    drift_offset_h[i] /= grid;
-  }
-  for (i=0; i<19; i++) {
-    drift_slope_e[i] = (drift_offset_e[i+1] - drift_offset_e[i]) /
-                       (drift_E[i+1] - drift_E[i]);
-    drift_slope_h[i] = (drift_offset_h[i+1] - drift_offset_h[i]) /
-                       (drift_E[i+1] - drift_E[i]);
-  }
-  if (q < 0) { // electrons
-    drift_offset = drift_offset_e;
-    drift_slope  = drift_slope_e;
-  } else {   // holes
-    drift_offset = drift_offset_h;
-    drift_slope  = drift_slope_h;
-  }
-
-  f = 1.2e6; // * setup.xtal_temp/REF_TEMP;
-  f *= TSTEP / 4000.0;
-  /* above is my own approximate parameterization of measurements of Jacoboni et al.
-     1.2e6 * v_over_E   ~   D in cm2/s
-     v_over_E = drift velocity / electric field   ~  mu
-     note that Einstein's equation is D = mu*kT/e
-     kT/e ~ 0.007/V ~ 0.07 mm/Vcm, => close enough to 0.12, okay
-     For 20-micron bins and 1ns steps, DELTA = D / 4000
-     For fixed D, DELTA goes as time_step_size/bin_size_squared
-  */
-  f *= 0.02/grid * 0.02/grid; // correct for grid size
-  // f *= 0.5;                   // artifically reduce diffusion to 50%
-
-  E_r = E_z = 100; // just to get started; will change later
-  for (i=0; E_z > drift_E[i+1]; i++);
-  ve_z = fq * (drift_offset[i] + drift_slope[i]*(E_z - drift_E[i]))/E_z;
-  deltaez = grid * ve_z * f;
-  for (i=0; E_r > drift_E[i+1]; i++);
-  ve_r = fq * (drift_offset[i] + drift_slope[i]*(E_r - drift_E[i]))/E_r;
-  deltaer = grid * ve_r * f;
-  printf ("D_z, D_r values (q=%d) at 100 V/cm: %f %f\n", q, deltaez, deltaer);
-
-  for (z=0; z<L; z++) {
-    for (r=0; r<R; r++) {
-      rho[1][z][r] = rho[2][z][r] = 0;
-    }
-  }
-  /* NOTE that impurity and field arrays in setup start at (i,j)=(1,1) for (r,z)=(0,0) */
-  int idid = lrint((setup->wrap_around_radius - setup->ditch_thickness)/grid) + 1; // ditch ID
-  int idod = lrint(setup->wrap_around_radius/grid) + 1; // ditch OD
-  int idd =  lrint(setup->ditch_depth/grid) + 1;        // ditch depth
-  for (r=1; r<R; r++) {
-    for (z=1; z<L-2; z++) {
-      if (rho[0][z][r] < 1.0e-14) {
-        rho[1][z][r] += rho[0][z][r];
-        continue;
-      }
-      // calc E in r-direction
-      if (r == 1) {  // r = 0; symmetry implies E_r = 0
-        E_r = 0;
-      } else if (setup->point_type[z][r] == CONTACT_EDGE) {
-        E_r = ((v[new_var][z][r] - v[new_var][z][r+1])*setup->dr[1][z][r] +
-               (v[new_var][z][r-1] - v[new_var][z][r])*setup->dr[0][z][r]) / (0.2*grid);
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z][r-1] == CONTACT_EDGE) {
-        E_r =  (v[new_var][z][r-1] - v[new_var][z][r]) * setup->dr[1][z][r-1] / ( 0.1*grid) ;
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z][r+1] == CONTACT_EDGE) {
-        E_r =  (v[new_var][z][r] - v[new_var][z][r+1]) * setup->dr[0][z][r+1] / ( 0.1*grid) ;
-      } else if (r == R-1) {
-        E_r = (v[new_var][z][r-1] - v[new_var][z][r])/(0.1*grid);
-      } else {
-        E_r = (v[new_var][z][r-1] - v[new_var][z][r+1])/(0.2*grid);
-      }
-      // calc E in z-direction
-      // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
-      if (setup->point_type[z][r] == CONTACT_EDGE) {
-        E_z = ((v[new_var][z][r] - v[new_var][z+1][r])*setup->dz[1][z][r] +
-               (v[new_var][z-1][r] - v[new_var][z][r])*setup->dz[0][z][r]) / (0.2*grid);
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z-1][r] == CONTACT_EDGE) {
-        E_z =  (v[new_var][z-1][r] - v[new_var][z][r]) * setup->dz[1][z-1][r] / ( 0.1*grid) ;
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z+1][r] == CONTACT_EDGE) {
-        E_z =  (v[new_var][z][r] - v[new_var][z+1][r]) * setup->dz[0][z+1][r] / ( 0.1*grid) ;
-      } else if (z == 1) {
-        E_z = (v[new_var][z][r] - v[new_var][z+1][r])/(0.1*grid);
-      } else if (z == L-1) {
-        E_z = (v[new_var][z-1][r] - v[new_var][z][r])/(0.1*grid);
-      } else {
-        E_z = (v[new_var][z-1][r] - v[new_var][z+1][r])/(0.2*grid);
-      }
-
-      /* do diffusion to neighboring pixels */
-      deltaez = deltaer = ve_z = ve_r = 0;
-      E = fabs(E_z);
-      if (E > 1.0) {
-        for (i=0; E > drift_E[i+1]; i++);
-        ve_z = (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
-        deltaez = grid * ve_z * f / E;
-      }
-      E = fabs(E_r);
-      if (E > 1.0) {
-        for (i=0; E > drift_E[i+1]; i++);
-        ve_r = (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
-        deltaer = grid * ve_r * f / E;
-      }
-      if (0 && r == 100 && z == 10)
-        printf("r z: %d %d; E_r deltaer: %f %f; E_z deltaez: %f %f; rho[0] = %f\n",
-               r, z, E_r, deltaer, E_z, deltaez, rho[0][z][r]);
-
-      /* reduce diffusion at passivated surfaces by a factor of surface_drift_vel_factor */
-      if (1 &&
-          ((r == idid && z < idd) ||
-           (r < idid  && z == 1 ) ||
-           (r >= idid && r <= idod && z == idd))) {
-        // assume 2-micron-thick roughness/passivation in z
-        deltaer *= setup->surface_drift_vel_factor;
-        deltaez *= setup->surface_drift_vel_factor * grid/0.002; // * grid/0.002;
-      }
-
-      // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
-      rho[1][z][r]   += rho[0][z][r];
-      if (0 && z == 1) printf("r,z = %d, %d E_r,z = %f, %f  deltaer,z = %f, %f  s1,s2 = %f, %f\n",
-                         r, z, E_r, E_z, deltaer, deltaez, setup->s1[r], setup->s2[r]);
-      if (r < R-1 && setup->point_type[z][r+1] != DITCH) {
-        //if (setup->point_type[z][r+1] > HVC)
-        rho[1][z][r+1] += rho[0][z][r]*deltaer * setup->s1[r] * (double) (r-1) / (double) (r);
-        rho[1][z][r]   -= rho[0][z][r]*deltaer * setup->s1[r];
-      }
-      if (z > 1 && setup->point_type[z-1][r] != DITCH) {
-        //if (setup->point_type[z-1][r] > HVC)
-        rho[1][z-1][r] += rho[0][z][r]*deltaez;
-        rho[1][z][r]   -= rho[0][z][r]*deltaez;
-      }
-      if (z < L-1 && setup->point_type[z+1][r] != DITCH) {
-        //if (setup->point_type[z+1][r] > HVC)
-        rho[1][z+1][r] += rho[0][z][r]*deltaez;
-        rho[1][z][r]   -= rho[0][z][r]*deltaez;
-      }
-      if (r > 2 && setup->point_type[z][r-1] != DITCH) {
-        //if (setup->point_type[z][r-1] > HVC)
-        rho[1][z][r-1] += rho[0][z][r]*deltaer * setup->s2[r] * (double) (r-1) / (double) (r-2);
-        rho[1][z][r]   -= rho[0][z][r]*deltaer * setup->s2[r];
-      }
-
-      //-----------------------------------------------------------
-    }
-  }
-  for (r=1; r<R; r++) {
-    for (z=1; z<L-2; z++) {
-      if (rho[1][z][r] < 1.0e-14) {
-        rho[2][z][r] += rho[1][z][r];
-        continue;
-      }
-      // need to r-calculate all the fields
-      // calc E in r-direction
-      if (r == 1) {  // r = 0; symmetry implies E_r = 0
-        E_r = 0;
-      } else if (setup->point_type[z][r] == CONTACT_EDGE) {
-        E_r = ((v[new_var][z][r] - v[new_var][z][r+1])*setup->dr[1][z][r] +
-               (v[new_var][z][r-1] - v[new_var][z][r])*setup->dr[0][z][r]) / (0.2*grid);
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z][r-1] == CONTACT_EDGE) {
-        E_r =  (v[new_var][z][r-1] - v[new_var][z][r]) * setup->dr[1][z][r-1] / ( 0.1*grid) ;
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z][r+1] == CONTACT_EDGE) {
-        E_r =  (v[new_var][z][r] - v[new_var][z][r+1]) * setup->dr[0][z][r+1] / ( 0.1*grid) ;
-      } else if (r == R-1) {
-        E_r = (v[new_var][z][r-1] - v[new_var][z][r])/(0.1*grid);
-      } else {
-        E_r = (v[new_var][z][r-1] - v[new_var][z][r+1])/(0.2*grid);
-      }
-      // calc E in z-direction
-      // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
-      if (setup->point_type[z][r] == CONTACT_EDGE) {
-        E_z = ((v[new_var][z][r] - v[new_var][z+1][r])*setup->dz[1][z][r] +
-               (v[new_var][z-1][r] - v[new_var][z][r])*setup->dz[0][z][r]) / (0.2*grid);
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z-1][r] == CONTACT_EDGE) {
-        E_z =  (v[new_var][z-1][r] - v[new_var][z][r]) * setup->dz[1][z-1][r] / ( 0.1*grid) ;
-      } else if (setup->point_type[z][r] < INSIDE &&
-                 setup->point_type[z+1][r] == CONTACT_EDGE) {
-        E_z =  (v[new_var][z][r] - v[new_var][z+1][r]) * setup->dz[0][z+1][r] / ( 0.1*grid) ;
-      } else if (z == 1) {
-        E_z = (v[new_var][z][r] - v[new_var][z+1][r])/(0.1*grid);
-      } else if (z == L-1) {
-        E_z = (v[new_var][z-1][r] - v[new_var][z][r])/(0.1*grid);
-      } else {
-        E_z = (v[new_var][z-1][r] - v[new_var][z+1][r])/(0.2*grid);
-      }
-      ve_z = ve_r = 0;
-      E = fabs(E_z);
-      if (E > 1.0) {
-        for (i=0; E > drift_E[i+1]; i++);
-        ve_z = fq * (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
-      }
-      E = fabs(E_r);
-      if (E > 1.0) {
-        for (i=0; E > drift_E[i+1]; i++);
-        ve_r = fq * (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
-      }
-      /* reduce drift speed at passivated surfaces by a factor of surface_drift_vel_factor */
-      if (1 &&
-          ((r == idid && z < idd) ||
-           (r < idid  && z == 1 ) ||
-           (r >= idid && r <= idod && z == idd))) {
-        ve_r *= setup->surface_drift_vel_factor;
-        ve_z *= setup->surface_drift_vel_factor * grid/0.002;  // assume 2-micron-thick roughness/passivation in z
-      }
-
-
-      //-----------------------------------------------------------
-
-      /* do drift to neighboring pixels */
-      // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
-      if (E_r > 0) {
-        dre = -TSTEP*ve_r;
-      } else {
-        dre =  TSTEP*ve_r;
-      }
-      if (E_z > 0) {
-        dze = -TSTEP*ve_z;
-      } else {
-        dze =  TSTEP*ve_z;
-      }
-
-      if (dre == 0.0) {
-        i = r;
-        fr = 1.0;
-      } else {
-        i = (double) r + dre;
-        fr = ceil(dre) - dre;
-      }
-      if (i<1) {
-        i = 1;
-        fr = 1.0;
-      }
-      if (i>R-1) {
-        i = R-1;
-        fr = 0.0;
-      }
-      if (dre > 0 && z < idd && r <= idid && i >= idid) { // ditch ID
-        i = idid;
-        fr = 1.0;
-      }
-      if (dre < 0 && z < idd && r >= idod && i <= idod) { // ditch OD
-        i = idod;
-        fr = 0.0;
-      }
-
-      if (dze == 0.0) {
-        k = z;
-        fz = 1.0;
-      } else {
-        k = (double) z + dze;
-        fz = ceil(dze) - dze;
-      }
-      if (k<1) {
-        k = 1;
-        fz = 1.0;
-      }
-      if (k>L-1) {
-        k = L-1;
-        fz = 0.0;
-      }
-      if (dze < 0 && r > idid && r < idod && k < idd) { // ditch depth
-        k   = idd;
-        fr  = 1.0;
-      }
-      if (0 && r == 100 && z == 10)
-        printf("r z: %d %d; E_r i dre: %f %d %f; fr = %f\n"
-               "r z: %d %d; E_z k dze: %f %d %f; fz = %f\n",
-               r, z, E_r, i, dre, fr, r, z, E_z, k, dze, fz);
-
-      if (i>=1 && i<R && k>=1 && k<L) {
-        if (i > 1 && r > 1) {
-          rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       * (double) (r-1) / (double) (i-1);
-          rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       * (double) (r-1) / (double) (i);
-          rho[2][k+1][i  ] += rho[1][z][r] * fr      *(1.0-fz) * (double) (r-1) / (double) (i-1);
-          rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) * (double) (r-1) / (double) (i);
-        } else if (i > 1) {  // r == 0
-          rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       / (double) (8*i-8);
-          rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       / (double) (8*i);
-          rho[2][k+1][i  ] += rho[1][z][r] * fr      *(1.0-fz) / (double) (8*i-8);
-          rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) / (double) (8*i);
-        } else if (r > 1) {  // i == 0
-          rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       * (double) (8*r-8);
-          rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       * (double) (r-1);
-          rho[2][k+1][i  ] += rho[1][z][r] * fr      *(1.0-fz) * (double) (8*r-8);
-          rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) * (double) (r-1);
-        } else {             // r == i == 0
-          rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz;
-          rho[2][k  ][i+1] += rho[1][z][r] * (1.0-fr)*fz       / 8.0; // vol_0 / vol_1 = 1/8
-          rho[2][k+1][i  ] += rho[1][z][r] * fr      *(1.0-fz);
-          rho[2][k+1][i+1] += rho[1][z][r] * (1.0-fr)*(1.0-fz) / 8.0;
-        }
-      }
-    }
-  }
-
-  for (z=0; z<L; z++) {
-    for (r=0; r<R; r++) {
-      if (setup->point_type[z][r] <= HVC) {
-        *gone += rho[2][z][r] * r;
-        rho[2][z][r] = 0;
-      }
-    }
-  }
 
   return 0;
 }

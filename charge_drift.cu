@@ -1,4 +1,8 @@
-
+/*
+  gpu drift perform diffusion and drift in electric field of electron and hole signals.
+  author:           Kevin H Bhimani
+  first written:    Nov 2021
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -39,13 +43,11 @@ __global__ void reset_rho(int L, int R, float *rho, int max_threads){
     }
     rho[(1*(L+1)*(R+1))+((R+1)*z)+r] = rho[(2*(L+1)*(R+1))+((R+1)*z)+r] = 0;
 }
-
+/* 
+  Uses diffusion eqaution to calculate the diffusion coefficients and stores them in appropriate arrays
+ */
 __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double *v, char *point_type,  
   double *dr, double *dz, double *s1, double *s2, float *drift_offset, float *drift_slope, int max_threads, double *deltaez_array, double *deltaer_array){
-
-
-  //printf("Time step is %d \n", setup-> step_time_calc);
-  //formlaa for index n,z,r is (n*(L+1)*(R+1))+((R+1)*z)+r
 
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -56,11 +58,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
   int i, new_gpu_relax = 0;
   float E, E_r, E_z;
   double ve_z, ve_r, deltaez, deltaer;
-  // if((r>=R) || (z>=L-2)){
-  // printf("-----------Segfault error at radius=%d and z position=%d-----------\n",r,z);
-  // }
 
-  
   if (rho[(0*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
     atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]);
     return;
@@ -102,14 +100,8 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
     E_z = (v[(new_gpu_relax*(L+1)*(R+1))+((R+1)*(z-1))+r] - v[(new_gpu_relax*(L+1)*(R+1))+((R+1)*(z+1))+r])/(0.2*grid);
   }
 
-
-
   /* do diffusion to neighboring pixels */
   deltaez = deltaer = ve_z = ve_r = 0;
-
-  // if(z==6 && r==1253){
-  //   printf("In GPU at 1, at z=%d and r=%d, the value of rho is %.7f deltaez is %.7f and deltaer is %.7f\n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r], deltaez, deltaer);
-  // }
 
   E = fabs(E_z);
   if (E > 1.0) {
@@ -149,6 +141,10 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
 
 }
 
+/*
+Performs diffusion to values in rho[0] and stores them to rho[1].
+Atomic operations are need to perform the update without interference from any other threads.
+*/
 __global__ void diff_update(int L, int R, float *rho, char *point_type, double *s1, double *s2, double *deltaez_array, double *deltaer_array, int max_threads){
 
   int r = blockIdx.x%R;
@@ -163,19 +159,11 @@ __global__ void diff_update(int L, int R, float *rho, char *point_type, double *
   }
   double deltaez = deltaez_array[((R+1)*z)+r];
   double deltaer = deltaer_array[((R+1)*z)+r];
-
-    // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
     atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]);
-
-  // if((z==6||z==5||z==4) && (r==1253||r==1252||r==1254)){
-  //   printf("In GPU at 1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-  // }
 
   if (r < R-1 && point_type[((R+1)*z)+r+1] != DITCH) {
     atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r+1], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r] * (double) (r-1) / (double) (r));
     atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r],-rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaer * s1[r]);
-    //printf("value of rho at checkpoint 2 is %f \n",rho[(1*(L+1)*(R+1))+((R+1)*z)+r]);
-
     }
 
   if (z > 1 && point_type[((R+1)*(z-1))+r] != DITCH) {
@@ -196,6 +184,9 @@ __global__ void diff_update(int L, int R, float *rho, char *point_type, double *
   }
 }
 
+/* 
+  Sees where the charge would drift in the field and stores the new location
+ */
 __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, double *v, char *point_type,  double *dr, double *dz, 
   double *s1, double *s2, float *drift_offset, float *drift_slope, int max_threads, double *fr_array, double *fz_array, int *i_array, int *k_array){
 
@@ -340,6 +331,11 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
           r, z, E_r, i_array[((R+1)*z)+r], dre, fr_array[((R+1)*z)+r], r, z, E_z, k_array[((R+1)*z)+r], dze, fz_array[((R+1)*z)+r]);
 
 }
+
+/* 
+  Drift the charges stores the new locations to rho[2].
+  Atomic operations are need to perform the update without interference from any other threads.
+ */
 
 __global__ void gpu_sr_update(int L, int R, float *rho, double *fr_array, double *fz_array, int *i_array, int *k_array, int max_threads){
 

@@ -1,9 +1,11 @@
 /*
-This program is called to calculate electric field in each tme step of the signal.
-Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
-WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
-*/
+  Allocated memory for pointers on GPU memory that are stored in GPU struct. The pointer are then assigned values from CPU memory.
+  author:           Kevin H Bhimani
+  first written:    Nov 2021
 
+  For better memory management on GPU, all multidemensional arrays are flattened.
+  The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)*j)+k]
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,17 +57,6 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
     }
   }
   cudaMemcpy(gpu_setup->v_gpu, v_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-
-  // double *v_flat_test;
-  // v_flat_test = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
-  // cudaMemcpy(v_flat_test, gpu_setup->v_gpu, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyDeviceToHost);
-  // for(int i=0; i<2; i++) {
-  //   for(int j=0; j<=L; j++){
-  //     for(int k=0; k<=R; k++){
-  //       printf(" The value of v at r=%d and z=%d is %f and actual answer is %f\n", k, j, v_flat_test[(i*(L+1)*(R+1))+((R+1)*j)+k], setup->v[i][j][k]);
-  //     }
-  //   }
-  // }
   
   char *point_type_flat;
   point_type_flat = (char*)malloc(sizeof(char)*(L+1)*(R+1));
@@ -225,14 +216,9 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   free(eps_dz_flat);
   free(impurity_flat);
   free(diff_array_cpu);
-  // free(drift_E);
-  // free(drift_offset_e);
-  // free(drift_offset_h);
-  // free(drift_slope_e);
-  // free(drift_slope_h);
-
 }
 
+// Copies the densities back to CPU from GPU
 extern "C" void get_densities(int L, int R, float ***rho_e, float ***rho_h, GPU_data *gpu_setup){
 
   float *rho_flat_e_cpu;
@@ -264,6 +250,7 @@ extern "C" void get_densities(int L, int R, float ***rho_e, float ***rho_h, GPU_
   free(rho_flat_h_cpu);
 }
 
+// Copies the potentials back to CPU from GPU
 extern "C" void get_potential(int L, int R, MJD_Siggen_Setup *setup, GPU_data *gpu_setup){
 
   double *v_flat;
@@ -280,6 +267,7 @@ extern "C" void get_potential(int L, int R, MJD_Siggen_Setup *setup, GPU_data *g
   free(v_flat);
 }
 
+//Frees all pointer on GPU memory
 extern "C" void free_gpu_mem(GPU_data *gpu_setup){
   cudaFree(gpu_setup->v_gpu);
   cudaFree(gpu_setup->point_type_gpu);

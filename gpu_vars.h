@@ -1,3 +1,9 @@
+/*
+  GPU struct keeps tract of variables on GPU memory. The struct must be passesed by pointer to a function.
+  author:           Kevin H Bhimani
+  first written:    Nov 2021
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
