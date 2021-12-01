@@ -23,8 +23,8 @@ mkdir $dir_save/$detector/q=${surface_charge}/drift_data_r=${radius}_z=${zPos}
 mkdir $dir_run/waveforms/$detector
 mkdir $dir_run/waveforms/$detector/q=${surface_charge}
 
-$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge
+time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge
 time $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge
-$dir_run/ehd_siggen $config_file -a $radius -z $zPos -g $detector -s $surface_charge
+time $dir_run/ehd_siggen $config_file -a $radius -z $zPos -g $detector -s $surface_charge
 
 echo "done!"

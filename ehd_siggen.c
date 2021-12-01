@@ -249,6 +249,8 @@ int main(int argc, char **argv)
     sig[n]     = 1000.0 * ((hsum1 - hsum01) / hsum02 - (esum1 - esum01) / esum02);
     //sig[800+n/5] = 1000.0 * (hsum1 - hsum01) / hsum02;
     //sig[900+n/5] = 1000.0 * (esum01 - esum1) / esum02;
+    printf("Signal collected is %.4f\n\n", sig[n]/1000);
+
   }
 
   /* do RC integration for preamp risetime */

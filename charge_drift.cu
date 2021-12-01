@@ -154,7 +154,6 @@ __global__ void diff_update(int L, int R, float *rho, char *point_type, double *
     return;
   }
   if (rho[(0*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
-    //printf("-----------EXCITING THE KERNAL-----------\n");
     return;
   }
   double deltaez = deltaez_array[((R+1)*z)+r];
@@ -352,33 +351,24 @@ if (rho[(1*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
 
   if (i_array[((R+1)*z)+r]>=1 && i_array[((R+1)*z)+r]<R && k_array[((R+1)*z)+r]>=1 && k_array[((R+1)*z)+r]<L) {
     if (i_array[((R+1)*z)+r] > 1 && r > 1) {
-      // rho[2][k  ][i  ] += rho[1][z][r] * fr      *fz       * (double) (r-1) / (double) (i-1);
-      // if((z==4) && (r==501)){
-      //   printf("Before modification, rho =%.7f\n", rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]]);
-      // }
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       * (double) (r-1) / (double) (i_array[((R+1)*z)+r]-1));
-      // if((z==4) && (r==501)){
-      //   printf("In GPU at 2.1, at z=%d and r=%d, the value of rho is %.7f \n", z, r, rho[(2*(L+1)*(R+1))+((R+1)*4)+500]);
-      //   printf("rho after diffusion is %.7f; fr=%.7f, fz=%.7f, i=%d, k=%d\n", rho[(1*(L+1)*(R+1))+((R+1)*z)+r], fr_array[((R+1)*z)+r],fz_array[((R+1)*z)+r],i_array[((R+1)*z)+r]-1, k_array[((R+1)*z)+r]);
-      //   printf("After modification, rho =%.7f\n", rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]]);
-      // }
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       * (double) (r-1) / (double) (i_array[((R+1)*z)+r]));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1) / (double) (i_array[((R+1)*z)+r]-1));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1) / (double) (i_array[((R+1)*z)+r]));
     } 
-    else if (i_array[((R+1)*z)+r] > 1) {  // r == 0
+    else if (i_array[((R+1)*z)+r] > 1) {
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       / (double) (8*i_array[((R+1)*z)+r]-8));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       / (double) (8*i_array[((R+1)*z)+r]));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) / (double) (8*i_array[((R+1)*z)+r]-8));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) / (double) (8*i_array[((R+1)*z)+r]));
     } 
-    else if (r > 1) {  // i_array[((R+1)*z)+r] == 0
+    else if (r > 1) {
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]       * (double) (8*(R+1)-8));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       * (double) (r-1));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]) * (double) (8*(R+1)-8));
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*(1.0-fz_array[((R+1)*z)+r]) * (double) (r-1));
     } 
-    else {             // r == i_array[((R+1)*z)+r] == 0
+    else {   
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *fz_array[((R+1)*z)+r]);
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*k_array[((R+1)*z)+r])+i_array[((R+1)*z)+r]+1], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * (1.0-fr_array[((R+1)*z)+r])*fz_array[((R+1)*z)+r]       / 8.0); // vol_0 / vol_1 = 1/8
       atomicAdd(&rho[(2*(L+1)*(R+1))+((R+1)*(k_array[((R+1)*z)+r]+1))+i_array[((R+1)*z)+r]], rho[(1*(L+1)*(R+1))+((R+1)*z)+r] * fr_array[((R+1)*z)+r]      *(1.0-fz_array[((R+1)*z)+r]));
@@ -400,7 +390,6 @@ __global__ void hvc_modicication(int L, int R, float *rho, int max_threads, char
     }
 }
 
-// set_rho_zero<<<num_blocks,num_threads>>>(L, R, gpu_setup->rho_e_gpu, gpu_setup->rho_h_gpu, num_threads);
 __global__ void set_rho_zero(int L, int R, float *rho_e, float *rho_h, int max_threads){
 
   int r = blockIdx.x%R;
@@ -415,7 +404,6 @@ if(r==0 || z==0 || r>=R || z>=L){
   rho_h[(0*(L+1)*(R+1))+((R+1)*z)+r] = rho_h[(2*(L+1)*(R+1))+((R+1)*z)+r];
 }
 
-// update_impurities<<<num_blocks,num_threads>>>(L, R, gpu_setup->impurity_gpu, gpu_setup->rho_e_gpu, gpu_setup->rho_h_gpu, num_threads, e_over_E, grid);
 __global__ void update_impurities(int L, int R, double *impurity_gpu, float *rho_e, float *rho_h, int max_threads, double e_over_E, float grid){
 
   int r = blockIdx.x%R;

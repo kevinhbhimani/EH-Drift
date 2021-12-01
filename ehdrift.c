@@ -46,6 +46,13 @@
 #include "mjd_siggen.h"
 #include "detector_geometry.h"
 #include "gpu_vars.h"
+#include "calc_signal.h"
+
+#include "cyl_point.h"
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <ctype.h>
+#include <string.h>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -74,11 +81,18 @@ int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, i
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
 
+int rc_integrate_ehd(float *s_in, float *s_out, float tau, int time_steps);
+int ehd_field_setup_2(MJD_Siggen_Setup *setup);
+int setup_wp_ehd(MJD_Siggen_Setup *setup);
+
+#define TELL_NORMAL if (setup->verbosity >= NORMAL) tell_ehd
+#define TELL_CHATTY if (setup->verbosity >= CHATTY) tell_ehd
+
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
 {
   int write_densities = 1;
-  int do_self_repulsion =1;
+  int do_self_repulsion = 1;
 
   MJD_Siggen_Setup setup, setup1, setup2;
   GPU_data gpu_setup;
@@ -220,6 +234,8 @@ int main(int argc, char **argv)
 
 
   /* add electrons and holes at a specific point location near passivated surface */
+  double esum01=0, esum02=0;
+  double hsum01=0, hsum02=0;
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
   float  grid = setup.xtal_grid;
@@ -450,6 +466,10 @@ int main(int argc, char **argv)
   gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
   gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
 
+  /* -------------- read weighting potential */
+  if (!setup.write_WP) {
+    if (ehd_field_setup_2(&setup)) return 1;
+  }
   /* -----------------------------------------
    *   This loop starting here is crucial.
    *   It loops over time steps (size = time_steps_calc in the config file) calculating
@@ -459,6 +479,7 @@ int main(int argc, char **argv)
 
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n;
+  float  sig[5000] = {0};
   int num_threads = 300;
   int num_blocks = R * (ceil(LL/num_threads)+1);
 
@@ -469,29 +490,18 @@ int main(int argc, char **argv)
     set_rho_zero_gpu(&gpu_setup, LL, R, num_blocks, num_threads);
     cudaDeviceSynchronize();
     update_impurities_gpu(&gpu_setup, LL, R, num_blocks, num_threads, e_over_E, grid);
-    
-    if(do_self_repulsion){
-      cudaDeviceSynchronize();
-      ev_calc_gpu(1, &setup, &gpu_setup);
-    }
 
-    cudaDeviceSynchronize();
-    gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
-    cudaDeviceSynchronize();
-    gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
-
-    if (write_densities && n%10 == 0) {
-      cudaDeviceSynchronize();
-      get_densities(L, R, rho_e, rho_h, &gpu_setup);
-          // copy new values of rho_e
+    if(n%10==0){
       esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
       hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
+      cudaDeviceSynchronize();
+      get_densities(L, R, rho_e, rho_h, &gpu_setup);
       for (z=1; z<LL; z++) {
         for (r=1; r<R; r++) {
-          esum1 += rho_e[0][z][r] * (double) r;
-          esum2 += rho_e[0][z][r] * (double) r;
-          hsum1 += rho_h[0][z][r] * (double) r;
-          hsum2 += rho_h[0][z][r] * (double) r;
+          esum1 += rho_e[0][z][r] * (double) (r-1) * setup.wpot[r-1][z-1];
+          esum2 += rho_e[0][z][r] * (double) (r-1);
+          hsum1 += rho_h[0][z][r] * (double) (r-1) * setup.wpot[r-1][z-1];
+          hsum2 += rho_h[0][z][r] * (double) (r-1);
           ecentr += rho_e[0][z][r] * (double) (r * r);
           ecentz += rho_e[0][z][r] * (double) (r * z);
           ermsr += rho_e[0][z][r] * (double) (r * r * r);
@@ -503,7 +513,10 @@ int main(int argc, char **argv)
         }
       }
 
-      printf("n: %3d  esums: %.0f %.0f", n, esum1, esum2);
+      // assume that any holes that have disappeared went to the point contact, so WP = 1
+      if (n > 10 && hsum02 > hsum2) hsum1 += hsum02 - hsum2;
+
+      printf("n: %3d  esums: %6.0f %6.0f ratio: %.5f %.5f", n, esum1, esum2, esum1/esum2, esum1/esum02);
       ecentr /= esum2;
       ermsr -= esum2 * ecentr*ecentr;
       ermsr /= esum2;
@@ -511,9 +524,9 @@ int main(int argc, char **argv)
       ermsz -= esum2 * ecentz*ecentz;
       ermsz /= esum2;
       printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
-            grid*(ecentr-1.0), grid*(ecentz-1.0), grid*sqrt(ermsr), grid*sqrt(ermsz));
+            grid*ecentr, grid*ecentz, grid*sqrt(ermsr), grid*sqrt(ermsz));
 
-      printf("n: %3d  hsums: %.0f %.0f", n, hsum1, hsum2);
+      printf("n: %3d  hsums: %6.0f %6.0f ratio: %.5f %.5f", n, hsum1, hsum2, hsum1/hsum2, hsum1/hsum02);
       hcentr /= hsum2;
       hrmsr -= hsum2 * hcentr*hcentr;
       hrmsr /= hsum2;
@@ -521,8 +534,31 @@ int main(int argc, char **argv)
       hrmsz -= hsum2 * hcentz*hcentz;
       hrmsz /= hsum2;
       printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
-            grid*(hcentr-1.0), grid*(hcentz-1.0), grid*sqrt(hrmsr), grid*sqrt(hrmsz));
+            grid*hcentr, grid*hcentz, grid*sqrt(hrmsr), grid*sqrt(hrmsz));
 
+      if (n==10) {
+        esum01 = esum1; esum02 = esum2;
+        hsum01 = hsum1; hsum02 = hsum2;
+      }
+
+      sig[n/10] = 1000.0 * ((hsum1 - hsum01) / hsum02 - (esum1 - esum01) / esum02);
+      printf("Signal collected is %.4f\n", sig[n/10]/1000);
+    }
+
+    if(do_self_repulsion){
+      cudaDeviceSynchronize();
+      ev_calc_gpu(1, &setup, &gpu_setup);
+    }
+
+    cudaDeviceSynchronize();
+    gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
+    cudaDeviceSynchronize();
+    gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
+
+
+     if (write_densities && n%10 == 0) {
+      cudaDeviceSynchronize();
+      get_densities(L, R, rho_e, rho_h, &gpu_setup);
       char fn[256];
       sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
       if (esum2 > 0.1) write_rho(LL/8, R, grid, rho_e[0], fn);
@@ -536,10 +572,176 @@ int main(int argc, char **argv)
 
   strncpy(setup.field_name, "fields/ev_fin.dat", 64);
   write_ev(&setup);
-  free_gpu_mem(&gpu_setup);
+
+  /* do RC integration for preamp risetime */
+  if (setup.preamp_tau > 1) {
+    rc_integrate_ehd(sig, sig, setup.preamp_tau/setup.step_time_out, n/10);
+    for (n=0; n<5000-1; n++) sig[n] = sig[n+1];
+  }
+  printf("signal: \n");
+  for (i = 0; i < 4000; i++){
+    printf("%.4f ", sig[i]/1000);
+    if (i%10 == 9) printf("\n");
+  }
+  printf("\n");
+
+  int written = 0;
+  char filename[1000];
+  sprintf(filename, "/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+  //printf("The file name is %s\n", filename);
+  FILE *f = fopen(filename,"w");
+  //written = fwrite(sig, sizeof(float), sizeof(sig), f);
+  for(i = 0; i <4000; i++){
+    written = fprintf(f,"%f\n",sig[i]/1000);
+  }  
+  if (written == 0) {
+    printf("Error during writing to file !");
+  }
+  fclose(f);
+  //Kevin's modifications end here
+  printf("Done writting\n");
   
+  free_gpu_mem(&gpu_setup);
+
   return 0;
 } /* main */
+
+int rc_integrate_ehd(float s_in[], float s_out[], float tau, int time_steps){
+  int   j;
+  float s_in_old, s;  /* DCR: added so that it's okay to
+			 call this function with s_out == s_in */
+  
+  if (tau < 1.0f) {
+    for (j = time_steps-1; j > 0; j--) s_out[j] = s_in[j-1];
+    s_out[0] = 0.0;
+  } else {
+    s_in_old = s_in[0];
+    s_out[0] = 0.0;
+    for (j = 1; j < time_steps; j++) {
+      s = s_out[j-1] + (s_in_old - s_out[j-1])/tau;
+      s_in_old = s_in[j];
+      s_out[j] = s;
+    }
+  }
+  return 0;
+}
+
+int ehd_field_setup_2(MJD_Siggen_Setup *setup){
+
+  setup->rmin  = 0;
+  setup->rmax  = setup->xtal_radius;
+  setup->rstep = setup->xtal_grid;
+  setup->zmin  = 0;
+  setup->zmax  = setup->xtal_length;
+  setup->zstep = setup->xtal_grid;
+  if (setup->xtal_temp < MIN_TEMP) setup->xtal_temp = MIN_TEMP;
+  if (setup->xtal_temp > MAX_TEMP) setup->xtal_temp = MAX_TEMP;
+
+  printf("rmin: %.2f rmax: %.2f, rstep: %.2f\n"
+         "zmin: %.2f zmax: %.2f, zstep: %.2f\n"
+         "Detector temperature is set to %.1f K\n",
+         setup->rmin, setup->rmax, setup->rstep,
+         setup->zmin, setup->zmax, setup->zstep,
+         setup->xtal_temp);
+
+  if (setup_wp_ehd(setup) != 0){
+    printf("Failed to read weighting potential from file %s\n", setup->wp_name);
+    return -1;
+  }
+
+  return 0;
+}
+/*setup_wp_ehd
+  read weighting potential values from files. returns 0 on success*/
+int setup_wp_ehd(MJD_Siggen_Setup *setup){
+  FILE   *fp;
+  char   line[MAX_LINE], *cp;
+  int    i, j, lineno;
+  cyl_pt cyl;
+  float  wp, **wpot;
+
+  setup->rlen = lrintf((setup->rmax - setup->rmin)/setup->rstep) + 1;
+  setup->zlen = lrintf((setup->zmax - setup->zmin)/setup->zstep) + 1;
+  TELL_CHATTY("rlen, zlen: %d, %d\n", setup->rlen, setup->zlen);
+
+  //assuming rlen, zlen never change as for setup_efld
+  if ((wpot = (float **) malloc(setup->rlen*sizeof(*wpot))) == NULL){
+    error("Malloc failed in setup_wp\n");
+    return 1;
+  }
+  for (i = 0; i < setup->rlen; i++){
+    if ((wpot[i] = (float *) malloc(setup->zlen*sizeof(*wpot[i]))) == NULL){  
+      error("Malloc failed in setup_wp\n");
+      //NB: memory leak here.
+      return 1;
+    }
+    memset(wpot[i], 0, setup->zlen*sizeof(*wpot[i]));
+  }
+  if ((fp = fopen(setup->wp_name, "r")) == NULL){
+    error("failed to open file: %s\n", setup->wp_name);
+    return -1;
+  }
+  lineno = 0;
+  TELL_NORMAL("Reading weighting potential from file: %s\n", setup->wp_name);
+
+  if (strstr(setup->wp_name, "unf")) {
+    /* try to read from unformatted file */
+    while (fgets(line, sizeof(line), fp) && line[0] == '#' &&
+           !strstr(line, "start of unformatted data"))
+      ;
+    if (line[0] != '#') rewind(fp);
+    fread(&i, sizeof(int), 1, fp);
+    fread(&j, sizeof(int), 1, fp);
+    if (i != setup->rlen || j != setup->zlen) {
+      error("Error in WP dimensions: %d != %d, or %d != %d\n", i, setup->rlen, j, setup->zlen);
+      fclose(fp);
+      return -1;
+    }
+    for (i = 0; i < setup->rlen; i++) {
+      if (fread(wpot[i], sizeof(float), setup->zlen, fp) != setup->zlen) {
+        error("Error while reading %s\n", setup->wp_name);
+        return -1;
+      }
+    }
+    TELL_NORMAL("Done reading field, %d x %d points\n", setup->rlen, setup->zlen);
+
+  } else {
+
+    /* read the table from a text file*/
+    while (fgets(line, MAX_LINE, fp) != NULL){
+      lineno++;
+      for (cp = line; isspace(*cp) && *cp != '\0'; cp++);
+      if (*cp == '#' || !strlen(cp)) continue;
+      if (sscanf(line, "%f %f %f\n",&cyl.r, &cyl.z, &wp) != 3){ 
+        error("failed to read weighting potential from line %d\n"
+              "line: %s", lineno, line);
+        fclose(fp);
+        return 1;
+      }
+      i = lrintf((cyl.r - setup->rmin)/setup->rstep);
+      j = lrintf((cyl.z - setup->zmin)/setup->zstep);
+      if (i < 0 || i >= setup->rlen || j < 0 || j >= setup->zlen) continue;
+      if (outside_detector_cyl(cyl, setup)) continue;
+      wpot[i][j] = wp;
+    }
+    TELL_NORMAL("Done reading %d lines of WP data\n", lineno);
+  }
+
+  fclose(fp);
+  setup->wpot = wpot;
+  for (i = 0; i < setup->rlen; i++) setup->wpot[i] = wpot[i];
+
+  return 0;
+}
+
+void tell_ehd(const char *format, ...){
+  va_list ap;
+
+  va_start(ap, format);
+  vprintf(format, ap);
+  va_end(ap);
+  return;
+}
 
 /* -------------------------------------- write_rho ------------------- */
 // writes charge density to a file
