@@ -16,11 +16,14 @@
 #include "mjd_siggen.h"
 #include "detector_geometry.h"
 #include "gpu_vars.h"
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
 
 
 extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup);
 extern "C" void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 extern "C" void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
+
 __managed__ float drift_E[20] = {0.000,  100.,  160.,  240.,  300.,  500.,  600., 750.0, 1000., 1250., 1500., 1750., 2000., 2500., 3000., 3500., 4000., 4500., 5000., 1e10};
 __managed__ float fq;
 __managed__ int idid,idod,idd;

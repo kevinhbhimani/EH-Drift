@@ -59,38 +59,42 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   cudaMemcpy(gpu_setup->v_gpu, v_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
   
   char *point_type_flat;
+  double *impurity_flat;
+
   point_type_flat = (char*)malloc(sizeof(char)*(L+1)*(R+1));
+  impurity_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
+
   cudaMalloc((void**)&gpu_setup->point_type_gpu, sizeof(char)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->impurity_gpu, sizeof(double)*(L+1)*(R+1));
+
   for(int j=0; j<=L; j++){
       for(int k=0; k<=R; k++){
         point_type_flat[((R+1)*j)+k] = setup->point_type[j][k];
+        impurity_flat[((R+1)*j)+k] = setup->impurity[j][k];
       }
     }
+    
   cudaMemcpy(gpu_setup->point_type_gpu, point_type_flat, sizeof(char)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+  cudaMemcpy(gpu_setup->impurity_gpu, impurity_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
   
-  double *dr_flat; 
+  double *dr_flat, *dz_flat;
   dr_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
+  dz_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
+
   cudaMalloc((void**)&gpu_setup->dr_gpu, 2*sizeof(double)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->dz_gpu, 2*sizeof(double)*(L+1)*(R+1));
+
     for(int i=0; i<2; i++) {
       for(int j=1; j<=L; j++){
           for(int k=0; k<=R; k++){
             dr_flat[(i*(L+1)*(R+1))+((R+1)*j)+k] = setup->dr[i][j][k];
-          }
-        }
-      }
-  cudaMemcpy(gpu_setup->dr_gpu, dr_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-  
-  double *dz_flat;
-  dz_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
-  cudaMalloc((void**)&gpu_setup->dz_gpu, 2*sizeof(double)*(L+1)*(R+1));
-    for(int i=0; i<2; i++) {
-      for(int j=1; j<=L; j++){
-          for(int k=0; k<=R; k++){
             dz_flat[(i*(L+1)*(R+1))+((R+1)*j)+k] = setup->dz[i][j][k];
           }
         }
       }
+  cudaMemcpy(gpu_setup->dr_gpu, dr_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
   cudaMemcpy(gpu_setup->dz_gpu, dz_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+
   
   cudaMalloc((void**)&gpu_setup->s1_gpu, sizeof(double)*(R+1));
   cudaMemcpy(gpu_setup->s1_gpu, setup->s1, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
@@ -99,38 +103,21 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   cudaMalloc((void**)&gpu_setup->s2_gpu, sizeof(double)*(R+1));
   cudaMemcpy(gpu_setup->s2_gpu, setup->s2, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
   
-  double *eps_dr_flat;
+  double *eps_dr_flat, *eps_dz_flat;
   eps_dr_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
-  cudaMalloc((void**)&gpu_setup->eps_dr_gpu, sizeof(double)*(L+1)*(R+1));
-  for(int j=0; j<=L; j++){
-    for(int k=0; k<=R; k++){
-      eps_dr_flat[((R+1)*j)+k] = setup->eps_dr[j][k];
-    }
-  }
-  cudaMemcpy(gpu_setup->eps_dr_gpu, eps_dr_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-  
-  
-  double *eps_dz_flat;
   eps_dz_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->eps_dr_gpu, sizeof(double)*(L+1)*(R+1));
   cudaMalloc((void**)&gpu_setup->eps_dz_gpu, sizeof(double)*(L+1)*(R+1));
   for(int j=0; j<=L; j++){
     for(int k=0; k<=R; k++){
+      eps_dr_flat[((R+1)*j)+k] = setup->eps_dr[j][k];
       eps_dz_flat[((R+1)*j)+k] = setup->eps_dz[j][k];
     }
   }
+  cudaMemcpy(gpu_setup->eps_dr_gpu, eps_dr_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
   cudaMemcpy(gpu_setup->eps_dz_gpu, eps_dz_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-  
-  double *impurity_flat;
-  impurity_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
-  cudaMalloc((void**)&gpu_setup->impurity_gpu, sizeof(double)*(L+1)*(R+1));
-  for(int j=0; j<=L; j++){
-    for(int k=0; k<=R; k++){
-      impurity_flat[((R+1)*j)+k] = setup->impurity[j][k];
-    }
-  }
-  cudaMemcpy(gpu_setup->impurity_gpu, impurity_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-  
-  
+
+    
   double *diff_array_cpu;
   diff_array_cpu = (double*)malloc(sizeof(double)*(L+1)*(R+1));
   cudaMalloc((void**)&gpu_setup->diff_array, sizeof(double)*(L+1)*(R+1));
@@ -206,6 +193,25 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   cudaMalloc((void**)&gpu_setup->drift_slope_h_gpu, sizeof(float)*20);
   cudaMemcpy(gpu_setup->drift_slope_h_gpu, drift_slope_h, sizeof(float)*20, cudaMemcpyHostToDevice);
 
+  
+  cudaMalloc((void**)&gpu_setup->rho_sum, sizeof(float)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->wpot_gpu, sizeof(float)*(L+1)*(R+1));
+
+  float *rho_sum_flat = (float*)malloc(sizeof(float)*(L+1)*(R+1));
+  float *wpot_flat = (float*)malloc(sizeof(float)*(L+1)*(R+1));
+
+  for (int i = 0; i<(L+1)*(R+1); i++){
+    rho_sum_flat[i] = 0.00;
+  }
+
+  for(int j=0; j<L; j++){
+      for(int k=0; k<R; k++){
+        wpot_flat[((R+1)*j)+k] = setup->wpot[k][j];
+      }
+    }
+  cudaMemcpy(gpu_setup->rho_sum, rho_sum_flat, sizeof(float)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
+  cudaMemcpy(gpu_setup->wpot_gpu, wpot_flat, sizeof(float)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
+
   free(rho_flat_e_cpu);
   free(rho_flat_h_cpu);
   free(v_flat);
@@ -216,6 +222,8 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   free(eps_dz_flat);
   free(impurity_flat);
   free(diff_array_cpu);
+  free(wpot_flat);
+  free(rho_sum_flat);
 }
 
 // Copies the densities back to CPU from GPU
@@ -291,6 +299,8 @@ extern "C" void free_gpu_mem(GPU_data *gpu_setup){
   cudaFree(gpu_setup->fz_array);
   cudaFree(gpu_setup->i_array);
   cudaFree(gpu_setup->k_array);
+  cudaFree(gpu_setup->wpot_gpu);
+  cudaFree(gpu_setup->rho_sum);
 }
 
 

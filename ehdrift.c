@@ -80,6 +80,7 @@ int read_rho(int L, int R, float grid, float **rho, char *fname);
 int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup);
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
+float get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int num_blocks, int num_threads);
 
 int rc_integrate_ehd(float *s_in, float *s_out, float tau, int time_steps);
 int ehd_field_setup_2(MJD_Siggen_Setup *setup);
@@ -91,7 +92,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup);
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
 {
-  int write_densities = 1;
+  int write_densities = 0;
   int do_self_repulsion = 1;
 
   MJD_Siggen_Setup setup, setup1, setup2;
@@ -234,8 +235,6 @@ int main(int argc, char **argv)
 
 
   /* add electrons and holes at a specific point location near passivated surface */
-  double esum01=0, esum02=0;
-  double hsum01=0, hsum02=0;
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
   float  grid = setup.xtal_grid;
@@ -455,21 +454,22 @@ int main(int argc, char **argv)
     /* we need **v to have electric potential, not WP, so we quit here */
 
     if(write_densities){
-    char fn_1[256], fn_2[256];
-    sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-    sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-    write_rho(LL/8, R, grid, rho_e[0], fn_1);
-    write_rho(LL/8, R, grid, rho_h[0], fn_2);
-  }
-
-  gpu_init(&setup, rho_e, rho_h, &gpu_setup);
-  gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
-  gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
+      char fn_1[256], fn_2[256];
+      sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      write_rho(LL/8, R, grid, rho_e[0], fn_1);
+      write_rho(LL/8, R, grid, rho_h[0], fn_2);
+    }
 
   /* -------------- read weighting potential */
   if (!setup.write_WP) {
     if (ehd_field_setup_2(&setup)) return 1;
   }
+
+  gpu_init(&setup, rho_e, rho_h, &gpu_setup);
+  gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
+  gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
+  
   /* -----------------------------------------
    *   This loop starting here is crucial.
    *   It loops over time steps (size = time_steps_calc in the config file) calculating
@@ -479,9 +479,12 @@ int main(int argc, char **argv)
 
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n;
-  float  sig[5000] = {0};
+  float  sig[1024] = {0};
   int num_threads = 300;
   int num_blocks = R * (ceil(LL/num_threads)+1);
+
+
+  float hsum01_cpu=0, hsum02_cpu=0, esum01_cpu=0, esum02_cpu=0;
 
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
     
@@ -492,57 +495,18 @@ int main(int argc, char **argv)
     update_impurities_gpu(&gpu_setup, LL, R, num_blocks, num_threads, e_over_E, grid);
 
     if(n%10==0){
-      esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
-      hsum1 = hsum2 = hcentr = hrmsr = hcentz = hrmsz = 0;
-      cudaDeviceSynchronize();
-      get_densities(L, R, rho_e, rho_h, &gpu_setup);
-      for (z=1; z<LL; z++) {
-        for (r=1; r<R; r++) {
-          esum1 += rho_e[0][z][r] * (double) (r-1) * setup.wpot[r-1][z-1];
-          esum2 += rho_e[0][z][r] * (double) (r-1);
-          hsum1 += rho_h[0][z][r] * (double) (r-1) * setup.wpot[r-1][z-1];
-          hsum2 += rho_h[0][z][r] * (double) (r-1);
-          ecentr += rho_e[0][z][r] * (double) (r * r);
-          ecentz += rho_e[0][z][r] * (double) (r * z);
-          ermsr += rho_e[0][z][r] * (double) (r * r * r);
-          ermsz += rho_e[0][z][r] * (double) (r * z * z) ;
-          hcentr += rho_h[0][z][r] * (double) (r * r);
-          hcentz += rho_h[0][z][r] * (double) (r * z);
-          hrmsr += rho_h[0][z][r] * (double) (r * r * r);
-          hrmsz += rho_h[0][z][r] * (double) (r * z * z) ;
-        }
+
+      sig[n/10] = get_signal_gpu(&gpu_setup, LL, R, n, num_blocks, num_threads);
+
+      if(write_densities){
+        cudaDeviceSynchronize();
+        get_densities(L, R, rho_e, rho_h, &gpu_setup);
+        char fn[256];
+        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+        write_rho(LL/8, R, grid, rho_e[0], fn);
+        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+        write_rho(LL/8, R, grid, rho_h[0], fn);
       }
-
-      // assume that any holes that have disappeared went to the point contact, so WP = 1
-      if (n > 10 && hsum02 > hsum2) hsum1 += hsum02 - hsum2;
-
-      printf("n: %3d  esums: %6.0f %6.0f ratio: %.5f %.5f", n, esum1, esum2, esum1/esum2, esum1/esum02);
-      ecentr /= esum2;
-      ermsr -= esum2 * ecentr*ecentr;
-      ermsr /= esum2;
-      ecentz /= esum2;
-      ermsz -= esum2 * ecentz*ecentz;
-      ermsz /= esum2;
-      printf(" |  ecentr,z: %.2f %.2f   ermsr,z:  %.2f %.2f\n",
-            grid*ecentr, grid*ecentz, grid*sqrt(ermsr), grid*sqrt(ermsz));
-
-      printf("n: %3d  hsums: %6.0f %6.0f ratio: %.5f %.5f", n, hsum1, hsum2, hsum1/hsum2, hsum1/hsum02);
-      hcentr /= hsum2;
-      hrmsr -= hsum2 * hcentr*hcentr;
-      hrmsr /= hsum2;
-      hcentz /= hsum2;
-      hrmsz -= hsum2 * hcentz*hcentz;
-      hrmsz /= hsum2;
-      printf(" |  hcentr,z: %.2f %.2f   hrmsr,z:  %.2f %.2f\n\n",
-            grid*hcentr, grid*hcentz, grid*sqrt(hrmsr), grid*sqrt(hrmsz));
-
-      if (n==10) {
-        esum01 = esum1; esum02 = esum2;
-        hsum01 = hsum1; hsum02 = hsum2;
-      }
-
-      sig[n/10] = 1000.0 * ((hsum1 - hsum01) / hsum02 - (esum1 - esum01) / esum02);
-      printf("Signal collected is %.4f\n", sig[n/10]/1000);
     }
 
     if(do_self_repulsion){
@@ -554,17 +518,6 @@ int main(int argc, char **argv)
     gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
     cudaDeviceSynchronize();
     gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
-
-
-     if (write_densities && n%10 == 0) {
-      cudaDeviceSynchronize();
-      get_densities(L, R, rho_e, rho_h, &gpu_setup);
-      char fn[256];
-      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
-      if (esum2 > 0.1) write_rho(LL/8, R, grid, rho_e[0], fn);
-      sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
-      if (hsum2 > 0.1) write_rho(LL/8, R, grid, rho_h[0], fn);
-    }
   }
 
   cudaDeviceSynchronize();
@@ -576,11 +529,11 @@ int main(int argc, char **argv)
   /* do RC integration for preamp risetime */
   if (setup.preamp_tau > 1) {
     rc_integrate_ehd(sig, sig, setup.preamp_tau/setup.step_time_out, n/10);
-    for (n=0; n<5000-1; n++) sig[n] = sig[n+1];
+    for (n=0; n<1024-1; n++) sig[n] = sig[n+1];
   }
   printf("signal: \n");
-  for (i = 0; i < 4000; i++){
-    printf("%.4f ", sig[i]/1000);
+  for (i = 0; i < 400; i++){
+    printf("%.5f ", sig[i]/1000);
     if (i%10 == 9) printf("\n");
   }
   printf("\n");
@@ -591,7 +544,7 @@ int main(int argc, char **argv)
   //printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
-  for(i = 0; i <4000; i++){
+  for(i = 0; i <400; i++){
     written = fprintf(f,"%f\n",sig[i]/1000);
   }  
   if (written == 0) {

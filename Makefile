@@ -39,8 +39,8 @@ mjd_fieldgen: mjd_fieldgen.c read_config.c detector_geometry.c mjd_siggen.h dete
 ehd_siggen: ehd_siggen.c ehd_subs.c $(mk_signal_files) $(mk_signal_headers) 
 	$(CC) $(CFLAGS) -o $@ ehd_siggen.c ehd_subs.c read_config.c detector_geometry.c fields.c cyl_point.c -lm
 
-ehdrift: ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu read_config.c detector_geometry.c mjd_siggen.h detector_geometry.h cyl_point.c gpu_vars.h
-	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu read_config.c detector_geometry.c cyl_point.c -lm
+ehdrift: ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu read_config.c detector_geometry.c rho_sum_calc.cu mjd_siggen.h detector_geometry.h cyl_point.c gpu_vars.h
+	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu rho_sum_calc.cu read_config.c detector_geometry.c cyl_point.c -lm
 
 FORCE:
 

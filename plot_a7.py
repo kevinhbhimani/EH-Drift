@@ -2,9 +2,14 @@
 import sys
 import math
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.colors as colors
 import numpy as np
 import matplotlib.pyplot as plt
+
+# To make gif using cluster:
+# add matplotlib.use('Agg') to top
+# module load python/2.7.12
 
 # used to make anim7.gif:  convert -delay 15 *.png anim7.gif
 # two identical (~touching) boxes, no colorbar

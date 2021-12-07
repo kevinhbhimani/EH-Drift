@@ -46,6 +46,13 @@ double *fz_array;
 int *i_array;
 int *k_array;
 
+float *wpot_gpu;
+float *rho_sum;
+float hsum01;
+float hsum02;
+float esum01;
+float esum02;
+
 // __managed__ float vacuum_gap_gpu;
 // __managed__ double e_over_E_gpu;
 // __managed__ float fq;
