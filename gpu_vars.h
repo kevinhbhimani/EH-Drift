@@ -47,11 +47,11 @@ int *i_array;
 int *k_array;
 
 float *wpot_gpu;
-float *rho_sum;
-float hsum01;
-float hsum02;
-float esum01;
-float esum02;
+double *rho_sum;
+double hsum01;
+double hsum02;
+double esum01;
+double esum02;
 
 // __managed__ float vacuum_gap_gpu;
 // __managed__ double e_over_E_gpu;

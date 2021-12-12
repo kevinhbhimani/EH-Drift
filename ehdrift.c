@@ -80,7 +80,7 @@ int read_rho(int L, int R, float grid, float **rho, char *fname);
 int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup);
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
-float get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int num_blocks, int num_threads);
+double get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int num_blocks, int num_threads);
 
 int rc_integrate_ehd(float *s_in, float *s_out, float tau, int time_steps);
 int ehd_field_setup_2(MJD_Siggen_Setup *setup);
@@ -479,12 +479,9 @@ int main(int argc, char **argv)
 
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n;
-  float  sig[1024] = {0};
+  double sig[1024] = {0};
   int num_threads = 300;
   int num_blocks = R * (ceil(LL/num_threads)+1);
-
-
-  float hsum01_cpu=0, hsum02_cpu=0, esum01_cpu=0, esum02_cpu=0;
 
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
     

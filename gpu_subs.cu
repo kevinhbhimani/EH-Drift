@@ -194,10 +194,10 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   cudaMemcpy(gpu_setup->drift_slope_h_gpu, drift_slope_h, sizeof(float)*20, cudaMemcpyHostToDevice);
 
   
-  cudaMalloc((void**)&gpu_setup->rho_sum, sizeof(float)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->rho_sum, sizeof(double)*(L+1)*(R+1));
   cudaMalloc((void**)&gpu_setup->wpot_gpu, sizeof(float)*(L+1)*(R+1));
 
-  float *rho_sum_flat = (float*)malloc(sizeof(float)*(L+1)*(R+1));
+  float *rho_sum_flat = (float*)malloc(sizeof(double)*(L+1)*(R+1));
   float *wpot_flat = (float*)malloc(sizeof(float)*(L+1)*(R+1));
 
   for (int i = 0; i<(L+1)*(R+1); i++){
@@ -209,7 +209,7 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
         wpot_flat[((R+1)*j)+k] = setup->wpot[k][j];
       }
     }
-  cudaMemcpy(gpu_setup->rho_sum, rho_sum_flat, sizeof(float)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
+  cudaMemcpy(gpu_setup->rho_sum, rho_sum_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
   cudaMemcpy(gpu_setup->wpot_gpu, wpot_flat, sizeof(float)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
 
   free(rho_flat_e_cpu);
