@@ -33,7 +33,7 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00
+  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 1 -f 0
   WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
 */
 
@@ -94,6 +94,7 @@ int main(int argc, char **argv)
 {
   int write_densities = 0;
   int do_self_repulsion = 1;
+  double interact_energy = 5.0e-7; //default energy is 5 MeV for alphas
 
   MJD_Siggen_Setup setup, setup1, setup2;
   GPU_data gpu_setup;
@@ -124,7 +125,9 @@ int main(int argc, char **argv)
      "      -z <z position in mm>\n"
      "      -g detector name\n"
      "      -s <surface charge in in 1e10 e/cm2>"
-     "      -e {0,1}  (do_not/do re-calculate field)"
+     "      -e <Intereaction energy in KeV>"
+     "      -v {0,1}  (do_not/do write the density files)"
+     "      -f {0,1}  (do_not/do re-calculate field)"
      "      -r rho_spectrum_file_name\n", argv[0]);
     return 1;
   }
@@ -141,7 +144,9 @@ int main(int argc, char **argv)
     } else if (strstr(argv[i], "-w")) {
       WV = atoi(argv[++i]);               // write-out options
     } else if (strstr(argv[i], "-d")) {
-      WD = atoi(argv[++i]);               // write-out options
+      WD = atoi(argv[++i]);               // densities write-out options
+    } else if (strstr(argv[i], "-v")) {
+      write_densities = atoi(argv[++i]);               // write-out options
     } else if (strstr(argv[i], "-p")) {
       setup.write_WP = atoi(argv[++i]);   // weighting-potential options
     } else if (strstr(argv[i], "-a")) {
@@ -152,7 +157,9 @@ int main(int argc, char **argv)
       strcpy(det_name, argv[++i]);        // name of the detector
     } else if (strstr(argv[i], "-s")) {
       setup.impurity_surface =  atof(argv[++i]);  // surface charge
-    } else if (strstr(argv[i], "-e")) {      //flag to turn off or on self-repulsion
+    } else if (strstr(argv[i], "-e")) {      // set the energy of interaction in KeV
+      interact_energy = atof(argv[++i])/10000000000;
+    } else if (strstr(argv[i], "-f")) {      // flag to turn off or on field recalculation
       do_self_repulsion = atof(argv[++i]);
     } else if (strstr(argv[i], "-r")) {
       if (!(fp = fopen(argv[++i], "r"))) {   // impurity-profile-spectrum file name
@@ -233,7 +240,6 @@ int main(int argc, char **argv)
     return 1;
   }
 
-
   /* add electrons and holes at a specific point location near passivated surface */
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
@@ -244,6 +250,7 @@ int main(int argc, char **argv)
   int    R  = lrint(setup.xtal_radius/grid)+2;
   int    r, z, rr,zz, k;
 
+  double energy_kev = interact_energy * 10000000000;
 
   /* malloc and clear space for electron density arrays */
   for (j=0; j<4; j++) {
@@ -284,7 +291,7 @@ int main(int argc, char **argv)
   }
 
   /* add electrons and holes */
-  e_dens = 5.0e-7/0.003 / (grid*grid*grid); // / 1000.0);  // 5 MeV, units of 1e10/cm3
+  e_dens = interact_energy/0.003 / (grid*grid*grid); // / 1000.0);  // 5 MeV, units of 1e10/cm3
   e_dens *= 20.0;                           // these numbers are fudged to get the self-repulsion about right (2D vs. 3D)
   r = alpha_r_mm/grid + 1;  // CHANGEME : starting radius, converted from mm to grid points; see -a command line option
   z = alpha_z_mm/grid + 1; // CHANGEME currently z = 0.1 mm
@@ -455,8 +462,8 @@ int main(int argc, char **argv)
 
     if(write_densities){
       char fn_1[256], fn_2[256];
-      sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat",energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
       write_rho(LL/8, R, grid, rho_e[0], fn_1);
       write_rho(LL/8, R, grid, rho_h[0], fn_2);
     }
@@ -499,9 +506,9 @@ int main(int argc, char **argv)
         cudaDeviceSynchronize();
         get_densities(L, R, rho_e, rho_h, &gpu_setup);
         char fn[256];
-        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
         write_rho(LL/8, R, grid, rho_e[0], fn);
-        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
         write_rho(LL/8, R, grid, rho_h[0], fn);
       }
     }
@@ -537,7 +544,7 @@ int main(int argc, char **argv)
 
   int written = 0;
   char filename[1000];
-  sprintf(filename, "/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+  sprintf(filename, "/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/%.2f_keV/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt", energy_kev, do_self_repulsion, det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm);
   //printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
   //written = fwrite(sig, sizeof(float), sizeof(sig), f);

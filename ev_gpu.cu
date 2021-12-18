@@ -442,9 +442,9 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   // cudaDeviceSynchronize();
 
   // check for convergence
-  if ( ev_calc && max_value_thrust < 0.00000008) break;
+  // if ( ev_calc && max_value_thrust < 0.00000008) break;
   if ( ev_calc && max_value_thrust < 0.0008) break;  // comment out if you want convergence at the numerical error level
-  if (!ev_calc && max_value_thrust < 0.0000000001) break;
+  // if (!ev_calc && max_value_thrust < 0.0000000001) break;
   if (!ev_calc && max_value_thrust < 0.000001) break;  // comment out if you want convergence at the numerical error level
 
   /* every 100 iterations, check that detector is really depleted*/

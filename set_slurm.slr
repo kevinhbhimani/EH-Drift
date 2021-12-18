@@ -3,8 +3,9 @@
 # Longleaf slurm submission script            
 # execute as:                                           
 #      sbatch set_slurm.slr <radius> <z Position> <detector ID> <Surface_Charge>
+#       <energy in Kev><{0,1} (do_not/do write the density files) <f {0,1} (do_not/do re-calculate field)
 #      MAKE SURE THAT ALL NUMBERS ARE AT TWO DECIMAL POINTS
-#      for example sbatch set_slurm.slr 15.00 0.10 P42575A 0.00
+#      for example sbatch set_slurm.slr 15.00 0.10 P42575A 0.00 5000.00 1 1
 # Check job status: squeue -u kbhimani (ONYEN)
 #--------------------------------------------------------------------------      
 #            
@@ -19,12 +20,12 @@
 #SBATCH --qos=gpu_access
 #SBATCH --gres=gpu:1
 # SBATCH --mem-per-cpu=32g
-#SBATCH --time=5:00:00                                         
+#SBATCH --time=11-00:00:00                                         
 # set the time for your job here. Job will terminate if run time exceeds it.
 #SBATCH --nodes=1
 # uncomment the lines below to get email notification about your job                       
-# SBATCH --mail-type=begin,end,fail
-# SBATCH --mail-user=kevin_bhimani@unc.edu
+#SBATCH --mail-type=begin,end,fail
+#SBATCH --mail-user=kevin_bhimani@unc.edu
 #---------------------------------------------------------------------------   
 source /nas/longleaf/home/kbhimani/.bash_profile
 module load cuda/11.2
@@ -32,5 +33,40 @@ radius=$1 #make sure to keep these at 1 decimal point
 zPos=$2
 detector=$3
 surface_charge=$4
-echo "Submitting job for simulation at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge"
-bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge
+energy=$5
+save_rho=$6
+self_repulsion=$7
+
+config_file="config_files/$detector.config"
+config_file_calc_wp="config_files/${detector}_calc_wp.config"
+
+dir_save="/pine/scr/k/b/kbhimani/siggen_sims"
+dir_run="/nas/longleaf/home/kbhimani/siggen_ccd"
+
+echo "Calculating weighting potential"
+
+$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion 1> /dev/null
+
+energy_vals=(0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 50.00, 100.00, 250.00, 600.00)
+rad_vals=(5.00, 15.00, 25.00)
+zPos_vals=(0.05, 0.10, 0.15, 0.20, 0.50, 1.00, 2.00, 3.00, 5.00, 10.00)
+
+for energy in "${energy_vals[@]}"
+do
+    for radius in "${rad_vals[@]}"
+    do
+        for zPos in "${zPos_vals[@]}"
+        do
+            bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho 1
+            bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho 0
+
+        done
+    done
+done
+
+echo "done!"
+
+# echo "time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion"
+# time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion
+
+# bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion
