@@ -3,9 +3,9 @@
 # Longleaf slurm submission script            
 # execute as:                                           
 #      sbatch set_slurm.slr <radius> <z Position> <detector ID> <Surface_Charge>
-#       <energy in Kev><{0,1} (do_not/do write the density files) <f {0,1} (do_not/do re-calculate field)
+#       <energy in Kev><{0,1} (do_not/do write the density files) <{0,1} (do_not/do re-calculate field)
 #      MAKE SURE THAT ALL NUMBERS ARE AT TWO DECIMAL POINTS
-#      for example sbatch set_slurm.slr 15.00 0.10 P42575A 0.00 5000.00 1 1
+#      for example sbatch set_slurm.slr 15.00 0.10 P42575A 0.00 5000.00 0 1
 # Check job status: squeue -u kbhimani (ONYEN)
 #--------------------------------------------------------------------------      
 #            
@@ -47,9 +47,9 @@ echo "Calculating weighting potential"
 
 $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion 1> /dev/null
 
-energy_vals=(0.10, 0.50, 1.00, 2.00, 5.00, 10.00, 50.00, 100.00, 250.00, 600.00)
-rad_vals=(5.00, 15.00, 25.00)
-zPos_vals=(0.05, 0.10, 0.15, 0.20, 0.50, 1.00, 2.00, 3.00, 5.00, 10.00)
+energy_vals=(0.10 0.50 1.00 2.00 5.00 10.00 50.00 100.00 250.00 600.00)
+rad_vals=(5.00 15.00 25.00)
+zPos_vals=(0.05 0.10 0.15 0.20 0.50 1.00 2.00 3.00 5.00 10.00)
 
 for energy in "${energy_vals[@]}"
 do
