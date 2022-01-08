@@ -93,16 +93,16 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
     setup->fully_depleted = 1;
     setup->bubble_volts = 0;
 
-    int num_threads = 300;
+    int num_threads = 1024;
     int num_blocks = R * (ceil(L/num_threads)+1); //The +1 is just a precaution to make sure all R and Z values are included
 
-    if(num_blocks+1<65535){
+    // if(num_blocks<65536 && num_threads<=1024){
         set_bound_v<<<num_blocks+1,num_threads+1>>>(L, R, gpu_setup->v_gpu, setup->xtal_HV, gpu_setup->point_type_gpu, num_threads);
-    }
-    else{
-        printf("----------------Pick a smaller block please----------------\n");
-        return 0;
-    }
+    // }
+    // else{
+    //     printf("----------------Pick a smaller block please----------------\n");
+    //     return 0;
+    // }
     if (ev_calc) {
         set_passivated_imp<<<R,1>>>(R, gpu_setup->impurity_gpu);
     }
@@ -131,7 +131,7 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
         Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
         Max dimension size of a grid size (x,y,z): (65535, 65535, 65535)
         */
-        int num_threads = 300;
+        int num_threads = 1024;
         int num_blocks = R * (ceil(L/num_threads)+1); //The +1 is just a precaution to make sure all R and Z values are included
     
         //dividing into R blocks of L threads
@@ -175,9 +175,9 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
         // cudaDeviceSynchronize();
     
         // check for convergence
-        if ( ev_calc && max_value_thrust < 0.00000008) break;
+        // if ( ev_calc && max_value_thrust < 0.00000008) break;
         if ( ev_calc && max_value_thrust < 0.0008) break;  // comment out if you want convergence at the numerical error level
-        if (!ev_calc && max_value_thrust < 0.0000000001) break;
+        // if (!ev_calc && max_value_thrust < 0.0000000001) break;
         if (!ev_calc && max_value_thrust < 0.000001) break;  // comment out if you want convergence at the numerical error level
         
     } // end of iter loop

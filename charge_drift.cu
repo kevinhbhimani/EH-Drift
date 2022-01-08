@@ -20,11 +20,11 @@
 #include <thrust/device_vector.h>
 
 
-extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup);
+extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup);
 extern "C" void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 extern "C" void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
 
-__managed__ float drift_E[20] = {0.000,  100.,  160.,  240.,  300.,  500.,  600., 750.0, 1000., 1250., 1500., 1750., 2000., 2500., 3000., 3500., 4000., 4500., 5000., 1e10};
+__managed__ double drift_E[20] = {0.000,  100.,  160.,  240.,  300.,  500.,  600., 750.0, 1000., 1250., 1500., 1750., 2000., 2500., 3000., 3500., 4000., 4500., 5000., 1e10};
 __managed__ float fq;
 __managed__ int idid,idod,idd;
 __managed__ double f_drift;
@@ -36,7 +36,7 @@ __managed__ float ditch_thickness;
 __managed__ float ditch_depth;
 __managed__ float surface_drift_vel_factor;
 
-__global__ void reset_rho(int L, int R, float *rho, int max_threads){
+__global__ void reset_rho(int L, int R, double *rho, int max_threads){
 
     int r = blockIdx.x%R;
     int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -49,8 +49,8 @@ __global__ void reset_rho(int L, int R, float *rho, int max_threads){
 /* 
   Uses diffusion eqaution to calculate the diffusion coefficients and stores them in appropriate arrays
  */
-__global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double *v, char *point_type,  
-  double *dr, double *dz, double *s1, double *s2, float *drift_offset, float *drift_slope, int max_threads, double *deltaez_array, double *deltaer_array){
+__global__ void gpu_diffusion(int L, int R, float grid, double *rho,int q, double *v, char *point_type,  
+  double *dr, double *dz, double *s1, double *s2, double *drift_offset, double *drift_slope, int max_threads, double *deltaez_array, double *deltaer_array){
 
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -148,7 +148,7 @@ __global__ void gpu_diffusion(int L, int R, float grid, float *rho,int q, double
 Performs diffusion to values in rho[0] and stores them to rho[1].
 Atomic operations are need to perform the update without interference from any other threads.
 */
-__global__ void diff_update(int L, int R, float *rho, char *point_type, double *s1, double *s2, double *deltaez_array, double *deltaer_array, int max_threads){
+__global__ void diff_update(int L, int R, double *rho, char *point_type, double *s1, double *s2, double *deltaez_array, double *deltaer_array, int max_threads){
 
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -189,8 +189,8 @@ __global__ void diff_update(int L, int R, float *rho, char *point_type, double *
 /* 
   Sees where the charge would drift in the field and stores the new location
  */
-__global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, double *v, char *point_type,  double *dr, double *dz, 
-  double *s1, double *s2, float *drift_offset, float *drift_slope, int max_threads, double *fr_array, double *fz_array, int *i_array, int *k_array){
+__global__ void gpu_self_repulsion(int L, int R, float grid, double *rho,int q, double *v, char *point_type,  double *dr, double *dz, 
+  double *s1, double *s2, double *drift_offset, double *drift_slope, int max_threads, double *fr_array, double *fz_array, int *i_array, int *k_array){
 
     int new_gpu_relax = 0;
     float E, E_r, E_z;
@@ -327,7 +327,7 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
 
   
 
-  if (1 && r == 100 && z == 10)
+  if (0 && r == 100 && z == 10)
     printf("r z: %d %d; E_r i_array[((R+1)*z)+r]dre: %f %d %f; fr_array[((R+1)*z)+r] = %f\n"
           "r z: %d %d; E_z k_array[((R+1)*z)+r]dze: %f %d %f; fz_array[((R+1)*z)+r] = %f\n",
           r, z, E_r, i_array[((R+1)*z)+r], dre, fr_array[((R+1)*z)+r], r, z, E_z, k_array[((R+1)*z)+r], dze, fz_array[((R+1)*z)+r]);
@@ -339,7 +339,7 @@ __global__ void gpu_self_repulsion(int L, int R, float grid, float *rho,int q, d
   Atomic operations are need to perform the update without interference from any other threads.
  */
 
-__global__ void gpu_sr_update(int L, int R, float *rho, double *fr_array, double *fz_array, int *i_array, int *k_array, int max_threads){
+__global__ void gpu_sr_update(int L, int R, double *rho, double *fr_array, double *fz_array, int *i_array, int *k_array, int max_threads){
 
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -380,7 +380,7 @@ if (rho[(1*(L+1)*(R+1))+((R+1)*z)+r] < 1.0e-14) {
   }
 }
 
-__global__ void hvc_modicication(int L, int R, float *rho, int max_threads, char *point_type){
+__global__ void hvc_modicication(int L, int R, double *rho, int max_threads, char *point_type){
 
     int r = blockIdx.x%R;
     int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -393,7 +393,7 @@ __global__ void hvc_modicication(int L, int R, float *rho, int max_threads, char
     }
 }
 
-__global__ void set_rho_zero(int L, int R, float *rho_e, float *rho_h, int max_threads){
+__global__ void set_rho_zero(int L, int R, double *rho_e, double *rho_h, int max_threads){
 
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -407,7 +407,7 @@ if(r==0 || z==0 || r>=R || z>=L){
   rho_h[(0*(L+1)*(R+1))+((R+1)*z)+r] = rho_h[(2*(L+1)*(R+1))+((R+1)*z)+r];
 }
 
-__global__ void update_impurities(int L, int R, double *impurity_gpu, float *rho_e, float *rho_h, int max_threads, double e_over_E, float grid){
+__global__ void update_impurities(int L, int R, double *impurity_gpu, double *rho_e, double *rho_h, int max_threads, double e_over_E, float grid){
 
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -420,7 +420,7 @@ if(r==0 || z==0 || r>=R || z>=L){
   impurity_gpu[((R+1)*z)+r] = rho_e[(3*(L+1)*(R+1))+((R+1)*z)+r] + (rho_h[(0*(L+1)*(R+1))+((R+1)*z)+r] - rho_e[(0*(L+1)*(R+1))+((R+1)*z)+r]) * e_over_E * grid*grid/2.0;
 }
 
-extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup){
+extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup){
 
 
 
@@ -454,8 +454,8 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
   f_drift *= 0.02/grid * 0.02/grid; // correct for grid size
 
 
-  float *drift_offset_gpu, *drift_slope_gpu;
-  float *rho_gpu;
+  double *drift_offset_gpu, *drift_slope_gpu;
+  double *rho_gpu;
   if (q < 0) { // electrons
     drift_offset_gpu = gpu_setup->drift_offset_e_gpu;
     drift_slope_gpu  = gpu_setup->drift_slope_e_gpu;
@@ -467,10 +467,10 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
     rho_gpu = gpu_setup->rho_h_gpu;
   }
 
-  int num_threads = 300;
+  int num_threads = 1024;
   int num_blocks = R * (ceil(L/num_threads)+1);
 
-  if(num_blocks<65535){
+  // if(num_blocks<65536 && num_threads<=1024){
     reset_rho<<<num_blocks,num_threads>>>(L, R, rho_gpu, num_threads);
     cudaDeviceSynchronize();
     gpu_diffusion<<<num_blocks,num_threads>>>(L, R, grid, rho_gpu, q, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->s1_gpu, gpu_setup->s2_gpu, drift_offset_gpu, drift_slope_gpu, num_threads, gpu_setup->deltaez_array, gpu_setup->deltaer_array);
@@ -481,11 +481,11 @@ extern "C" int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, floa
     gpu_sr_update<<<num_blocks,num_threads>>>(L, R, rho_gpu, gpu_setup->fr_array, gpu_setup->fz_array, gpu_setup->i_array, gpu_setup->k_array, num_threads);
     cudaDeviceSynchronize();
     hvc_modicication<<<num_blocks,num_threads>>>(L, R, rho_gpu, num_threads, gpu_setup->point_type_gpu);
-  }
-  else{
-    printf("----------------Pick a smaller block please----------------\n");
-    return 0;
-  }
+  // }
+  // else{
+  //   printf("----------------Pick a smaller block please----------------\n");
+  //   return 0;
+  // }
   return 0;
 }
 

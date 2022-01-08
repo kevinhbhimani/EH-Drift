@@ -395,10 +395,10 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
   Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
   Max dimension size of a grid size (x,y,z): (65535, 65535, 65535)
   */
-  int num_threads = 300;
+  int num_threads = 1024;
   int num_blocks = R * (ceil(L/num_threads)+1); //The +1 is just a precaution to make sure all R and Z values are included
 
-  if(num_blocks<=65535 && num_threads<=1024){
+  // if(num_blocks<65536 && num_threads<=1024){
     if (vacuum_gap_gpu > 0) {   // modify impurity value along passivated surface due to surface charge induced by capacitance
       vacuum_gap_calc<<<R-1,1>>>(gpu_setup->impurity_gpu, gpu_setup->v_gpu,L, R, grid, old_gpu_relax, new_gpu_relax, vacuum_gap_gpu, e_over_E_gpu);
     }
@@ -418,11 +418,11 @@ for (iter = 0; iter < setup->max_iterations; iter++) {
     relax_step<<<num_blocks,num_threads>>>(0,ev_calc, L, R, grid, OR_fact, gpu_setup->v_gpu, gpu_setup->point_type_gpu, gpu_setup->dr_gpu, gpu_setup->dz_gpu, gpu_setup->eps_dr_gpu, gpu_setup->eps_dz_gpu, 
       gpu_setup->s1_gpu, gpu_setup->s2_gpu, gpu_setup->impurity_gpu, gpu_setup->diff_array, old_gpu_relax, new_gpu_relax, num_threads, vacuum_gap_gpu);
     
-  }
-  else{
-    printf("--------Pick a smaller block please--------\n");
-    return 0;
-  }
+  // }
+  // else{
+  //   printf("--------Pick a smaller block please--------\n");
+  //   return 0;
+  // }
   cudaDeviceSynchronize();
 
   // The Thrust library uses parallel reduction methods to find the maximum difference between old and new iteration and sum of all differences

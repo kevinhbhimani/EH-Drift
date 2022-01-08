@@ -33,8 +33,8 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 1 -f 0
-  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00
+  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1
+  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1
 */
 
 #include <stdio.h>
@@ -72,12 +72,12 @@ int ev_relax_undep(MJD_Siggen_Setup *setup);
 int wp_relax_undep(MJD_Siggen_Setup *setup);
 int interpolate(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup);
 
-int write_rho(int L, int R, float grid, float **rho, char *fname);
-int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho,
+int write_rho(int L, int R, float grid, double **rho, char *fname);
+int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho,
               int q, double *gone);
-int read_rho(int L, int R, float grid, float **rho, char *fname);
+int read_rho(int L, int R, float grid, double **rho, char *fname);
 
-int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, float ***rho, int q, GPU_data *gpu_setup);
+int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup);
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
 double get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int num_blocks, int num_threads);
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
   int   i, j;
   FILE  *fp;
   double e_over_E = 11.310; // e/epsilon; for 1 mm2, charge units 1e10 e/cm3, espilon = 16*epsilon0
-  float **rho_e[4], **rho_h[3];
+  double **rho_e[4], **rho_h[3];
   double egone=0, hgone=0;
   float  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
   float  alpha_z_mm = 0.1;
@@ -128,6 +128,7 @@ int main(int argc, char **argv)
      "      -e <Intereaction energy in KeV>"
      "      -v {0,1}  (do_not/do write the density files)"
      "      -f {0,1}  (do_not/do re-calculate field)"
+     "      -h <grid size in mm>"
      "      -r rho_spectrum_file_name\n", argv[0]);
     return 1;
   }
@@ -153,6 +154,8 @@ int main(int argc, char **argv)
       alpha_r_mm = atof(argv[++i]);       // alpha impact radius
     } else if (strstr(argv[i], "-z")) {
       alpha_z_mm = atof(argv[++i]);       // alpha impact z position
+    } else if (strstr(argv[i], "-h")) {
+      setup.xtal_grid = atof(argv[++i]);  // grid size
     } else if (strstr(argv[i], "-g")) {
       strcpy(det_name, argv[++i]);        // name of the detector
     } else if (strstr(argv[i], "-s")) {
@@ -462,8 +465,8 @@ int main(int argc, char **argv)
 
     if(write_densities){
       char fn_1[256], fn_2[256];
-      sprintf(fn_1, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat",energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      sprintf(fn_2, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_1, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat",energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_2, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
       write_rho(LL/8, R, grid, rho_e[0], fn_1);
       write_rho(LL/8, R, grid, rho_h[0], fn_2);
     }
@@ -473,10 +476,16 @@ int main(int argc, char **argv)
     if (ehd_field_setup_2(&setup)) return 1;
   }
 
+  // for (z=1; z<L-1; z++) {
+  //   for (r=2; r<R-1; r++) {
+  //     if(r==26) {
+  //       printf("z=%.4d,r=%.4d,WP=%.8f",z, r, setup.wpot[z][r]);
+  //     }
+  //   }
+  // }
   gpu_init(&setup, rho_e, rho_h, &gpu_setup);
   gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
   gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
-  
   /* -----------------------------------------
    *   This loop starting here is crucial.
    *   It loops over time steps (size = time_steps_calc in the config file) calculating
@@ -487,7 +496,7 @@ int main(int argc, char **argv)
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n;
   double sig[1024] = {0};
-  int num_threads = 300;
+  int num_threads = 1024;
   int num_blocks = R * (ceil(LL/num_threads)+1);
 
   for (n=1; n<=4000; n++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
@@ -506,9 +515,9 @@ int main(int argc, char **argv)
         cudaDeviceSynchronize();
         get_densities(L, R, rho_e, rho_h, &gpu_setup);
         char fn[256];
-        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+        sprintf(fn, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
         write_rho(LL/8, R, grid, rho_e[0], fn);
-        sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%.2f_keV/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", energy_kev, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
+        sprintf(fn, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n/10);
         write_rho(LL/8, R, grid, rho_h[0], fn);
       }
     }
@@ -544,7 +553,8 @@ int main(int argc, char **argv)
 
   int written = 0;
   char filename[1000];
-  sprintf(filename, "/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/%.2f_keV/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt", energy_kev, do_self_repulsion, det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+  
+  sprintf(filename, "/global/homes/k/kbhimani/siggen_ccd/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
   //printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
@@ -615,19 +625,19 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
   char   line[MAX_LINE], *cp;
   int    i, j, lineno;
   cyl_pt cyl;
-  float  wp, **wpot;
+  double  wp, **wpot;
 
   setup->rlen = lrintf((setup->rmax - setup->rmin)/setup->rstep) + 1;
   setup->zlen = lrintf((setup->zmax - setup->zmin)/setup->zstep) + 1;
   TELL_CHATTY("rlen, zlen: %d, %d\n", setup->rlen, setup->zlen);
 
   //assuming rlen, zlen never change as for setup_efld
-  if ((wpot = (float **) malloc(setup->rlen*sizeof(*wpot))) == NULL){
+  if ((wpot = (double **) malloc(setup->rlen*sizeof(*wpot))) == NULL){
     error("Malloc failed in setup_wp\n");
     return 1;
   }
   for (i = 0; i < setup->rlen; i++){
-    if ((wpot[i] = (float *) malloc(setup->zlen*sizeof(*wpot[i]))) == NULL){  
+    if ((wpot[i] = (double *) malloc(setup->zlen*sizeof(*wpot[i]))) == NULL){  
       error("Malloc failed in setup_wp\n");
       //NB: memory leak here.
       return 1;
@@ -655,7 +665,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
       return -1;
     }
     for (i = 0; i < setup->rlen; i++) {
-      if (fread(wpot[i], sizeof(float), setup->zlen, fp) != setup->zlen) {
+      if (fread(wpot[i], sizeof(double), setup->zlen, fp) != setup->zlen) {
         error("Error while reading %s\n", setup->wp_name);
         return -1;
       }
@@ -669,7 +679,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
       lineno++;
       for (cp = line; isspace(*cp) && *cp != '\0'; cp++);
       if (*cp == '#' || !strlen(cp)) continue;
-      if (sscanf(line, "%f %f %f\n",&cyl.r, &cyl.z, &wp) != 3){ 
+      if (sscanf(line, "%f %f %lf\n",&cyl.r, &cyl.z, &wp) != 3){ 
         error("failed to read weighting potential from line %d\n"
               "line: %s", lineno, line);
         fclose(fp);
@@ -703,7 +713,7 @@ void tell_ehd(const char *format, ...){
 /* -------------------------------------- write_rho ------------------- */
 // writes charge density to a file
 
-int write_rho(int L, int R, float grid, float **rho, char *fname) {
+int write_rho(int L, int R, float grid, double **rho, char *fname) {
 
   int    i, j;
   float  r, z;
@@ -721,7 +731,7 @@ int write_rho(int L, int R, float grid, float **rho, char *fname) {
     r = (j-1) * grid;
     for (i = 1; i < L; i++) {
       z = (i-1) * grid;
-      fprintf(file, "%7.2f %7.2f %12.6e\n", r, z, rho[i][j]);
+      fprintf(file, "%7.4f %7.4f %14.8e\n", r, z, rho[i][j]);
     }
     fprintf(file, "\n");
   }
@@ -733,7 +743,7 @@ int write_rho(int L, int R, float grid, float **rho, char *fname) {
 /* -------------------------------------- read_rho ------------------- */
 // reads charge density from a file
 
-int read_rho(int L, int R, float grid, float **rho, char *fname) {
+int read_rho(int L, int R, float grid, double **rho, char *fname) {
 
   int    i, j;
   float  r, z;

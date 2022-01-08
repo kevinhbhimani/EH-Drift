@@ -18,7 +18,7 @@ CFLAGS = -O3 -Wall
 #-gencode=arch=compute_61,code=sm_61 for GTX 1080, GTX 1070, GTX 1060, GTX 1050, GTX 1030, Titan Xp, Tesla P40, Tesla P4
 #-gencode=arch=compute_70,code=sm_70 for DGX-1 with Volta, Tesla V100, GTX 1180 (GV104), Titan V, Quadro GV100
 
-NVCCFLAGS = -std=c++11 -rdc=true -gencode=arch=compute_70,code=sm_70
+NVCCFLAGS = -std=c++11 -rdc=true -gencode=arch=compute_80,code=compute_80
 
 
 RM = rm -f

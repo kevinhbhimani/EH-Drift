@@ -21,7 +21,7 @@
 
 extern "C" double get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int num_blocks, int num_threads);
 
-__global__ void cal_esum1(int L, int R, double *rho_sum, float *rho_e, float *w_pot, int max_threads){
+__global__ void cal_esum1(int L, int R, double *rho_sum, double *rho_e, double *w_pot, int max_threads){
     // esum1 += rho_e[0][z][r] * (double) (r-1) * setup.wpot[r-1][z-1];
     int r = blockIdx.x%R;
     int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
@@ -32,8 +32,7 @@ __global__ void cal_esum1(int L, int R, double *rho_sum, float *rho_e, float *w_
   rho_sum[((R+1)*z)+r] = rho_e[(0*(L+1)*(R+1))+((R+1)*z)+r] * (double) (r-1) * w_pot[((R+1)*(z-1))+(r-1)];
 }
 
-__global__ void cal_esum2(int L, int R, double *rho_sum, float *rho_e, int max_threads){
-  // esum2 += rho_e[0][z][r] * (float) (r-1);
+__global__ void cal_esum2(int L, int R, double *rho_sum, double *rho_e, int max_threads){
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
   
@@ -43,8 +42,7 @@ __global__ void cal_esum2(int L, int R, double *rho_sum, float *rho_e, int max_t
   rho_sum[((R+1)*z)+r] = rho_e[(0*(L+1)*(R+1))+((R+1)*z)+r] * (double) (r-1);
 }
 
-__global__ void cal_hsum1(int L, int R, double *rho_sum, float *rho_h, float *w_pot, int max_threads){
-  // hsum1 += rho_h[0][z][r] * (float) (r-1) * setup.wpot[r-1][z-1];
+__global__ void cal_hsum1(int L, int R, double *rho_sum, double *rho_h, double *w_pot, int max_threads){
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
   
@@ -54,8 +52,7 @@ __global__ void cal_hsum1(int L, int R, double *rho_sum, float *rho_h, float *w_
   rho_sum[((R+1)*z)+r] = rho_h[(0*(L+1)*(R+1))+((R+1)*z)+r] * (double) (r-1) * w_pot[((R+1)*(z-1))+(r-1)];
 }
 
-__global__ void cal_hsum2(int L, int R, double *rho_sum, float *rho_h, int max_threads){
-  // hsum2 += rho_h[0][z][r] * (float) (r-1);
+__global__ void cal_hsum2(int L, int R, double *rho_sum, double *rho_h, int max_threads){
   int r = blockIdx.x%R;
   int z = (floorf(blockIdx.x/R) * max_threads) + threadIdx.x;
   
@@ -68,10 +65,6 @@ __global__ void cal_hsum2(int L, int R, double *rho_sum, float *rho_h, int max_t
 extern "C" double get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int num_blocks, int num_threads){
 
     double signal, hsum1=0.f, hsum2=0.f, esum1=0.f, esum2=0.f;
-    // esum1 += rho_e[0][z][r] * (float) (r-1) * setup.wpot[r-1][z-1];
-    // esum2 += rho_e[0][z][r] * (float) (r-1);
-    // hsum1 += rho_h[0][z][r] * (float) (r-1) * setup.wpot[r-1][z-1];
-    // hsum2 += rho_h[0][z][r] * (float) (r-1);
 
     cal_esum1<<<num_blocks, num_threads>>>(L, R, gpu_setup->rho_sum, gpu_setup->rho_e_gpu, gpu_setup->wpot_gpu, num_threads);
     esum1 = thrust::reduce(thrust::device, gpu_setup->rho_sum, gpu_setup->rho_sum + (L+1)*(R+1));
@@ -89,7 +82,7 @@ extern "C" double get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n, int n
         gpu_setup->hsum01 = hsum1; gpu_setup->hsum02 = hsum2;
       }
     
-    printf("esum1=%.5f, esum2=%.5f, hsum1=%.5f, hsum2 =%.5f\n", esum1, esum2, hsum1, hsum2);
+    printf("esum1=%.5f, esum2=%.5f, hsum1=%.5f, hsum2=%.5f\n", esum1, esum2, hsum1, hsum2);
     signal = 1000.0 * ((hsum1 - gpu_setup->hsum01) / gpu_setup->hsum02 - (esum1 - gpu_setup->esum01) / gpu_setup->esum02);
     printf("Signals collected:%.5f\n", signal/1000);
     return signal;

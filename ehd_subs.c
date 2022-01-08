@@ -384,7 +384,7 @@ int write_ev(MJD_Siggen_Setup *setup) {
       r = (j-1) * grid;
       for (i = 1; i < L; i++) {
         z = (i-1) * grid;
-        fprintf(file, "%7.2f %7.2f %12.6e\n", r, z, setup->v[new][i][j]);
+        fprintf(file, "%7.4f %7.4f %14.8e\n", r, z, setup->v[new][i][j]);
       }
       fprintf(file, "\n");
     }

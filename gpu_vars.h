@@ -33,12 +33,12 @@ double *s2_gpu;
 double *impurity_gpu;
 double *diff_array;
 
-float *rho_e_gpu;
-float *rho_h_gpu;
-float *drift_offset_e_gpu;
-float *drift_offset_h_gpu;
-float *drift_slope_e_gpu;
-float *drift_slope_h_gpu;
+double *rho_e_gpu;
+double *rho_h_gpu;
+double *drift_offset_e_gpu;
+double *drift_offset_h_gpu;
+double *drift_slope_e_gpu;
+double *drift_slope_h_gpu;
 double *deltaez_array;
 double *deltaer_array;
 double *fr_array;
@@ -46,7 +46,7 @@ double *fz_array;
 int *i_array;
 int *k_array;
 
-float *wpot_gpu;
+double *wpot_gpu;
 double *rho_sum;
 double hsum01;
 double hsum02;
