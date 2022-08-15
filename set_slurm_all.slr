@@ -17,14 +17,18 @@
 #SBATCH --error=/global/homes/k/kbhimani/siggen_ccd/logs/job_error_log_.sh.o%j     
 #SBATCH --account=majorana_g
 #SBATCH --constraint=gpu
-#SBATCH --gpus=1        
+#SBATCH --gpus=1
+#SBATCH --gpus-per-node=1
 #SBATCH --qos=regular
 #SBATCH --time=6:00:00 
 #SBATCH --ntasks=1                                        
 #SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=128
+#SBATCH --gpus-per-task=1
 # uncomment the lines below to get email notification about your job                       
-# SBATCH --mail-type=begin,end,fail
-# SBATCH --mail-user=kevin_bhimani@unc.edu
+#SBATCH --mail-type=begin,end,fail
+#SBATCH --mail-user=kevin_bhimani@unc.edu
 #---------------------------------------------------------------------------   
 #!/bin/bash
 module load cudatoolkit
@@ -40,47 +44,31 @@ grid=$8
 config_file="config_files/$detector.config"
 config_file_calc_wp="config_files/${detector}_calc_wp.config"
 
-dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data/fields"
+dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data"
 dir_run="/global/homes/k/kbhimani/siggen_ccd"
 
-# echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+# echo "Calculating weighting potential for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
 
-# $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
 
-# energy_vals=(0.10 0.50 1.00 2.00 5.00 10.00 50.00 100.00 250.00 600.00)
-# rad_vals=(5.00 15.00 25.00)
-# zPos_vals=(0.05 0.10 0.15 0.20 0.50 1.00 2.00 3.00 5.00 10.00)
-grid_array=(0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400)
-rad_array=(15.00)
-z_array=(0.09 0.11)
+energy_vals=(10.00 50.00 100.00 300.00 800.00)
+rad_vals=($(seq 0.00 0.50 35.00))
+zPos_vals=($(seq 0.05 0.25 5.05))
 
-for grid_val in "${grid_array[@]}"
+# grid_array=(0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400)
+
+
+for energy in "${energy_vals[@]}"
 do
-    echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid_val. Write densities=$save_rho and Self repulsion=$self_repulsion"
-    $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid_val 1> /dev/null
-
-    for rad_val in "${rad_array[@]}"
+    for radius in "${rad_vals[@]}"
     do
-        for z_val in "${z_array[@]}"
+        for zPos in "${zPos_vals[@]}"
         do
-            bash /global/homes/k/kbhimani/siggen_ccd/set_run.sh $rad_val $z_val $detector $surface_charge $energy $save_rho $self_repulsion $grid_val
+            bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid 1> /dev/null
+            # echo /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid
         done
     done
-
 done
-
-# for energy in "${energy_vals[@]}"
-# do
-#     for radius in "${rad_vals[@]}"
-#     do
-#         for zPos in "${zPos_vals[@]}"
-#         do
-#             bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho 1 $grid
-#             bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho 0 $grid
-
-#         done
-#     done
-# done
 
 echo "done!"
 
@@ -88,3 +76,21 @@ echo "done!"
 # time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion $grid
 
 # bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid
+
+
+# rad_array=(15.00)
+#z_array=(0.09 0.11)
+# for grid_val in "${grid_array[@]}"
+# do
+#     echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid_val. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#     $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid_val 1> /dev/null
+
+#     for rad_val in "${rad_array[@]}"
+#     do
+#         for z_val in "${z_array[@]}"
+#         do
+#             bash /global/homes/k/kbhimani/siggen_ccd/set_run.sh $rad_val $z_val $detector $surface_charge $energy $save_rho $self_repulsion $grid_val
+#         done
+#     done
+
+# done

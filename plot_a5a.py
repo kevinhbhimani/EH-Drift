@@ -26,6 +26,8 @@ def main():
 
 def make_png(fname1):
 
+    file_load = '/pscratch/sd/k/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0100/self_repulsion_1/P42575A/q=0.00/drift_data_r=15.00_z=0.02/'
+    file_save = '/pscratch/sd/k/kbhimani/siggen_ccd_data/gif_data/r_15_z_0p02/eh'
     z_index = 2
     # get max value of z to plot, if required
     max_z = None
@@ -38,7 +40,7 @@ def make_png(fname1):
     #fig.suptitle('Electron/Hole density vs. position\n', fontsize=16, linespacing=0.4)
 
     # get data for electron density plot
-    data = np.loadtxt(fname1)
+    data = np.loadtxt(file_load + fname1)
     x = set(data[:,0])  # sets only have one copy of anything; any repeats are removed
     y = set(data[:,1])
     z = data[:,z_index]
@@ -54,7 +56,7 @@ def make_png(fname1):
 
     # now get data for hole density plot
     fname2 = "h" + fname1[1:]
-    data = np.loadtxt(fname2)
+    data = np.loadtxt(file_load + fname2)
     x2 = set(data[:,0])
     y2 = set(data[:,1])
     z2 = data[:,z_index]
@@ -98,7 +100,7 @@ def make_png(fname1):
 
     #plt.tight_layout()
     #plt.show()
-    fname3 = "eh" + fname1[1:5] + ".png"
+    fname3 = file_save + "eh" + fname1[1:5] + ".png"
     print('Saving frame', fname3)
     plt.savefig(fname3)
     plt.close("all")

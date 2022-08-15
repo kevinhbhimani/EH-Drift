@@ -182,7 +182,7 @@ extern "C" int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_s
         
     } // end of iter loop
 
-    printf("Iterations taken by R-B SOR to converge: %d\n", iter);
+    //printf("Iterations taken by R-B SOR to converge: %d\n", iter);
 
     if (setup->vacuum_gap > 0) {   // restore impurity value along passivated surface
         restore_passivated_imp<<<R,1>>>(R, gpu_setup->impurity_gpu);
