@@ -132,7 +132,7 @@ typedef struct {
 
   //for siggen:
   cyl_pt **efld;
-  float  **wpot;
+  double  **wpot;
 
   char   config_file_name[256];
   

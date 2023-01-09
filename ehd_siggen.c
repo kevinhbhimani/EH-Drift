@@ -1,6 +1,7 @@
-/* program to calculate signals from resuts of ehdrift simulation resultss
+/* program to calculate signals from resuts of ehdrift simulation results
    author:           D.C. Radford
    first written:         Oct 2020
+   Can be ran as ./ehd_siggen config_files/P42575A.config -a 25.00 -z 0.10 -g P42575A -s 0.00
 */
 
 #include <stdio.h>
@@ -195,9 +196,9 @@ int main(int argc, char **argv)
 
   /* -------------- calculate signal */
   for (n=1; n<=400; n+=1) {
-    sprintf(fn, "/global/cscratch1/sd/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm, n); 
+    sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm, n); 
     if (read_rho(LL, R, grid, rho_e, fn)) break;
-    sprintf(fn, "/global/cscratch1/sd/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm, n); 
+    sprintf(fn, "/pine/scr/k/b/kbhimani/siggen_sims/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm, n); 
     if (read_rho(LL, R, grid, rho_h, fn)) break;
 
     esum1 = esum2 = ecentr = ermsr = ecentz = ermsz = 0;
@@ -248,6 +249,8 @@ int main(int argc, char **argv)
     sig[n]     = 1000.0 * ((hsum1 - hsum01) / hsum02 - (esum1 - esum01) / esum02);
     //sig[800+n/5] = 1000.0 * (hsum1 - hsum01) / hsum02;
     //sig[900+n/5] = 1000.0 * (esum01 - esum1) / esum02;
+    printf("Signal collected is %.4f\n\n", sig[n]/1000);
+
   }
 
   /* do RC integration for preamp risetime */
@@ -266,26 +269,28 @@ int main(int argc, char **argv)
     if (i%10 == 9) printf("\n");
     }
   printf("\n");
-
+  
+  printf("Done printing. Attempting to write\n");
 
   int written = 0;
   char filename[1000];
-  sprintf(filename, "/global/cscratch1/sd/kbhimani/siggen_sims/waveforms/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",det_name,setup.impurity_surface, alpha_r_mm,alpha_z_mm);
-  
-
-
+  sprintf(filename, "/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",det_name,setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+  //printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
+  //written = fwrite(sig, sizeof(float), sizeof(sig), f);
   for(i = 0; i <400; i++){
-    written = fprintf (f,"%f\n",sig[i]/1000);
+    written = fprintf(f,"%f\n",sig[i]/1000);
    }  
-  //written = fwrite(s,sizeof(float), 1, f);
   if (written == 0) {
     printf("Error during writing to file !");
   }
   fclose(f);
   //Kevin's modifications end here
 
+printf("Done writting\n");
+
   return 0;
+  
 }
 
 
