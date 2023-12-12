@@ -1,6 +1,6 @@
 # Makefile for signal generation from PPC detectors
 #   - uses .c library codes by Karin Lagergren, heavily modified by David Radford
-#	- uses nvcc cuda library to compile and link GPU code, heavily modified by Kevin Bhimani
+#	- uses nvcc cuda library to compile and link GPU code, modified by Kevin Bhimani
 #   Nov 2021
 #
 # [-lreadline option required for readline, addhistory...]

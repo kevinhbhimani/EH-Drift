@@ -78,6 +78,7 @@ typedef struct {
   float hole_bullet_radius;   // bulletization radius at bottom of hole
   float Li_thickness;         // depth of full-charge-collection boundary for Li contact
   float vacuum_gap;           // vacuum gap from passivated surface to ground plane (e.g. IR shield)
+  float passivated_thickness; //thickness of the passsivted surface;
 
   // electric fields & weighing potentials
   float xtal_grid;            // grid size in mm for field files (either 0.5 or 0.1 mm)

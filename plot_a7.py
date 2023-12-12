@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 def main():
     
     # for n in range(76, 77, 2):
-    for n in range(1, 150, 1):
+    for n in range(1, 70, 1):
         if (n < 10):
             fname = 'ed00' + str(n) + '.dat'
         else:
@@ -32,8 +32,8 @@ def main():
 
 def make_png(fname1):
 
-    file_load = '/pscratch/sd/k/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0200/self_repulsion_0/P42575A/q=0.00/drift_data_r=15.00_z=5.00/'
-    file_save = '/pscratch/sd/k/kbhimani/siggen_ccd_data/gif_data/r_15_z_5p0/grid=20_micron/eh'
+    file_load = '/pscratch/sd/k/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0200/self_repulsion_1/P42575A/q=-0.50/drift_data_r=15.00_z=0.10/'
+    file_save = '/pscratch/sd/k/kbhimani/siggen_ccd_data/gif_data/r_15_z_0p10/grid_20_micron/proj_r/eh'
 
     z_index = 2
     # get max value of z to plot, if required
@@ -93,15 +93,15 @@ def make_png(fname1):
     ax1.get_shared_x_axes().join(ax1, ax2)
     ax1.get_shared_y_axes().join(ax1, ax2)
     ax1.get_shared_x_axes().join(ax1, ax3)
-    ax1.set_xlim(1, 19)
-    ax1.set_ylim(4, 6)
-    #ax1.set_ylim(0, 2.5)
+    ax1.set_xlim(5, 25)
+    # ax1.set_ylim(4, 6)
+    ax1.set_ylim(0, 2.5)
 
     # label axes
     plt.setp(ax1, xticklabels=[])
     plt.setp(ax2, xticklabels=[])
     ax1.set_ylabel("Z [mm]", labelpad=8,  size=10)
-    ax1.set_title("Electron/Hole density r=15, z=5, grid=20 micron \n", fontsize=16, linespacing=0.3)
+    ax1.set_title("Densities at r=15, z=0.10, surface vel=0.1 bulk vel, grid=20$\mu$", fontsize=12)
     ax3.set_xlabel("Radius [mm]", size=13)
     ax2.set_ylabel("Z [mm]", labelpad=8,  size=10)
 

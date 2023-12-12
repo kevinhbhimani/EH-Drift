@@ -33,9 +33,9 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.02 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
-  ./ehdrift config_files/P42575A.config -a 20.00 -z 5.05 -g P42575A -s 0.00 -e 800 -v 0 -f 1 -h 0.0200
-  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.02 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  ICPC detector: ./ehdrift config_files/V01386A.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
 */
 
 #include <stdio.h>
@@ -78,11 +78,14 @@ int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho,
               int q, double *gone);
 int read_rho(int L, int R, float grid, double **rho, char *fname);
 
-int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup);
+int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup, int n_iter);
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
-double get_signal_gpu(GPU_data *gpu_setup, int L, int R, int n_iter, int save_time, int num_blocks, int num_threads);
-
+double get_signal_gpu(MJD_Siggen_Setup *setup, GPU_data *gpu_setup, int L, int R, int n_iter, double grid, int save_time, int num_threads);
+// double get_courant_number(GPU_data *gpu_setup, int L, int R);
+double get_total_hole_density(GPU_data *gpu_setup, int L, int R, int n_iter, int save_time, int num_blocks, int num_threads);
+double get_hole_density_surface(GPU_data *gpu_setup, int L, int R, int n_iter, int save_time, int num_blocks, int num_threads);
+double calculate_courant_cpu(MJD_Siggen_Setup *setup, int L, int R, float grid, int q);
 int rc_integrate_ehd(float *s_in, float *s_out, float tau, int time_steps);
 int ehd_field_setup_2(MJD_Siggen_Setup *setup);
 int setup_wp_ehd(MJD_Siggen_Setup *setup);
@@ -99,7 +102,6 @@ int main(int argc, char **argv)
 
   MJD_Siggen_Setup setup, setup1, setup2;
   GPU_data gpu_setup;
-
   float BV;      // bias voltage
   int   WV = 0;  // 0: do not write the V and E values to ppc_ev.dat
                  // 1: write the V and E values to ppc_ev.dat
@@ -115,7 +117,11 @@ int main(int argc, char **argv)
   float  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
   float  alpha_z_mm = 0.1;
   char det_name[8];
-
+  char fn[512]; // Ensure this is large enough
+  const char *scratch_dir = "/pscratch/sd/k/kbhimani/siggen_ccd_data";
+  const char *home_dir = "/global/homes/k/kbhimani/siggen_ccd";
+  int sim_time = 6000; //run time in nano seconds
+  
 
   if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
     printf("Usage: %s <config_file_name> [options]\n"
@@ -132,6 +138,7 @@ int main(int argc, char **argv)
      "      -v {0,1}  (do_not/do write the density files)"
      "      -f {0,1}  (do_not/do re-calculate field)"
      "      -h <grid size in mm>"
+     "      -m <passivated surface depth size in mm>"
      "      -r rho_spectrum_file_name\n", argv[0]);
     return 1;
   }
@@ -168,7 +175,9 @@ int main(int argc, char **argv)
       interact_energy = atof(argv[++i])/10000000000;
     } else if (strstr(argv[i], "-f")) {      // flag to turn off or on field recalculation
       do_self_repulsion = atof(argv[++i]);
-    } else if (strstr(argv[i], "-r")) {
+    } else if (strstr(argv[i], "-m")) {
+      setup.passivated_thickness=atof(argv[++i]);  // passivated surface thickness in mm
+    }else if (strstr(argv[i], "-r")) {
       if (!(fp = fopen(argv[++i], "r"))) {   // impurity-profile-spectrum file name
         printf("\nERROR: cannot open impurity profile spectrum file %s\n\n", argv[i+1]);
         return 1;
@@ -188,6 +197,24 @@ int main(int argc, char **argv)
              "      -r rho_spectrum_file_name\n");
       return 1;
     }
+  }
+  if(setup.passivated_thickness == 0.f){
+    setup.passivated_thickness =0.002;
+  } //defualt passivation is 2 micron
+
+  printf("\nPassivated surface thickness is %f\n", setup.passivated_thickness);
+
+
+  // setup.step_time_calc= (0.005*0.01)/(setup.xtal_grid*setup.xtal_grid);
+  // printf("Time step has been set at %.3f\n", setup.step_time_calc);
+
+
+
+  if(setup.passivated_thickness>=setup.xtal_grid){
+    printf("Grid is %f\n", setup.xtal_grid);
+    printf("Passivated surface depth is %f\n",setup.passivated_thickness);
+    printf("\n\nPassivated surface cannot be thicker than the grid\n\n");
+    return 0;
   }
 
  /*
@@ -248,14 +275,19 @@ int main(int argc, char **argv)
     printf("failed to init field calculations\n");
     return 1;
   }
+    
+  char fn_ev[256];
+  sprintf(fn_ev, "%s/fields/ev_fin_grid=%.4f_sc=%.4f.dat",scratch_dir, setup.xtal_grid, setup.impurity_surface); 
+  strncpy(setup.field_name, fn_ev, 256);
 
   /* add electrons and holes at a specific point location near passivated surface */
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
   float  grid = setup.xtal_grid;
-  int    L  = lrint(setup.xtal_length/grid)+2;
-  int    LL = lrint(setup.xtal_length/grid)+2;
-  // int    LL = L/8;
+  int    L  = lrint(setup.xtal_length/grid)+2; 
+  // int    LL_rho = lrint(setup.xtal_length/grid)+2; // 3 so that last z is traced as passivated surface
+  // int    LL_rho = (lrint(setup.xtal_length/grid)+3)/8;
+  int    LL_rho = L;
   int    R  = lrint(setup.xtal_radius/grid)+2;
   int    r, z, rr,zz, k;
 
@@ -263,18 +295,18 @@ int main(int argc, char **argv)
 
   /* malloc and clear space for electron density arrays */
   for (j=0; j<4; j++) {
-    if ((rho_e[j] = malloc(LL * sizeof(*rho_e[j])))   == NULL) {
+    if ((rho_e[j] = malloc(LL_rho * sizeof(*rho_e[j])))   == NULL) {
       printf("malloc failed\n");
       return -1;
     }
-    for (i = 0; i < LL; i++) {
+    for (i = 0; i < LL_rho; i++) {
       if ((rho_e[j][i] = malloc(R * sizeof(**rho_e[j])))   == NULL) {
         printf("malloc failed\n");
         return -1;
       }
     }
   }
-  for (i = 0; i < LL; i++) {
+  for (i = 0; i < LL_rho; i++) {
     for (j = 0; j < R; j++) {
       rho_e[0][i][j] = rho_e[1][i][j] = rho_e[2][i][j] = 0;
       rho_e[3][i][j] = setup.impurity[i][j]; // save impurity values for use later
@@ -282,18 +314,18 @@ int main(int argc, char **argv)
   }
   /* malloc and clear space for hole density arrays */
   for (j=0; j<3; j++) {
-    if ((rho_h[j] = malloc(LL * sizeof(*rho_h[j])))   == NULL) {
+    if ((rho_h[j] = malloc(LL_rho * sizeof(*rho_h[j])))   == NULL) {
       printf("malloc failed\n");
       return -1;
     }
-    for (i = 0; i < LL; i++) {
+    for (i = 0; i < LL_rho; i++) {
       if ((rho_h[j][i] = malloc(R * sizeof(**rho_h[j])))   == NULL) {
         printf("malloc failed\n");
         return -1;
       }
     }
   }
-  for (i = 0; i < LL; i++) {
+  for (i = 0; i < LL_rho; i++) {
     for (j = 0; j < R; j++) {
       rho_h[0][i][j] = rho_h[1][i][j] = rho_h[2][i][j] = 0;
     }
@@ -307,10 +339,21 @@ int main(int argc, char **argv)
   z = alpha_z_mm/grid + 1; // CHANGEME currently z = 0.1 mm
   
 // NOT(A or B) = NOT(A) and NOT(B)
-  if (setup.point_type[z][r] != PASSIVE && setup.point_type[z][r] != INSIDE) {
-    printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR");
+//enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
+
+  if (setup.point_type[z][r] != PASSIVE && setup.point_type[z][r] != INSIDE && setup.point_type[z][r] != PC && setup.point_type[z][r] != HVC) {
+      
+const char *pointTypeNames[] = {"PC", "HVC", "INSIDE", "PASSIVE", "PINCHOFF", "DITCH", "DITCH_EDGE", "CONTACT_EDGE"};
+if (setup.point_type[z][r] >= 0 && setup.point_type[z][r] <= CONTACT_EDGE) {
+  printf("Point is of type %s\n", pointTypeNames[setup.point_type[z][r]]);
+} else {
+  printf("Unknown point type\n");
+}
+printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     return 0;
   }
+
+
 
   /* CHANGEME?
        at this point, you can either read in some starting charge distribution
@@ -320,34 +363,15 @@ int main(int argc, char **argv)
             //              distribution, e.g. to continue a previous calculation
     // use initial alpha interaction at (r, z~0) as starting distribution
     rho_e[0][z][r] = rho_e[0][z+1][r] = e_dens/2.0;
-    rho_h[0][z][r] = rho_h[0][z+1][r] = e_dens/2.0;
-    // rho_e[0][z][r] = rho_e[0][z+1][r] = rho_e[0][z][r+1] = rho_e[0][z][r-1] = rho_e[0][z+2][r] = rho_e[0][z+2][r+1] = rho_e[0][z+2][r-1] = rho_e[0][z+3][r] = e_dens/8.0;
-    // rho_h[0][z][r] = rho_h[0][z+1][r] = rho_h[0][z][r+1] = rho_h[0][z][r-1] = rho_h[0][z+2][r] = rho_h[0][z+2][r+1] = rho_h[0][z+2][r-1] = rho_h[0][z+3][r] = e_dens/8.0;
-    // rho_e[0][z][r] = rho_e[0][z+1][r] = rho_e[0][z][r+1] = rho_e[0][z][r-1] = e_dens/4.0;
-    // rho_h[0][z][r] = rho_h[0][z+1][r] = rho_h[0][z][r+1] = rho_h[0][z][r-1] = e_dens/4.0;
-
-    // // code block for testing point types
-    //   FILE *f_pt = fopen("/global/homes/k/kbhimani/siggen_ccd/point_type_icpc.txt","w");
-    //   for (i = 0; i < LL; i++) {
-    //      for (j = 0; j < R; j++) {
-    //      int written = fprintf(f_pt,"%d, %d, %d\n",i,j, setup.point_type[i][j]);
-    //      if (written == 0) {
-    //      printf("Error during writing to file !");
-    //       }
-    //      }
-    //   }  
-    
-    //   fclose(f_pt);
-    //   //Kevin's modifications end here
-    //   printf("Done writting\n"); 
+    rho_h[0][z][r] = rho_h[0][z+1][r] = e_dens/2.0; 
   }
    else {
     // read starting rho_e and rho_h values
-    if (read_rho(LL, R, grid, rho_e[0], "start_ed.dat") ||
-        read_rho(LL, R, grid, rho_h[0], "start_hd.dat")) return 1;
+    if (read_rho(LL_rho, R, grid, rho_e[0], "start_ed.dat") ||
+        read_rho(LL_rho, R, grid, rho_h[0], "start_hd.dat")) return 1;
   }
   
-  for (zz=1; zz<LL; zz++) {
+  for (zz=1; zz<LL_rho; zz++) {
     for (rr=1; rr<R; rr++) {
       esum1 += rho_e[0][zz][rr] * (double) rr;
       esum2 += rho_e[2][zz][rr] * (double) rr;
@@ -498,10 +522,10 @@ int main(int argc, char **argv)
 
     if(write_densities){
       char fn_1[256], fn_2[256];
-      sprintf(fn_1, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat",energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      sprintf(fn_2, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      write_rho(LL/8, R, grid, rho_e[0], fn_1);
-      write_rho(LL/8, R, grid, rho_h[0], fn_2);
+      sprintf(fn_1, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", scratch_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_2, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", scratch_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      write_rho(LL_rho/8, R, grid, rho_e[0], fn_1);
+      write_rho(LL_rho/8, R, grid, rho_h[0], fn_2);
     }
 
   /* -------------- read weighting potential */
@@ -516,9 +540,21 @@ int main(int argc, char **argv)
   //     }
   //   }
   // }
-  gpu_init(&setup, rho_e, rho_h, &gpu_setup);
-  gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
-  gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
+
+
+  double courant_number = calculate_courant_cpu(&setup, LL_rho, R, grid, -1);
+  printf("\nThe courant number is %f\n", courant_number);
+  if(courant_number >0.f){
+    setup.step_time_calc = setup.step_time_calc/ courant_number;
+  } 
+  printf("\nTime step is %f\n", setup.step_time_calc);    
+    
+  gpu_init(&setup, LL_rho, rho_e, rho_h, &gpu_setup);
+
+  gpu_drift(&setup, LL_rho, R, grid, rho_e, -1, &gpu_setup, 0);
+  gpu_drift(&setup, LL_rho, R, grid, rho_h, 1, &gpu_setup, 0);
+
+
   /* -----------------------------------------
    *   This loop starting here is crucial.
    *   It loops over time steps (size = time_steps_calc in the config file) calculating
@@ -527,78 +563,82 @@ int main(int argc, char **argv)
 
 
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
-  int n_iter;
+  int n_iter=0;
   double sig[100000] = {0};
+  double courant_num_vec[100000] = {0};
   int num_threads = 1024;
-  int num_blocks = R * (ceil(LL/num_threads)+1);
-  int sim_time=8000; //run time in nano seconds
-  int save_time=2/setup.step_time_calc; //interval to save wavefrom in nano seconds
-  save_time=1; //save every time step for now
-
+  int num_blocks = R * (ceil(LL_rho/num_threads)+1);
+  int save_time_ns=setup.step_time_out; //time to save signal in ns
+  int save_time=(int)save_time_ns/setup.step_time_calc; //interval to save wavefroms
+  //for 0.2 time step, 10 would correspond to interval of 2 ns
+  double total_hole_density[100000] = {0};
+  double hole_density_surface[100000] = {0};
   for (n_iter=1; n_iter<=sim_time/setup.step_time_calc; n_iter++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
     
-    //printf("\n\n -=-=-=-=-=-=-=-=-=-=-=- n = %3d  -=-=-=-=-=-=-=-=-=-=-=-\n\n", n_iter);
-    if(n_iter%100==0){
+    if(n_iter % 1000==0){
       printf("\n\n -=-=-=-=-=-Running at time step %3d out of %.0f-=-=-=-=-=-\n\n", n_iter, ceil(sim_time/setup.step_time_calc));
-
     }
+
     cudaDeviceSynchronize();
-    set_rho_zero_gpu(&gpu_setup, LL, R, num_blocks, num_threads);
+    set_rho_zero_gpu(&gpu_setup, LL_rho, R, num_blocks, num_threads);
     cudaDeviceSynchronize();
-    update_impurities_gpu(&gpu_setup, LL, R, num_blocks, num_threads, e_over_E, grid);
+
+    update_impurities_gpu(&gpu_setup, LL_rho, R, num_blocks, num_threads, e_over_E, grid);
+    cudaDeviceSynchronize();
 
     if(n_iter%save_time==0){
-
-      sig[n_iter/save_time] = get_signal_gpu(&gpu_setup, LL, R, n_iter, save_time, num_blocks, num_threads);
+      // printf("\n\n -=-=-=-=-=-Running at time step %3d out of %.0f-=-=-=-=-=-\n\n", n_iter, ceil(sim_time/setup.step_time_calc));
+      sig[(int)n_iter/save_time] = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, n_iter, grid, save_time, num_threads);
 
       if(write_densities){
         cudaDeviceSynchronize();
-        get_densities(L, R, rho_e, rho_h, &gpu_setup);
-        char fn[256];
-        sprintf(fn, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n_iter/save_time);
-        write_rho(LL/8, R, grid, rho_e[0], fn);
-        sprintf(fn, "/pscratch/sd/k/kbhimani/siggen_ccd_data/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm, n_iter/save_time);
-        write_rho(LL/8, R, grid, rho_h[0], fn);
+        get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
+        // Use sprintf to format the entire string, including scratch_dir
+        sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", 
+                scratch_dir, energy_kev, grid, do_self_repulsion, det_name, 
+                setup.impurity_surface, alpha_r_mm, alpha_z_mm, n_iter/save_time);
+    
+        write_rho(LL_rho/8, R, grid, rho_e[0], fn);
+        // Use sprintf to format the entire string, including home_dir
+        sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", 
+                scratch_dir, energy_kev, grid, do_self_repulsion, det_name, 
+                setup.impurity_surface, alpha_r_mm, alpha_z_mm, n_iter/save_time);
+        write_rho(LL_rho/8, R, grid, rho_h[0], fn);
       }
     }
-
     if(do_self_repulsion){
       cudaDeviceSynchronize();
       ev_calc_gpu(1, &setup, &gpu_setup);
     }
+    cudaDeviceSynchronize();
+    gpu_drift(&setup, LL_rho, R, grid, rho_e, -1, &gpu_setup, n_iter);
+    cudaDeviceSynchronize();
+    gpu_drift(&setup, LL_rho, R, grid, rho_h, 1, &gpu_setup, n_iter);
 
-    cudaDeviceSynchronize();
-    gpu_drift(&setup, L, R, grid, rho_e, -1, &gpu_setup);
-    cudaDeviceSynchronize();
-    gpu_drift(&setup, L, R, grid, rho_h, 1, &gpu_setup);
   }
-
   cudaDeviceSynchronize();
   get_potential(L, R, &setup, &gpu_setup);
-
-  strncpy(setup.field_name, "/pscratch/sd/k/kbhimani/siggen_ccd_data/fields/ev_fin.dat", 64);
-  write_ev(&setup);
 
   /* do RC integration for preamp risetime */
   if (setup.preamp_tau > 1) {
     rc_integrate_ehd(sig, sig, setup.preamp_tau/setup.step_time_out, n_iter/save_time);
-    for (n_iter=0; n_iter<1024-1; n_iter++) sig[n_iter] = sig[n_iter+1];
+    for (n_iter=0; n_iter<sim_time/(setup.step_time_calc*save_time)-1; n_iter++) sig[n_iter] = sig[n_iter+1];
   }
-  // printf("signal: \n");
-  // for (i = 0; i < sim_time/setup.step_time_calc; i++){
-  //   printf("%.5f ", sig[i]/1000);
-  //   if (i%20 == 0) printf("\n");
-  // }
-  // printf("\n");
+
+  printf("signal: \n");
+  for (i = 0; i < sim_time/(setup.step_time_calc*save_time); i++){
+    printf("%.5f ", sig[i]/1000);
+    if (i%20 == 0) printf("\n");
+  }
+  printf("\n");
 
   int written = 0;
-  char filename[1000];
-  
-  sprintf(filename, "/global/homes/k/kbhimani/siggen_ccd/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt", energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-  //printf("The file name is %s\n", filename);
+  char filename[1024];
+  sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",home_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+  // printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
-  for(i = 0; i <sim_time/setup.step_time_calc; i++){
+  for(i = 0; i < sim_time/(setup.step_time_calc*save_time); i++){
     written = fprintf(f,"%f\n",sig[i]/1000);
     if (written == 0) {
     printf("Error during writing to file!");
@@ -606,11 +646,7 @@ int main(int argc, char **argv)
     }
   }
   fclose(f);
-  //Kevin's modifications end here
-  printf("Done writting\n");
-  
-  free_gpu_mem(&gpu_setup);
-
+  printf("Done writting waveform\n");
   return 0;
 } /* main */
 
@@ -764,7 +800,7 @@ int write_rho(int L, int R, float grid, double **rho, char *fname) {
     printf("ERROR: Cannot open file %s for electron density...\n", fname);
     return 1;
   } else {
-    printf("Writing electron density to file %s\n\n", fname);
+    printf("Writing electron density to file %s\n", fname);
   }
 
   fprintf(file, "#\n## r (mm), z (mm), ED\n");
@@ -818,4 +854,152 @@ int read_rho(int L, int R, float grid, double **rho, char *fname) {
   fclose(file);
 
   return 0;
+}
+
+
+double calculate_courant_cpu(MJD_Siggen_Setup *setup, int L, int R, float grid, int q) {
+
+  #define TSTEP   setup-> step_time_calc  // time step of calculation, in ns; do not exceed 2.0 !!!
+  #define DELTA   (0.07*TSTEP) /* Prob. of a charge moving to next 20-micron bin during a time step */
+  #define DELTA_R (0.07*TSTEP) /* ... in r-direction */
+
+  /* ASSUMPTIONS:
+     0.1 mm grid size, 1 ns steps
+     detector temperature = REF_TEMP = 77 K
+     dealing only with electrons (no holes)
+  */
+  double cournat_numb=0;
+  int    i, k, r, z, new = 0;
+  double dre, dze;
+  double ***v = setup->v;
+  float  E_r, E_z, E, fq = -q;
+  double ve_z, ve_r, f, fr, fz, deltaez = DELTA, deltaer = DELTA_R;
+  float drift_E[20]=       {0.000,  100.,  160.,  240.,  300.,  500.,  600.,
+			    750.0, 1000., 1250., 1500., 1750., 2000., 2500.,
+			    3000., 3500., 4000., 4500., 5000., 1e10};
+  float drift_offset_e[20]={0.0,   0.027, 0.038, 0.049 ,0.055, 0.074, 0.081,
+			    0.089, 0.101, 0.109, 0.116, 0.119, 0.122, 0.125,
+			    0.1275,0.1283,0.1288,0.1291,0.1293,0.1293};
+  float drift_slope_e[20];
+
+  float drift_offset_h[20]={0.0,   0.036, 0.047, 0.056, 0.06,  0.072, 0.077,
+			    0.081, 0.086, 0.089, 0.0925,0.095, 0.097, 0.1,
+			    0.1025,0.1036,0.1041,0.1045,0.1047,0.1047};
+  float drift_slope_h[20];
+  float *drift_offset, *drift_slope;
+
+
+  for (i=0; i<20; i++) {
+    drift_offset_e[i] /= grid;   // drift velocities in units of grid length
+    drift_offset_h[i] /= grid;
+  }
+  for (i=0; i<19; i++) {
+    drift_slope_e[i] = (drift_offset_e[i+1] - drift_offset_e[i]) /
+                       (drift_E[i+1] - drift_E[i]);
+    drift_slope_h[i] = (drift_offset_h[i+1] - drift_offset_h[i]) /
+                       (drift_E[i+1] - drift_E[i]);
+  }
+  if (q < 0) { // electrons
+    drift_offset = drift_offset_e;
+    drift_slope  = drift_slope_e;
+  } else {   // holes
+    drift_offset = drift_offset_h;
+    drift_slope  = drift_slope_h;
+  }
+
+  f = 1.2e6; // * setup.xtal_temp/REF_TEMP;
+  f *= TSTEP / 4000.0;
+  /* above is my own approximate parameterization of measurements of Jacoboni et al.
+     1.2e6 * v_over_E   ~   D in cm2/s
+     v_over_E = drift velocity / electric field   ~  mu
+     note that Einstein's equation is D = mu*kT/e
+     kT/e ~ 0.007/V ~ 0.07 mm/Vcm, => close enough to 0.12, okay
+     For 20-micron bins and 1ns steps, DELTA = D / 4000
+     For fixed D, DELTA goes as time_step_size/bin_size_squared
+  */
+  f *= 0.02/grid * 0.02/grid; // correct for grid size
+  // f *= 0.5;                   // artifically reduce diffusion to 50%
+
+  E_r = E_z = 100; // just to get started; will change later
+  for (i=0; E_z > drift_E[i+1]; i++);
+  ve_z = fq * (drift_offset[i] + drift_slope[i]*(E_z - drift_E[i]))/E_z;
+  deltaez = grid * ve_z * f;
+  for (i=0; E_r > drift_E[i+1]; i++);
+  ve_r = fq * (drift_offset[i] + drift_slope[i]*(E_r - drift_E[i]))/E_r;
+    /* NOTE that impurity and field arrays in setup start at (i,j)=(1,1) for (r,z)=(0,0) */
+  int idid = lrint((setup->wrap_around_radius - setup->ditch_thickness)/grid) + 1; // ditch ID
+  int idod = lrint(setup->wrap_around_radius/grid) + 1; // ditch OD
+  int idd =  lrint(setup->ditch_depth/grid) + 1;        // ditch depth
+
+  for (r=1; r<R; r++) {
+    for (z=1; z<L-2; z++) {
+
+      // need to r-calculate all the fields
+      // calc E in r-direction
+      if (r == 1) {  // r = 0; symmetry implies E_r = 0
+        E_r = 0;
+      } else if (setup->point_type[z][r] == CONTACT_EDGE) {
+        E_r = ((v[new][z][r] - v[new][z][r+1])*setup->dr[1][z][r] +
+               (v[new][z][r-1] - v[new][z][r])*setup->dr[0][z][r]) / (0.2*grid);
+      } else if (setup->point_type[z][r] < INSIDE &&
+                 setup->point_type[z][r-1] == CONTACT_EDGE) {
+        E_r =  (v[new][z][r-1] - v[new][z][r]) * setup->dr[1][z][r-1] / ( 0.1*grid) ;
+      } else if (setup->point_type[z][r] < INSIDE &&
+                 setup->point_type[z][r+1] == CONTACT_EDGE) {
+        E_r =  (v[new][z][r] - v[new][z][r+1]) * setup->dr[0][z][r+1] / ( 0.1*grid) ;
+      } else if (r == R-1) {
+        E_r = (v[new][z][r-1] - v[new][z][r])/(0.1*grid);
+      } else {
+        E_r = (v[new][z][r-1] - v[new][z][r+1])/(0.2*grid);
+      }
+      // calc E in z-direction
+      // enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
+      if (setup->point_type[z][r] == CONTACT_EDGE) {
+        E_z = ((v[new][z][r] - v[new][z+1][r])*setup->dz[1][z][r] +
+               (v[new][z-1][r] - v[new][z][r])*setup->dz[0][z][r]) / (0.2*grid);
+      } else if (setup->point_type[z][r] < INSIDE &&
+                 setup->point_type[z-1][r] == CONTACT_EDGE) {
+        E_z =  (v[new][z-1][r] - v[new][z][r]) * setup->dz[1][z-1][r] / ( 0.1*grid) ;
+      } else if (setup->point_type[z][r] < INSIDE &&
+                 setup->point_type[z+1][r] == CONTACT_EDGE) {
+        E_z =  (v[new][z][r] - v[new][z+1][r]) * setup->dz[0][z+1][r] / ( 0.1*grid) ;
+      } else if (z == 1) {
+        E_z = (v[new][z][r] - v[new][z+1][r])/(0.1*grid);
+      } else if (z == L-1) {
+        E_z = (v[new][z-1][r] - v[new][z][r])/(0.1*grid);
+      } else {
+        E_z = (v[new][z-1][r] - v[new][z+1][r])/(0.2*grid);
+      }
+      ve_z = ve_r = 0;
+      E = fabs(E_z);
+      if (E > 1.0) {
+        for (i=0; E > drift_E[i+1]; i++);
+        ve_z = fq * (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
+      }
+      E = fabs(E_r);
+      if (E > 1.0) {
+        for (i=0; E > drift_E[i+1]; i++);
+        ve_r = fq * (drift_offset[i] + drift_slope[i]*(E - drift_E[i]));
+      }
+      /* reduce drift speed at passivated surfaces by a factor of surface_drift_vel_factor */
+      if (1 &&
+          ((r == idid && z < idd) ||
+           (r < idid  && z == 1 ) ||
+           (r >= idid && r <= idod && z == idd))) {
+        ve_r *= setup->surface_drift_vel_factor;
+        ve_z *= setup->surface_drift_vel_factor;  // assume 2-micron-thick roughness/passivation in z
+      }
+      // ve_r=ve_r*grid*grid/(setup->passivated_thickness*setup->passivated_thickness);
+      // ve_z=ve_z*grid/(setup->passivated_thickness);
+      // ve_r=ve_r*grid;
+      // ve_z=ve_z*grid;
+      // double cournat= ((ve_r+ve_z)*TSTEP)/grid;
+      double cournat= (ve_r+ve_z)*setup->step_time_calc;
+      if(cournat-cournat_numb>0.000001){
+        cournat_numb= cournat;
+      }
+
+    }
+    }
+  return cournat_numb;
 }

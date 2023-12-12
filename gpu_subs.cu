@@ -31,13 +31,13 @@
 
 #include "gpu_vars.h"
 
-extern "C" void gpu_init(MJD_Siggen_Setup *setup, double ***rho_e, double ***rho_h, GPU_data *gpu_setup);
+extern "C" void gpu_init(MJD_Siggen_Setup *setup, int LL_rho, double ***rho_e, double ***rho_h, GPU_data *gpu_setup);
 extern "C" void get_densities(int L, int R, double ***rho_e, double ***rho_h, GPU_data *gpu_setup);
 extern "C" void get_potential(int L, int R, MJD_Siggen_Setup *setup, GPU_data *gpu_setup);
 extern "C" void free_gpu_mem(GPU_data *gpu_setup);
 
 
-extern "C" void gpu_init(MJD_Siggen_Setup *setup, double ***rho_e, double ***rho_h, GPU_data *gpu_setup){
+extern "C" void gpu_init(MJD_Siggen_Setup *setup, int LL_rho, double ***rho_e, double ***rho_h, GPU_data *gpu_setup){
 /*
 Below we allocate and copy values to GPU. For better memory management and indexing, all multidemensional arrays are flattened.
 The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)*j)+k]
@@ -48,6 +48,7 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
 
   double *v_flat;
   v_flat = (double*)malloc(2*sizeof(double)*(L+1)*(R+1));
+
   cudaMalloc((void**)&gpu_setup->v_gpu, 2*sizeof(double)*(L+1)*(R+1));
   for(int i=0; i<2; i++) {
     for(int j=0; j<=L; j++){
@@ -56,8 +57,9 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
       }
     }
   }
+
   cudaMemcpy(gpu_setup->v_gpu, v_flat, 2*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-  
+
   char *point_type_flat;
   double *impurity_flat;
 
@@ -136,29 +138,28 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   cudaMalloc((void**)&gpu_setup->k_array, sizeof(int)*(L+1)*(R+1));
 
   double *rho_flat_e_cpu;
-  rho_flat_e_cpu = (double*)malloc(4*sizeof(double)*(L+1)*(R+1));
-  cudaMalloc((void**)&gpu_setup->rho_e_gpu, 4*sizeof(double)*(L+1)*(R+1));
+  rho_flat_e_cpu = (double*)malloc(4*sizeof(double)*(LL_rho+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->rho_e_gpu, 4*sizeof(double)*(LL_rho+1)*(R+1));
   for(int i=0; i<4; i++) {
-      for(int j=0; j<L; j++){
+      for(int j=0; j<LL_rho; j++){
           for(int k=0; k<R; k++){
-            rho_flat_e_cpu[(i*(L+1)*(R+1))+((R+1)*j)+k] = rho_e[i][j][k];
+            rho_flat_e_cpu[(i*(LL_rho+1)*(R+1))+((R+1)*j)+k] = rho_e[i][j][k];
           }
       }
   }
-  cudaMemcpy(gpu_setup->rho_e_gpu, rho_flat_e_cpu, 4*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
+  cudaMemcpy(gpu_setup->rho_e_gpu, rho_flat_e_cpu, 4*sizeof(double)*(LL_rho+1)*(R+1), cudaMemcpyHostToDevice);
 
   double *rho_flat_h_cpu;
-  rho_flat_h_cpu = (double*)malloc(3*sizeof(double)*(L+1)*(R+1));
-  cudaMalloc((void**)&gpu_setup->rho_h_gpu, 3*sizeof(double)*(L+1)*(R+1));
+  rho_flat_h_cpu = (double*)malloc(3*sizeof(double)*(LL_rho+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->rho_h_gpu, 3*sizeof(double)*(LL_rho+1)*(R+1));
   for(int i=0; i<3; i++) {
-      for(int j=0; j<L; j++){
+      for(int j=0; j<LL_rho; j++){
           for(int k=0; k<R; k++){
-            rho_flat_h_cpu[(i*(L+1)*(R+1))+((R+1)*j)+k]=rho_h[i][j][k];
+            rho_flat_h_cpu[(i*(LL_rho+1)*(R+1))+((R+1)*j)+k]=rho_h[i][j][k];
           }
       }
   }
-  cudaMemcpy(gpu_setup->rho_h_gpu, rho_flat_h_cpu, 3*sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
-
+  cudaMemcpy(gpu_setup->rho_h_gpu, rho_flat_h_cpu, 3*sizeof(double)*(LL_rho+1)*(R+1), cudaMemcpyHostToDevice);
 
   double drift_E[20] = {0.000,  100.,  160.,  240.,  300.,  500.,  600., 750.0, 1000., 1250., 1500., 1750., 2000., 2500., 3000., 3500., 4000., 4500., 5000., 1e10};
 
@@ -194,13 +195,44 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   cudaMemcpy(gpu_setup->drift_slope_h_gpu, drift_slope_h, sizeof(double)*20, cudaMemcpyHostToDevice);
 
   
-  cudaMalloc((void**)&gpu_setup->rho_sum, sizeof(double)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->rho_sum, sizeof(double)*(LL_rho+1)*(R+1));
   cudaMalloc((void**)&gpu_setup->wpot_gpu, sizeof(double)*(L+1)*(R+1));
+  cudaMalloc((void**)&gpu_setup->courant_array, sizeof(double)*(L+1)*(R+1));
 
-  double *rho_sum_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
+  double *zero_array_cpu = (double*)malloc(sizeof(double)*(L+3)*(R+3));
+  for(int j=0; j<=L+2; j++){
+    for(int k=0; k<=R+2; k++){
+      zero_array_cpu[((R+1)*j)+k]=0.f;
+    }
+  }
+  
+  double *surface_rho_flat;
+  surface_rho_flat = (double*)malloc(3*sizeof(double)*(R+1));
+  for (int i = 0; i<=3*(R); i++){
+    surface_rho_flat[i] = 0.00;
+  }
+
+  cudaMalloc((void**)&gpu_setup->surface_rho_e, sizeof(double)*3*(R+1));
+  cudaMemcpy(gpu_setup->surface_rho_e, surface_rho_flat, sizeof(double)*3*(R+1), cudaMemcpyHostToDevice);
+  cudaMalloc((void**)&gpu_setup->surface_rho_h, sizeof(double)*3*(R+1));
+  cudaMemcpy(gpu_setup->surface_rho_h, surface_rho_flat, sizeof(double)*3*(R+1), cudaMemcpyHostToDevice);
+
+  cudaMalloc((void**)&gpu_setup->velocity_drift_r, sizeof(double)*(R+1));
+  cudaMemcpy(gpu_setup->velocity_drift_r, zero_array_cpu, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
+
+  cudaMalloc((void**)&gpu_setup->velocity_drift_z, sizeof(double)*(R+1));
+  cudaMemcpy(gpu_setup->velocity_drift_z, zero_array_cpu, sizeof(double)*(R+1), cudaMemcpyHostToDevice);
+
+  cudaMalloc((void**)&gpu_setup->field_r, sizeof(double)*(R+1)*(L+1));
+  cudaMemcpy(gpu_setup->field_r, zero_array_cpu, sizeof(double)*(R+1)*(L+1), cudaMemcpyHostToDevice);
+
+  cudaMalloc((void**)&gpu_setup->field_z, sizeof(double)*(R+1)*(L+1));
+  cudaMemcpy(gpu_setup->field_z, zero_array_cpu, sizeof(double)*(R+1)*(L+1), cudaMemcpyHostToDevice);
+
+  double *rho_sum_flat = (double*)malloc(sizeof(double)*(LL_rho+1)*(R+1));
   double *wpot_flat = (double*)malloc(sizeof(double)*(L+1)*(R+1));
 
-  for (int i = 0; i<(L+1)*(R+1); i++){
+  for (int i = 0; i<(LL_rho+1)*(R+1); i++){
     rho_sum_flat[i] = 0.00;
   }
 
@@ -209,8 +241,8 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
         wpot_flat[((R+1)*j)+k] = setup->wpot[k][j];
       }
     }
-  cudaMemcpy(gpu_setup->rho_sum, rho_sum_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
-  cudaMemcpy(gpu_setup->wpot_gpu, wpot_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice); 
+  cudaMemcpy(gpu_setup->rho_sum, rho_sum_flat, sizeof(double)*(LL_rho+1)*(R+1), cudaMemcpyHostToDevice); 
+  cudaMemcpy(gpu_setup->wpot_gpu, wpot_flat, sizeof(double)*(L+1)*(R+1), cudaMemcpyHostToDevice);
 
   free(rho_flat_e_cpu);
   free(rho_flat_h_cpu);
@@ -224,6 +256,8 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   free(diff_array_cpu);
   free(wpot_flat);
   free(rho_sum_flat);
+  free(zero_array_cpu);
+
 }
 
 // Copies the densities back to CPU from GPU
@@ -235,14 +269,26 @@ extern "C" void get_densities(int L, int R, double ***rho_e, double ***rho_h, GP
   double *rho_flat_h_cpu;
   rho_flat_h_cpu = (double*)malloc(3*sizeof(double)*(L+1)*(R+1));
 
+  double *rho_surface_e, *rho_surface_h;
+  rho_surface_e = (double*)malloc(sizeof(double)*(R+1));
+  rho_surface_h = (double*)malloc(sizeof(double)*(R+1));
+
   cudaMemcpy(rho_flat_e_cpu, gpu_setup->rho_e_gpu, 4*sizeof(double)*(L+1)*(R+1), cudaMemcpyDeviceToHost);
   cudaMemcpy(rho_flat_h_cpu, gpu_setup->rho_h_gpu, 3*sizeof(double)*(L+1)*(R+1), cudaMemcpyDeviceToHost);
+  cudaMemcpy(rho_surface_e, gpu_setup->surface_rho_e, sizeof(double)*(R+1), cudaMemcpyDeviceToHost);
+  cudaMemcpy(rho_surface_h, gpu_setup->surface_rho_h, sizeof(double)*(R+1), cudaMemcpyDeviceToHost);
 
   for(int i=0; i<4; i++) {
     for(int j=0; j<L; j++){
-        for(int k=0; k<R; k++){
+      for(int k=0; k<R; k++){
+        if(i==0 && j==1){
+          double rho_add = rho_flat_e_cpu[(i*(L+1)*(R+1))+((R+1)*j)+k] + rho_surface_e[k];
+          memcpy(&rho_e[i][j][k], &rho_add, sizeof(double));
+        }
+        else{
           memcpy(&rho_e[i][j][k], &rho_flat_e_cpu[(i*(L+1)*(R+1))+((R+1)*j)+k], sizeof(double));
         }
+      }
     }
   }
 
@@ -250,8 +296,14 @@ extern "C" void get_densities(int L, int R, double ***rho_e, double ***rho_h, GP
   for(int i=0; i<3; i++) {
     for(int j=0; j<L; j++){
         for(int k=0; k<R; k++){
+          if(i==0 && j==1){
+            double rho_add = rho_flat_h_cpu[(i*(L+1)*(R+1))+((R+1)*j)+k] + rho_surface_h[k];
+            memcpy(&rho_h[i][j][k], &rho_add, sizeof(double));
+          }
+          else{
               memcpy(&rho_h[i][j][k], &rho_flat_h_cpu[(i*(L+1)*(R+1))+((R+1)*j)+k], sizeof(double));
           }
+        }
       }
   }
   free(rho_flat_e_cpu);
@@ -301,6 +353,13 @@ extern "C" void free_gpu_mem(GPU_data *gpu_setup){
   cudaFree(gpu_setup->k_array);
   cudaFree(gpu_setup->wpot_gpu);
   cudaFree(gpu_setup->rho_sum);
+  cudaFree(gpu_setup->courant_array);
+  cudaFree(gpu_setup->surface_rho_e);
+  cudaFree(gpu_setup->surface_rho_h);
+  cudaFree(gpu_setup->field_r);
+  cudaFree(gpu_setup->field_z);
+  cudaFree(gpu_setup->velocity_drift_r);
+  cudaFree(gpu_setup->velocity_drift_z);
 }
 
 

@@ -45,6 +45,13 @@ double *fr_array;
 double *fz_array;
 int *i_array;
 int *k_array;
+double *courant_array;
+double *velocity_drift_r;
+double *velocity_drift_z;
+double *field_r;
+double *field_z;
+
+
 
 double *wpot_gpu;
 double *rho_sum;
@@ -52,7 +59,22 @@ double hsum01;
 double hsum02;
 double esum01;
 double esum02;
+double *surface_rho_e;
+double *surface_rho_h;
 
+// double *test_array;
+// double surface_hole_drift_var;
+
+// double *velocity_test_r;
+// double *velocity_test_z;
+
+
+// double bulk_to_surface_corr_factor;
+// double bulk_to_rho_one_corr_factor;
+// double surface_to_bulk_corr_fact;
+// double surface_to_rho_one_corr_fact;
+// double rho_one_to_surface_corr_factor;
+// double rho_one_to_bulk_corr_fact;
 // __managed__ float vacuum_gap_gpu;
 // __managed__ double e_over_E_gpu;
 // __managed__ float fq;

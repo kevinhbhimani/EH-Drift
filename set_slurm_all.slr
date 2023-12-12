@@ -20,11 +20,11 @@
 #SBATCH --gpus=1
 #SBATCH --gpus-per-node=1
 #SBATCH --qos=regular
-#SBATCH --time=6:00:00 
+#SBATCH --time=5:00:00 
 #SBATCH --ntasks=1                                        
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=128
+#SBATCH --cpus-per-task=1
 #SBATCH --gpus-per-task=1
 # uncomment the lines below to get email notification about your job                       
 #SBATCH --mail-type=begin,end,fail
@@ -47,50 +47,80 @@ config_file_calc_wp="config_files/${detector}_calc_wp.config"
 dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data"
 dir_run="/global/homes/k/kbhimani/siggen_ccd"
 
-# echo "Calculating weighting potential for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+energy_vals=($(seq 1500.00 50.00 5500.00))
+rad_vals=($(seq 0.00 1.00 35.00))
+# zPos_vals=($(seq 0.01 0.10 2.00))
+zPos_vals=(0.02 0.03 0.04 0.05 0.20 0.30 0.40 0.50 0.60 0.70 0.75 0.80 0.90 1.00 2.00 3.00)
+surface_charge_vals=(-0.50)
+grid_array=(0.0550 0.0600 0.0700 0.0800 0.0500 0.0300 0.0350 0.0400 0.0450 0.0500 0.0250 0.0200 0.0100 0.0050 0.0150)
+# grid_array=($(seq 0.0100 0.0010 0.0250))
+# grid_array=(0.0100 0.0150 0.0200 0.0250)
 
-$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+sim_count=0
 
-energy_vals=(10.00 50.00 100.00 300.00 800.00)
-rad_vals=($(seq 0.00 0.50 35.00))
-zPos_vals=($(seq 0.05 0.25 5.05))
-
-# grid_array=(0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400)
-
-
-for energy in "${energy_vals[@]}"
-do
-    for radius in "${rad_vals[@]}"
+for sur_ch in "${surface_charge_vals[@]}"
     do
-        for zPos in "${zPos_vals[@]}"
-        do
-            bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid 1> /dev/null
-            # echo /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid
-        done
+        for grid in "${grid_array[@]}"
+            do
+                echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $sur_ch with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+                $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $sur_ch -e $energy -v $save_rho -f $self_repulsion -h $grid
+                echo "running simulation at radius $radius and z position $zPos for detector $detector with surface charge $sur_ch with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+                bash $dir_run/set_run.sh $radius $zPos $detector $sur_ch $energy $save_rho $self_repulsion $grid
+                sim_count=$((sim_count+1))
+            done
     done
-done
 
-echo "done!"
-
-# echo "time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion $grid"
-# time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion $grid
-
-# bash /nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid
-
-
-# rad_array=(15.00)
-#z_array=(0.09 0.11)
-# for grid_val in "${grid_array[@]}"
-# do
-#     echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid_val. Write densities=$save_rho and Self repulsion=$self_repulsion"
-#     $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid_val 1> /dev/null
-
-#     for rad_val in "${rad_array[@]}"
+# for grid in "${grid_array[@]}"
 #     do
-#         for z_val in "${z_array[@]}"
+#     echo "Calculating weighting potential at radius $radius and z position $z_var for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#     $dir_run/ehdrift $config_file_calc_wp -a $radius -z $z_var -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+#     for z_var in "${zPos_vals[@]}"
 #         do
-#             bash /global/homes/k/kbhimani/siggen_ccd/set_run.sh $rad_val $z_val $detector $surface_charge $energy $save_rho $self_repulsion $grid_val
+#         # echo "running simulation at radius $radius and z position $z_var for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#         bash $dir_run/set_run.sh $radius $z_var $detector $surface_charge $energy $save_rho $self_repulsion $grid
+#         sim_count=$((sim_count+1))
 #         done
 #     done
+# for sur_ch in "${surface_charge_vals[@]}"
+#     do
+#         eng_r=5000.00   
+#         height_r=0.02
+#         echo "Calculating weighting potential at radius $radius and z position $height_r for detector $detector with surface charge $sur_ch with energy $eng_r and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#         sim_count=$((sim_count+1))
+#         $dir_run/ehdrift $config_file_calc_wp -a $radius -z $height_r -g $detector -s $sur_ch -e $eng_r -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+#         for rad_var in "${rad_vals[@]}"
+#             do
+#                 # echo "running simulation at radius $rad_var and z position $height_r for detector $detector with surface charge $sur_ch with energy $eng_r and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#                 bash $dir_run/set_run.sh $rad_var $height_r $detector $sur_ch $eng_r $save_rho $self_repulsion $grid
+#                 sim_count=$((sim_count+1))
+#             done
 
-# done
+#         eng_z=5000.00
+#         radius_z=15.00
+#         echo "Calculating weighting potential at radius $radius_z and z position $zPos for detector $detector with surface charge $sur_ch with energy $eng_z and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#         $dir_run/ehdrift $config_file_calc_wp -a $radius_z -z $zPos -g $detector -s $sur_ch -e $eng_z -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+#         sim_count=$((sim_count+1))
+#         for z_var in "${zPos_vals[@]}"
+#             do
+#                 # echo "running simulation at radius $radius_z and z position $z_var for detector $detector with surface charge $sur_ch with energy $eng_z and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#                 bash $dir_run/set_run.sh $radius_z $z_var $detector $sur_ch $eng_z $save_rho $self_repulsion $grid
+#                 sim_count=$((sim_count+1))
+#             done
+
+#         rad_e=15.00
+#         height_e=0.02
+#         for eng_var in "${energy_vals[@]}"
+#             do
+#                 echo "Calculating weighting potential at radius $rad_e and z position $height_e for detector $detector with surface charge $sur_ch with energy $eng_var and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#                 $dir_run/ehdrift $config_file_calc_wp -a $rad_e -z $height_e -g $detector -s $sur_ch -e $eng_var -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+#                 sim_count=$((sim_count+1))
+#                 # echo "running simulation at radius $rad_e and z position $height_e for detector $detector with surface charge $sur_ch with energy $eng_var and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+#                 bash $dir_run/set_run.sh $rad_e $height_e $detector $sur_ch $eng_var $save_rho $self_repulsion $grid
+#                 sim_count=$((sim_count+1))
+#             done
+#     done
+echo "Calculations finished. Number of sims ran was $sim_count!"
+
+
+
+

@@ -17,7 +17,7 @@ config_file_calc_wp="config_files/${detector}_calc_wp.config"
 dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data"
 dir_run="/global/homes/k/kbhimani/siggen_ccd"
 
-echo "running simulation at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
+echo "Running simulation at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
 
 #1> /dev/null supresses output from the command
 
@@ -35,6 +35,6 @@ mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repuls
 mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector 
 mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge} 
 
-$dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+$dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid
 #time $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion 
 #time $dir_run/ehd_siggen $config_file -a $radius -z $zPos -g $detector -s $surface_charge

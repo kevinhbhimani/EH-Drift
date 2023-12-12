@@ -6,7 +6,7 @@
 #       <energy in Kev><{0,1} (do_not/do write the density files) <{0,1} (do_not/do re-calculate field) <grid size>
 #      MAKE SURE THAT ALL NUMBERS ARE AT TWO DECIMAL POINTS, GRID HAS TO BE TO FOUR DECIMALS
 #      for example sbatch set_slurm.slr 15.00 0.10 P42575A 0.00 5000.00 0 1 0.0200
-#       ICPC test sbatch set_slurm.slr 15.00 0.02 example 0.00 5000.00 0 1 0.0100
+#       ICPC sbatch set_slurm.slr 15.00 5.00 V01386A 0.00 5000.00 0 1 0.0200
 # check job detail: jobstats or scontrol show job <JobID>  or squeue --job 37985561  <JobID> or sqs                 
 #--------------------------------------------------------------------------      
 #            
@@ -21,7 +21,7 @@
 #SBATCH --gpus=1
 #SBATCH --gpus-per-node=1
 #SBATCH --qos=regular
-#SBATCH --time=6:00:00 
+#SBATCH --time=1:00:00 
 #SBATCH --ntasks=1                                        
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -50,7 +50,7 @@ dir_run="/global/homes/k/kbhimani/siggen_ccd"
 
 echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
 
-$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid
 
 # echo "time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion"
 # time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion
