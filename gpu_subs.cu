@@ -197,7 +197,6 @@ The conversion for flattening array[i][j][k] = flat_array[(i*(L+1)*(R+1))+((R+1)
   
   cudaMalloc((void**)&gpu_setup->rho_sum, sizeof(double)*(LL_rho+1)*(R+1));
   cudaMalloc((void**)&gpu_setup->wpot_gpu, sizeof(double)*(L+1)*(R+1));
-  cudaMalloc((void**)&gpu_setup->courant_array, sizeof(double)*(L+1)*(R+1));
 
   double *zero_array_cpu = (double*)malloc(sizeof(double)*(L+3)*(R+3));
   for(int j=0; j<=L+2; j++){
@@ -353,7 +352,6 @@ extern "C" void free_gpu_mem(GPU_data *gpu_setup){
   cudaFree(gpu_setup->k_array);
   cudaFree(gpu_setup->wpot_gpu);
   cudaFree(gpu_setup->rho_sum);
-  cudaFree(gpu_setup->courant_array);
   cudaFree(gpu_setup->surface_rho_e);
   cudaFree(gpu_setup->surface_rho_h);
   cudaFree(gpu_setup->field_r);

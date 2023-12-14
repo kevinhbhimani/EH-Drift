@@ -14,8 +14,8 @@
 #                                                                                             
 # directories to put log files ... so you know what is happening to your jobs   
 #                                                                  
-#SBATCH --output=/global/homes/k/kbhimani/siggen_ccd/logs/job_log_.sh.o%j       
-#SBATCH --error=/global/homes/k/kbhimani/siggen_ccd/logs/job_error_log_.sh.o%j     
+#SBATCH --output=/nas/longleaf/home/kbhimani/siggen_ccd/logs/job_log_.sh.o%j       
+#SBATCH --error=/nas/longleaf/home/kbhimani/siggen_ccd/logs/job_error_log_.sh.o%j         
 #SBATCH --account=majorana_g
 #SBATCH --constraint=gpu
 #SBATCH --gpus=1

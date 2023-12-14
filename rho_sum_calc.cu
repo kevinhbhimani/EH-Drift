@@ -128,7 +128,7 @@ extern "C" double get_signal_gpu(MJD_Siggen_Setup *setup, GPU_data *gpu_setup, i
     }
 
 
-  printf("hsum1=%.5f-hsum01=%.5f/hsum02=%.5f - esum1=%.5f-esum01=%.5f/esum02=%.5f,\n", hsum1, gpu_setup->hsum01, gpu_setup->hsum02, esum1, gpu_setup->esum01, gpu_setup->esum02);
+  //printf("hsum1=%.5f-hsum01=%.5f/hsum02=%.5f - esum1=%.5f-esum01=%.5f/esum02=%.5f,\n", hsum1, gpu_setup->hsum01, gpu_setup->hsum02, esum1, gpu_setup->esum01, gpu_setup->esum02);
      signal = 1000.0 * ((hsum1 - gpu_setup->hsum01) / gpu_setup->hsum02 - (esum1 - gpu_setup->esum01) / gpu_setup->esum02);
 
   //printf("Signals collected:%.5f\n", signal/1000);

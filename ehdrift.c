@@ -34,6 +34,7 @@
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
   Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  ./ehdrift config_files/OPPI.config -a 15.00 -z 0.10 -g OPPI -s -0.30 -e 30.20 -v 0 -f 1 -h 0.0200
   ICPC detector: ./ehdrift config_files/V01386A.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
   WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
   ./ehdrift config_files/V01386A_calc_wp.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
@@ -535,13 +536,13 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (ehd_field_setup_2(&setup)) return 1;
   }
 
-  printf("Calculating Courant number\n");
+  printf("\nCalculating Courant number\n");
   double courant_number = calculate_courant_cpu(&setup, LL_rho, R, grid, -1);
-  printf("\nThe courant number is %f\n", courant_number);
+  printf("The courant number is %f\n", courant_number);
   if(courant_number >0.f){
     setup.step_time_calc = setup.step_time_calc/ courant_number;
   } 
-  printf("Time step is %f\n", setup.step_time_calc);    
+  printf("Time step is set at %f\n", setup.step_time_calc);    
     
   gpu_init(&setup, LL_rho, rho_e, rho_h, &gpu_setup);
 
@@ -564,26 +565,28 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double courant_num_vec[100000] = {0};
   int num_threads = 1024;
   int num_blocks = R * (ceil(LL_rho/num_threads)+1);
-  int save_time = 10; // Time interval to save the signal in nanoseconds
+  int save_time = setup.step_time_out; // Time interval to save the signal in nanoseconds
   //for 0.2 time step, 10 would correspond to interval of 2 ns
   double total_hole_density[100000] = {0};
   double hole_density_surface[100000] = {0};
-    
+  double signal_time_n;  
   bool change_time_step = false;  // Flag to indicate if time step should be changed
-  double new_time_step_ns = 1;  // New time step in ns after conditions are met
-  double signal_threshold = 0.97;
-  double time_threshold_ns = 1000.0;
+  double new_time_step_ns = 0.5;  // New time step in ns after conditions are met
+  double signal_threshold = 0.95;
+  double time_threshold_ns = 400.0;
+    
   int last_signal_pos = 0;  
   double actual_time_elapsed = 0.0; // To track the actual simulation time
   double last_save_time = 0.0;
   int save_index = 0;
   bool save_rho_init = true;  // Flag to indicate if time step should be changed
-
-  for (n_iter = 1; actual_time_elapsed <= sim_time; n_iter++) {
-    // if(n_iter%100==0){
-    //   printf("\n\n -=-=-=-=-=-Running at time %.2f out of %d", actual_time_elapsed, sim_time);
-    //   printf("-=-=-=-=-=-Signal collected=%.4f-=-=-=-=-=-\n\n", sig[last_signal_pos-1]/1000);
-    //   }
+    
+  //save_time*2 to just make sure we run enough to generate time of 600 ns  
+  for (n_iter = 1; actual_time_elapsed <= sim_time+(save_time*2); n_iter++) {
+    if(n_iter%1000==0){
+        printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
+        printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", sig[save_index-1]/1000);
+    }    
     cudaDeviceSynchronize();
     set_rho_zero_gpu(&gpu_setup, LL_rho, R, num_blocks, num_threads);
     cudaDeviceSynchronize();
@@ -593,20 +596,28 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 
     // Save signal logic
     if (actual_time_elapsed - last_save_time >= save_time) {
-        printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
-        printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", sig[save_index-1]/1000);
-        
         if(save_rho_init){
-            sig[save_index] = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, true);
+            signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, true);
             save_rho_init = false;
         }
         else{
-            sig[save_index] = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);
+            signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);
         }
+        
+        if (isnan(signal_time_n)) {  // Check if signal is NaN
+            printf("\n\n Error: Signal collected is NaN at iteration %d. Exiting the program.\n\n", n_iter);
+            return -1; // Exit with an error code
+        }
+        // Check if the signal is greater than 1 and adjust if necessary
+        if (signal_time_n > 1000) {
+            signal_time_n = 1000;
+            setup.step_time_calc = 2.0;
+        }
+        sig[save_index] = signal_time_n;
         last_signal_pos = save_index;
         save_index++;
         last_save_time = actual_time_elapsed;
-
+        
       if(write_densities){
         cudaDeviceSynchronize();
         get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
@@ -638,7 +649,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (!change_time_step && 
         (sig[last_signal_pos] / 1000 > signal_threshold || actual_time_elapsed > time_threshold_ns)) {
         change_time_step = true;
-        printf("Updating time stpe to %f\n", new_time_step_ns);
+        printf("\n\n-=-=-=-=-=-Updating time step to %f-=-=-=-=-=-\n\n", new_time_step_ns);
         setup.step_time_calc = new_time_step_ns;
     }
   }
@@ -652,7 +663,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   }
 
   printf("signal: \n");
-  for (i = 0; i < (sim_time/save_time)-1; i++){
+  for (i = 0; i < (sim_time/save_time); i++){
     printf("%.5f ", sig[i]/1000);
     if (i%20 == 0) printf("\n");
   }
@@ -664,7 +675,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   // printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
-  for(i = 0; i < (sim_time/save_time)-1; i++){
+  for(i = 0; i < (sim_time/save_time); i++){
     written = fprintf(f,"%f\n",sig[i]/1000);
     if (written == 0) {
     printf("Error during writing to file!");

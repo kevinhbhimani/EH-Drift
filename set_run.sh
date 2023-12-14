@@ -35,6 +35,6 @@ mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repuls
 mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector 
 mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge} 
 
-$dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid
+$dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
 #time $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion 
 #time $dir_run/ehd_siggen $config_file -a $radius -z $zPos -g $detector -s $surface_charge
