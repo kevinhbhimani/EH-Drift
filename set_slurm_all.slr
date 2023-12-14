@@ -44,8 +44,8 @@ grid=$8
 config_file="config_files/$detector.config"
 config_file_calc_wp="config_files/${detector}_calc_wp.config"
 
-dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data"
-dir_run="/global/homes/k/kbhimani/siggen_ccd"
+dir_save="/work/users/k/b/kbhimani/siggen_ccd_data"
+dir_run="/nas/longleaf/home/kbhimani/siggen_ccd"
 
 energy_vals=($(seq 1500.00 50.00 5500.00))
 rad_vals=($(seq 0.00 1.00 35.00))
@@ -81,7 +81,7 @@ for sur_ch in "${surface_charge_vals[@]}"
 #         sim_count=$((sim_count+1))
 #         done
 #     done
-# for sur_ch in "${surface_charge_vals[@]}"
+# for sur_ch in "${suserface_charge_vals[@]}"
 #     do
 #         eng_r=5000.00   
 #         height_r=0.02

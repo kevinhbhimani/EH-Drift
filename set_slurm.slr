@@ -45,8 +45,8 @@ grid=$8
 config_file="config_files/$detector.config"
 config_file_calc_wp="config_files/${detector}_calc_wp.config"
 
-dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data"
-dir_run="/global/homes/k/kbhimani/siggen_ccd"
+dir_save="/work/users/k/b/kbhimani/siggen_ccd_data"
+dir_run="/nas/longleaf/home/kbhimani/siggen_ccd"
 
 echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
 
@@ -55,4 +55,4 @@ $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surfa
 # echo "time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion"
 # time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion
 
-bash /global/homes/k/kbhimani/siggen_ccd/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid
+bash $dir_run/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid

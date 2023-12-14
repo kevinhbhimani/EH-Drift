@@ -384,7 +384,7 @@ int write_ev(MJD_Siggen_Setup *setup) {
       r = (j-1) * grid;
       for (i = 1; i < L; i++) {
         z = (i-1) * grid;
-        fprintf(file, "%7.4f %7.4f %14.8e\n", r, z, setup->v[new][i][j]);
+        fprintf(file, "%7.2f %7.2f %12.6e\n", r, z, setup->v[new][i][j]);
       }
       fprintf(file, "\n");
     }
@@ -643,7 +643,7 @@ int grid_init(MJD_Siggen_Setup *setup) {
     }
     for (i = 1; i < L; i++)  setup->impurity[i][j] = imp_z[i] * imp_rm + imp_ra;
     if (setup->point_type[1][j] == PASSIVE) {
-      setup->impurity[1][j] += setup->impurity_surface * e_over_E * grid/4.0 *setup->passivated_thickness/grid;
+      setup->impurity[1][j] += setup->impurity_surface * e_over_E * grid/4.0;
     }
     /* reduce charge volume for CONTACT_EDGE pixels */
     for (i = 1; i < L; i++) {

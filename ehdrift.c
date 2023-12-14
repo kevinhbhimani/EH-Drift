@@ -36,12 +36,14 @@
   Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
   ICPC detector: ./ehdrift config_files/V01386A.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
   WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  ./ehdrift config_files/V01386A_calc_wp.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>  
 #include <math.h>
 #include <time.h>
 #include "mjd_siggen.h"
@@ -72,26 +74,28 @@ int do_relax(MJD_Siggen_Setup *setup, int ev_calc);
 int ev_relax_undep(MJD_Siggen_Setup *setup);
 int wp_relax_undep(MJD_Siggen_Setup *setup);
 int interpolate(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup);
-
 int write_rho(int L, int R, float grid, double **rho, char *fname);
-int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho,
-              int q, double *gone);
+int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, double *gone);
 int read_rho(int L, int R, float grid, double **rho, char *fname);
+void tell_ehd_2(const char *format, ...);
 
 int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup, int n_iter);
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
-double get_signal_gpu(MJD_Siggen_Setup *setup, GPU_data *gpu_setup, int L, int R, int n_iter, double grid, int save_time, int num_threads);
-// double get_courant_number(GPU_data *gpu_setup, int L, int R);
+double get_signal_gpu(MJD_Siggen_Setup *setup, GPU_data *gpu_setup, int L, int R, double actual_time_elapsed, double grid, int save_time, int num_threads, bool save_rho_init);
 double get_total_hole_density(GPU_data *gpu_setup, int L, int R, int n_iter, int save_time, int num_blocks, int num_threads);
 double get_hole_density_surface(GPU_data *gpu_setup, int L, int R, int n_iter, int save_time, int num_blocks, int num_threads);
 double calculate_courant_cpu(MJD_Siggen_Setup *setup, int L, int R, float grid, int q);
-int rc_integrate_ehd(float *s_in, float *s_out, float tau, int time_steps);
+int rc_integrate_ehd(double *s_in, double *s_out, float tau, int time_steps);
 int ehd_field_setup_2(MJD_Siggen_Setup *setup);
 int setup_wp_ehd(MJD_Siggen_Setup *setup);
-
-#define TELL_NORMAL if (setup->verbosity >= NORMAL) tell_ehd
-#define TELL_CHATTY if (setup->verbosity >= CHATTY) tell_ehd
+int ev_calc_gpu(int ev_calc, MJD_Siggen_Setup *setup, GPU_data *gpu_setup);
+int ev_calc_gpu_initial(MJD_Siggen_Setup *setup, MJD_Siggen_Setup *old_setup, GPU_data *gpu_setup);
+void gpu_init(MJD_Siggen_Setup *setup, int LL_rho, double ***rho_e, double ***rho_h, GPU_data *gpu_setup);
+void get_densities(int L, int R, double ***rho_e, double ***rho_h, GPU_data *gpu_setup);
+void get_potential(int L, int R, MJD_Siggen_Setup *setup, GPU_data *gpu_setup);
+#define TELL_NORMAL_EHD if (setup->verbosity >= NORMAL) tell_ehd_2
+#define TELL_CHATTY_EHD if (setup->verbosity >= CHATTY) tell_ehd_2
 
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
@@ -118,11 +122,9 @@ int main(int argc, char **argv)
   float  alpha_z_mm = 0.1;
   char det_name[8];
   char fn[512]; // Ensure this is large enough
-  const char *scratch_dir = "/pscratch/sd/k/kbhimani/siggen_ccd_data";
-  const char *home_dir = "/global/homes/k/kbhimani/siggen_ccd";
-  int sim_time = 6000; //run time in nano seconds
-  
-
+  const char *scratch_dir = "/work/users/k/b/kbhimani/siggen_ccd_data";
+  const char *home_dir = "/nas/longleaf/home/kbhimani/siggen_ccd";
+    
   if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
     printf("Usage: %s <config_file_name> [options]\n"
            "   Possible options:\n"
@@ -533,21 +535,13 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (ehd_field_setup_2(&setup)) return 1;
   }
 
-  // for (z=1; z<L-1; z++) {
-  //   for (r=2; r<R-1; r++) {
-  //     if(r==26) {
-  //       printf("z=%.4d,r=%.4d,WP=%.8f",z, r, setup.wpot[z][r]);
-  //     }
-  //   }
-  // }
-
-
+  printf("Calculating Courant number\n");
   double courant_number = calculate_courant_cpu(&setup, LL_rho, R, grid, -1);
   printf("\nThe courant number is %f\n", courant_number);
   if(courant_number >0.f){
     setup.step_time_calc = setup.step_time_calc/ courant_number;
   } 
-  printf("\nTime step is %f\n", setup.step_time_calc);    
+  printf("Time step is %f\n", setup.step_time_calc);    
     
   gpu_init(&setup, LL_rho, rho_e, rho_h, &gpu_setup);
 
@@ -563,22 +557,33 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 
 
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
-  int n_iter=0;
+  int n_iter=1;
   double sig[100000] = {0};
+  int sim_time = 6000; //run time in nano seconds
+
   double courant_num_vec[100000] = {0};
   int num_threads = 1024;
   int num_blocks = R * (ceil(LL_rho/num_threads)+1);
-  int save_time_ns=setup.step_time_out; //time to save signal in ns
-  int save_time=(int)save_time_ns/setup.step_time_calc; //interval to save wavefroms
+  int save_time = 10; // Time interval to save the signal in nanoseconds
   //for 0.2 time step, 10 would correspond to interval of 2 ns
   double total_hole_density[100000] = {0};
   double hole_density_surface[100000] = {0};
-  for (n_iter=1; n_iter<=sim_time/setup.step_time_calc; n_iter++) {   // CHANGEME : 4000 time steps of size time_steps_calc (0.02) thus simulating 800ns
     
-    if(n_iter % 1000==0){
-      printf("\n\n -=-=-=-=-=-Running at time step %3d out of %.0f-=-=-=-=-=-\n\n", n_iter, ceil(sim_time/setup.step_time_calc));
-    }
+  bool change_time_step = false;  // Flag to indicate if time step should be changed
+  double new_time_step_ns = 1;  // New time step in ns after conditions are met
+  double signal_threshold = 0.97;
+  double time_threshold_ns = 1000.0;
+  int last_signal_pos = 0;  
+  double actual_time_elapsed = 0.0; // To track the actual simulation time
+  double last_save_time = 0.0;
+  int save_index = 0;
+  bool save_rho_init = true;  // Flag to indicate if time step should be changed
 
+  for (n_iter = 1; actual_time_elapsed <= sim_time; n_iter++) {
+    // if(n_iter%100==0){
+    //   printf("\n\n -=-=-=-=-=-Running at time %.2f out of %d", actual_time_elapsed, sim_time);
+    //   printf("-=-=-=-=-=-Signal collected=%.4f-=-=-=-=-=-\n\n", sig[last_signal_pos-1]/1000);
+    //   }
     cudaDeviceSynchronize();
     set_rho_zero_gpu(&gpu_setup, LL_rho, R, num_blocks, num_threads);
     cudaDeviceSynchronize();
@@ -586,9 +591,21 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     update_impurities_gpu(&gpu_setup, LL_rho, R, num_blocks, num_threads, e_over_E, grid);
     cudaDeviceSynchronize();
 
-    if(n_iter%save_time==0){
-      // printf("\n\n -=-=-=-=-=-Running at time step %3d out of %.0f-=-=-=-=-=-\n\n", n_iter, ceil(sim_time/setup.step_time_calc));
-      sig[(int)n_iter/save_time] = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, n_iter, grid, save_time, num_threads);
+    // Save signal logic
+    if (actual_time_elapsed - last_save_time >= save_time) {
+        printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
+        printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", sig[save_index-1]/1000);
+        
+        if(save_rho_init){
+            sig[save_index] = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, true);
+            save_rho_init = false;
+        }
+        else{
+            sig[save_index] = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);
+        }
+        last_signal_pos = save_index;
+        save_index++;
+        last_save_time = actual_time_elapsed;
 
       if(write_densities){
         cudaDeviceSynchronize();
@@ -614,7 +631,16 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     gpu_drift(&setup, LL_rho, R, grid, rho_e, -1, &gpu_setup, n_iter);
     cudaDeviceSynchronize();
     gpu_drift(&setup, LL_rho, R, grid, rho_h, 1, &gpu_setup, n_iter);
-
+      
+    // After performing necessary operations, update actual_time_elapsed
+    actual_time_elapsed += setup.step_time_calc;
+    // Check if it's time to change the time step
+    if (!change_time_step && 
+        (sig[last_signal_pos] / 1000 > signal_threshold || actual_time_elapsed > time_threshold_ns)) {
+        change_time_step = true;
+        printf("Updating time stpe to %f\n", new_time_step_ns);
+        setup.step_time_calc = new_time_step_ns;
+    }
   }
   cudaDeviceSynchronize();
   get_potential(L, R, &setup, &gpu_setup);
@@ -626,19 +652,19 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   }
 
   printf("signal: \n");
-  for (i = 0; i < sim_time/(setup.step_time_calc*save_time); i++){
+  for (i = 0; i < (sim_time/save_time)-1; i++){
     printf("%.5f ", sig[i]/1000);
     if (i%20 == 0) printf("\n");
   }
   printf("\n");
-
+  printf("Saving waveform\n");
   int written = 0;
   char filename[1024];
   sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",home_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
   // printf("The file name is %s\n", filename);
   FILE *f = fopen(filename,"w");
   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
-  for(i = 0; i < sim_time/(setup.step_time_calc*save_time); i++){
+  for(i = 0; i < (sim_time/save_time)-1; i++){
     written = fprintf(f,"%f\n",sig[i]/1000);
     if (written == 0) {
     printf("Error during writing to file!");
@@ -650,7 +676,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   return 0;
 } /* main */
 
-int rc_integrate_ehd(float s_in[], float s_out[], float tau, int time_steps){
+int rc_integrate_ehd(double s_in[], double s_out[], float tau, int time_steps){
   int   j;
   float s_in_old, s;  /* DCR: added so that it's okay to
 			 call this function with s_out == s_in */
@@ -706,7 +732,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
 
   setup->rlen = lrintf((setup->rmax - setup->rmin)/setup->rstep) + 1;
   setup->zlen = lrintf((setup->zmax - setup->zmin)/setup->zstep) + 1;
-  TELL_CHATTY("rlen, zlen: %d, %d\n", setup->rlen, setup->zlen);
+  TELL_CHATTY_EHD("rlen, zlen: %d, %d\n", setup->rlen, setup->zlen);
 
   //assuming rlen, zlen never change as for setup_efld
   if ((wpot = (double **) malloc(setup->rlen*sizeof(*wpot))) == NULL){
@@ -726,7 +752,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
     return -1;
   }
   lineno = 0;
-  TELL_NORMAL("Reading weighting potential from file: %s\n", setup->wp_name);
+  TELL_NORMAL_EHD("Reading weighting potential from file: %s\n", setup->wp_name);
 
   if (strstr(setup->wp_name, "unf")) {
     /* try to read from unformatted file */
@@ -747,7 +773,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
         return -1;
       }
     }
-    TELL_NORMAL("Done reading field, %d x %d points\n", setup->rlen, setup->zlen);
+    TELL_NORMAL_EHD("Done reading field, %d x %d points\n", setup->rlen, setup->zlen);
 
   } else {
 
@@ -768,7 +794,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
       if (outside_detector_cyl(cyl, setup)) continue;
       wpot[i][j] = wp;
     }
-    TELL_NORMAL("Done reading %d lines of WP data\n", lineno);
+    TELL_NORMAL_EHD("Done reading %d lines of WP data\n", lineno);
   }
 
   fclose(fp);
@@ -778,7 +804,7 @@ int setup_wp_ehd(MJD_Siggen_Setup *setup){
   return 0;
 }
 
-void tell_ehd(const char *format, ...){
+void tell_ehd_2(const char *format, ...){
   va_list ap;
 
   va_start(ap, format);

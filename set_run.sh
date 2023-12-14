@@ -14,8 +14,8 @@ grid=$8
 config_file="config_files/$detector.config"
 config_file_calc_wp="config_files/${detector}_calc_wp.config"
 
-dir_save="/pscratch/sd/k/kbhimani/siggen_ccd_data"
-dir_run="/global/homes/k/kbhimani/siggen_ccd"
+dir_save="/work/users/k/b/kbhimani/siggen_ccd_data"
+dir_run="/nas/longleaf/home/kbhimani/siggen_ccd"
 
 echo "Running simulation at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
 

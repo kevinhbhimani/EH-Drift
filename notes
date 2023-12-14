@@ -1,16 +1,18 @@
-Job procedure
+Things to change for cluster
+config files field save
 
-cd /global/homes/k/kbhimani/siggen_2d/
+ehdrift
+const char *scratch_dir = "/work/users/k/b/kbhimani/siggen_ccd_data";
+const char *home_dir = "/nas/longleaf/home/kbhimani/siggen_ccd_ll";
+  int sim_time = 6000; //run time in nano seconds
+  
+  
+set_slurm
+dir_save="/work/users/k/b/kbhimani/siggen_ccd_data"
+dir_run="/nas/longleaf/home/kbhimani/siggen_ccd"
 
-./ehdrift ppc_1_calc_wp.config  -a 15
-
-./ehdrift ppc_1.config  -a 5
-./ehdrift ppc_1.config  -a 10
-./ehdrift ppc_1.config  -a 15
-./ehdrift ppc_1.config  -a 25
-./ehdrift ppc_1.config  -a 30
-
-
-
-
-rsync -e ssh -avP /home/kevinhbhimani/Desktop/Siggen_simulations/ehdrift/Siggen_2D_Cori/ kbhimani@cori.nersc.gov:/global/homes/k/kbhimani/siggen_2d/
+config file changes:
+# file names
+drift_name /global/homes/k/kbhimani/siggen_ccd/drift_vel_tcorr.tab  # drift velocity lookup table
+field_name /work/users/k/b/kbhimani/siggen_ccd_data/fields/ev_p1_sm1.dat # potential/efield file name; no included spaces allowed
+wp_name    /work/users/k/b/kbhimani/siggen_ccd_data/fields/wp_p1.dat     # weighting potential file name; no included spaces allowed
