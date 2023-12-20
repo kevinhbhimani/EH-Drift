@@ -344,8 +344,8 @@ int main(int argc, char **argv)
 // NOT(A or B) = NOT(A) and NOT(B)
 //enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
 
-  if (setup.point_type[z][r] != PASSIVE && setup.point_type[z][r] != INSIDE && setup.point_type[z][r] != PC && setup.point_type[z][r] != HVC) {
-      
+  // if (setup.point_type[z][r] != PASSIVE && setup.point_type[z][r] != INSIDE && setup.point_type[z][r] != PC && setup.point_type[z][r] != HVC) {
+  if (setup.point_type[z][r] != PASSIVE && setup.point_type[z][r] != INSIDE) {      
 const char *pointTypeNames[] = {"PC", "HVC", "INSIDE", "PASSIVE", "PINCHOFF", "DITCH", "DITCH_EDGE", "CONTACT_EDGE"};
 if (setup.point_type[z][r] >= 0 && setup.point_type[z][r] <= CONTACT_EDGE) {
   printf("Point is of type %s\n", pointTypeNames[setup.point_type[z][r]]);
@@ -574,13 +574,13 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double new_time_step_ns = 0.5;  // New time step in ns after conditions are met
   double signal_threshold = 0.95;
   double time_threshold_ns = 400.0;
-    
+  int save_init_rho = 1; //time in ns to save the inital number of densiies for siganl calculations  
   int last_signal_pos = 0;  
   double actual_time_elapsed = 0.0; // To track the actual simulation time
   double last_save_time = 0.0;
   int save_index = 0;
   bool save_rho_init = true;  // Flag to indicate if time step should be changed
-    
+  int write_rho_counter = 1;  
   //save_time*2 to just make sure we run enough to generate time of 600 ns  
   for (n_iter = 1; actual_time_elapsed <= sim_time+(save_time*2); n_iter++) {
     if(n_iter%1000==0){
@@ -593,17 +593,18 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 
     update_impurities_gpu(&gpu_setup, LL_rho, R, num_blocks, num_threads, e_over_E, grid);
     cudaDeviceSynchronize();
-
-    // Save signal logic
-    if (actual_time_elapsed - last_save_time >= save_time) {
+      
+      
+    if (actual_time_elapsed - last_save_time >= save_rho_init) {
         if(save_rho_init){
-            signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, true);
+            get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, true);
             save_rho_init = false;
         }
-        else{
-            signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);
-        }
-        
+    }
+    // Save signal logic
+    if (actual_time_elapsed - last_save_time >= save_time) {
+   
+        signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);        
         if (isnan(signal_time_n)) {  // Check if signal is NaN
             printf("\n\n Error: Signal collected is NaN at iteration %d. Exiting the program.\n\n", n_iter);
             return -1; // Exit with an error code
@@ -624,14 +625,15 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         // Use sprintf to format the entire string, including scratch_dir
         sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", 
                 scratch_dir, energy_kev, grid, do_self_repulsion, det_name, 
-                setup.impurity_surface, alpha_r_mm, alpha_z_mm, n_iter/save_time);
-    
+                setup.impurity_surface, alpha_r_mm, alpha_z_mm, write_rho_counter);
         write_rho(LL_rho/8, R, grid, rho_e[0], fn);
+          
         // Use sprintf to format the entire string, including home_dir
         sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", 
                 scratch_dir, energy_kev, grid, do_self_repulsion, det_name, 
-                setup.impurity_surface, alpha_r_mm, alpha_z_mm, n_iter/save_time);
+                setup.impurity_surface, alpha_r_mm, alpha_z_mm, write_rho_counter);
         write_rho(LL_rho/8, R, grid, rho_h[0], fn);
+        write_rho_counter +=1;
       }
     }
     if(do_self_repulsion){

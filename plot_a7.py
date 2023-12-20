@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 def main():
     
     # for n in range(76, 77, 2):
-    for n in range(1, 70, 1):
+    for n in range(1, 30, 1):
         if (n < 10):
             fname = 'ed00' + str(n) + '.dat'
         else:
@@ -32,20 +32,23 @@ def main():
 
 def make_png(fname1):
 
-    file_load = '/pscratch/sd/k/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0200/self_repulsion_1/P42575A/q=-0.50/drift_data_r=15.00_z=0.10/'
-    file_save = '/pscratch/sd/k/kbhimani/siggen_ccd_data/gif_data/r_15_z_0p10/grid_20_micron/proj_r/eh'
-
+    file_load = '/work/users/k/b/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0400/self_repulsion_1/P42575A/q=0.00/drift_data_r=1.00_z=4.00/'
+    file_save = '/nas/longleaf/home/kbhimani/siggen_ccd/gif_data/gif_r=1.00_z=4.00/'
+    plot_title = "Densities at r=1, z=4, surface vel=0.01 bulk vel, grid=20$\mu$"
+    r_1=0
+    r_2=35
+    z_1=0
+    z_2=6
+    fig_x=6
+    fig_y=4
+    
     z_index = 2
     # get max value of z to plot, if required
     max_z = None
 
     # create a figure with two subplots, ax1 and ax2, one over the other
     # adjust the vertical size and horizontal spacing to get the botton/top x-axes to match up
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1,
-                                        gridspec_kw={'height_ratios': [0.5, 0.8, 2],
-                                                     'hspace': -0.05},
-                                        figsize=(7.5, 7))
-    #fig.suptitle('Electron/Hole density vs. position\n', fontsize=16, linespacing=0.4)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1,gridspec_kw={'hspace': -0.05}, figsize=(fig_x, fig_y))
 
     # get data for electron density plot
     data = np.loadtxt(file_load + fname1)
@@ -93,18 +96,16 @@ def make_png(fname1):
     ax1.get_shared_x_axes().join(ax1, ax2)
     ax1.get_shared_y_axes().join(ax1, ax2)
     ax1.get_shared_x_axes().join(ax1, ax3)
-    ax1.set_xlim(5, 25)
-    # ax1.set_ylim(4, 6)
-    ax1.set_ylim(0, 2.5)
+    ax1.set_xlim(r_1, r_2)
+    ax1.set_ylim(z_1, z_2)
 
     # label axes
     plt.setp(ax1, xticklabels=[])
     plt.setp(ax2, xticklabels=[])
     ax1.set_ylabel("Z [mm]", labelpad=8,  size=10)
-    ax1.set_title("Densities at r=15, z=0.10, surface vel=0.1 bulk vel, grid=20$\mu$", fontsize=12)
+    ax1.set_title(plot_title, fontsize=12)
     ax3.set_xlabel("Radius [mm]", size=13)
     ax2.set_ylabel("Z [mm]", labelpad=8,  size=10)
-
     # plot the e/h number projections onto radius
     
     xx = np.arange(len(x))

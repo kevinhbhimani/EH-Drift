@@ -32,7 +32,7 @@
 #SBATCH --mail-user=kevin_bhimani@unc.edu
 #---------------------------------------------------------------------------   
 #!/bin/bash
-module load cudatoolkit
+
 radius=$1 #make sure to keep these at 1 decimal point
 zPos=$2
 detector=$3
