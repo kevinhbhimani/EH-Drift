@@ -61,6 +61,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "hdf5.h"
+
 
 #define MAX_ITS 50000     // default max number of iterations for relaxation
 
@@ -101,6 +103,7 @@ void get_potential(int L, int R, MJD_Siggen_Setup *setup, GPU_data *gpu_setup);
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
 {
+    // Variable declarations
   int write_densities = 0;
   int do_self_repulsion = 1;
   double interact_energy = 5.0e-7; //default energy is 5 MeV for alphas
@@ -113,19 +116,20 @@ int main(int argc, char **argv)
                  // 2: write the V and E values for both +r, -r (for gnuplot, NOT for siggen)
   int   WD = 0;  // 0: do not write out depletion surface
                  // 1: write out depletion surface to depl_<HV>.dat
-
   int   i, j;
   FILE  *fp;
   double e_over_E = 11.310; // e/epsilon; for 1 mm2, charge units 1e10 e/cm3, espilon = 16*epsilon0
   double **rho_e[4], **rho_h[3];
   double egone=0, hgone=0;
-  float  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
-  float  alpha_z_mm = 0.1;
+  double  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
+  double  alpha_z_mm = 0.1;
   char det_name[8];
   char fn[512]; // Ensure this is large enough
   const char *scratch_dir = "/work/users/k/b/kbhimani/siggen_ccd_data";
   const char *home_dir = "/nas/longleaf/home/kbhimani/siggen_ccd";
-    
+  
+        // Configuration setup and command-line argument processing
+
   if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
     printf("Usage: %s <config_file_name> [options]\n"
            "   Possible options:\n"
@@ -207,12 +211,6 @@ int main(int argc, char **argv)
 
   printf("\nPassivated surface thickness is %f\n", setup.passivated_thickness);
 
-
-  // setup.step_time_calc= (0.005*0.01)/(setup.xtal_grid*setup.xtal_grid);
-  // printf("Time step has been set at %.3f\n", setup.step_time_calc);
-
-
-
   if(setup.passivated_thickness>=setup.xtal_grid){
     printf("Grid is %f\n", setup.xtal_grid);
     printf("Passivated surface depth is %f\n",setup.passivated_thickness);
@@ -286,7 +284,7 @@ int main(int argc, char **argv)
   /* add electrons and holes at a specific point location near passivated surface */
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
   double hsum1=0, hsum2=0, hcentr=0, hrmsr=0, hcentz=0, hrmsz=0;
-  float  grid = setup.xtal_grid;
+  double  grid = setup.xtal_grid;
   int    L  = lrint(setup.xtal_length/grid)+2; 
   // int    LL_rho = lrint(setup.xtal_length/grid)+2; // 3 so that last z is traced as passivated surface
   // int    LL_rho = (lrint(setup.xtal_length/grid)+3)/8;
@@ -520,7 +518,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
            setup.Emin, setup.rmin, setup.zmin);
   }
 
-  if (setup.write_WP) return 0; //CHANGED : Why are we quiting here?
+  if (setup.write_WP) return 0;
     /* we need **v to have electric potential, not WP, so we quit here */
 
     if(write_densities){
@@ -549,18 +547,16 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   gpu_drift(&setup, LL_rho, R, grid, rho_e, -1, &gpu_setup, 0);
   gpu_drift(&setup, LL_rho, R, grid, rho_h, 1, &gpu_setup, 0);
 
-
   /* -----------------------------------------
    *   This loop starting here is crucial.
    *   It loops over time steps (size = time_steps_calc in the config file) calculating
    *    the self-consistent field and letting the charge densities diffuse and drift.
    * ----------------------------------------- */
 
-
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n_iter=1;
   double sig[100000] = {0};
-  int sim_time = 6000; //run time in nano seconds
+  int sim_time = 8000; //run time in nano seconds
 
   double courant_num_vec[100000] = {0};
   int num_threads = 1024;
@@ -580,8 +576,12 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double last_save_time = 0.0;
   int save_index = 0;
   bool save_rho_init = true;  // Flag to indicate if time step should be changed
-  int write_rho_counter = 1;  
-  //save_time*2 to just make sure we run enough to generate time of 600 ns  
+  int write_rho_counter = 1;
+    
+  double prev_signal = 0;
+  double signal_diff_threshold = 0.001; // 0.1%
+  double max_time_step = 5.0; // maximum time step in ns
+  //save_time*2 to just make sure we run enough time steps to generate time of total time
   for (n_iter = 1; actual_time_elapsed <= sim_time+(save_time*2); n_iter++) {
     if(n_iter%1000==0){
         printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
@@ -601,6 +601,9 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
             save_rho_init = false;
         }
     }
+      
+    signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);        
+
     // Save signal logic
     if (actual_time_elapsed - last_save_time >= save_time) {
    
@@ -648,12 +651,23 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     // After performing necessary operations, update actual_time_elapsed
     actual_time_elapsed += setup.step_time_calc;
     // Check if it's time to change the time step
-    if (!change_time_step && 
-        (sig[last_signal_pos] / 1000 > signal_threshold || actual_time_elapsed > time_threshold_ns)) {
-        change_time_step = true;
-        printf("\n\n-=-=-=-=-=-Updating time step to %f-=-=-=-=-=-\n\n", new_time_step_ns);
-        setup.step_time_calc = new_time_step_ns;
+    // if (!change_time_step && 
+    //     (sig[last_signal_pos] / 1000 > signal_threshold || actual_time_elapsed > time_threshold_ns)) {
+    //     change_time_step = true;
+    //     printf("\n\n-=-=-=-=-=-Updating time step to %f-=-=-=-=-=-\n\n", new_time_step_ns);
+    //     setup.step_time_calc = new_time_step_ns;
+    // }
+        // Check the difference in signal and adjust time step
+    if (prev_signal > 0) { // Skip the first iteration as there's no previous signal
+        double signal_diff = fabs(signal_time_n - prev_signal) / prev_signal;
+        if (signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
+            setup.step_time_calc = fmin(setup.step_time_calc * 2, max_time_step);
+            printf("\n\n-=-=-=-=-=-New time step to %f", setup.step_time_calc);
+            printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", signal_time_n/1000);
+
+        }
     }
+    prev_signal = signal_time_n; // Update the previous signal for the next iteration
   }
   cudaDeviceSynchronize();
   get_potential(L, R, &setup, &gpu_setup);
@@ -670,22 +684,103 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (i%20 == 0) printf("\n");
   }
   printf("\n");
-  printf("Saving waveform\n");
-  int written = 0;
-  char filename[1024];
-  sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",home_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-  // printf("The file name is %s\n", filename);
-  FILE *f = fopen(filename,"w");
-  //written = fwrite(sig, sizeof(float), sizeof(sig), f);
-  for(i = 0; i < (sim_time/save_time); i++){
-    written = fprintf(f,"%f\n",sig[i]/1000);
-    if (written == 0) {
-    printf("Error during writing to file!");
-    break;
-    }
-  }
-  fclose(f);
-  printf("Done writting waveform\n");
+//   printf("Saving waveform\n");
+//   int written = 0;
+//   char filename[1024];
+//   sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",home_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+//   // printf("The file name is %s\n", filename);
+//   FILE *f = fopen(filename,"w");
+//   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
+//   for(i = 0; i < (sim_time/save_time); i++){
+//     written = fprintf(f,"%f\n",sig[i]/1000);
+//     if (written == 0) {
+//     printf("Error during writing to file!");
+//     break;
+//     }
+//   }
+//   fclose(f);
+//   printf("Done writting waveform\n");
+    
+
+
+printf("Saving waveform in HDF5 format\n");
+char hdf5_filename[1024];
+sprintf(hdf5_filename, "%s/waveforms/signal_data_%.2f_keV_grid%.4f_%s_q%.2f_r%.2f_z%.2f.h5", 
+        home_dir, energy_kev, grid, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+
+hid_t file_id, dataset_id, dataspace_id, attr_id, attr_dataspace_id;  // HDF5 identifiers
+hsize_t dims[1]; // Dimensions of the dataset
+
+// Create a new file using the default properties
+file_id = H5Fcreate(hdf5_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+
+// Prepare scaled waveform data
+dims[0] = (sim_time/save_time);
+double scaled_sig[dims[0]];
+for (int i = 0; i < dims[0]; i++) {
+    scaled_sig[i] = sig[i] / 1000.0; // Divide each signal value by 1000
+}
+
+// ---- Save Waveform ----
+dataspace_id = H5Screate_simple(1, dims, NULL);
+dataset_id = H5Dcreate(file_id, "/waveform", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, scaled_sig);
+H5Dclose(dataset_id);
+H5Sclose(dataspace_id);
+
+// ---- Save Energy, r, z, grid, and detector name as individual datasets ----
+// Assuming energy, alpha_r_mm, and alpha_z_mm are double
+dims[0] = 1;
+
+// Energy
+dataspace_id = H5Screate_simple(1, dims, NULL);
+dataset_id = H5Dcreate(file_id, "/energy", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &energy_kev);
+H5Dclose(dataset_id);
+
+// r
+dataset_id = H5Dcreate(file_id, "/r", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &alpha_r_mm);
+H5Dclose(dataset_id);
+
+// z
+dataset_id = H5Dcreate(file_id, "/z", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &alpha_z_mm);
+H5Dclose(dataset_id);
+
+// Grid
+dataset_id = H5Dcreate(file_id, "/grid", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &grid);
+H5Dclose(dataset_id);
+
+// Detector name
+dims[0] = strlen(det_name) + 1; // Include space for null terminator
+dataspace_id = H5Screate_simple(1, dims, NULL);
+dataset_id = H5Dcreate(file_id, "/detector_name", H5T_C_S1, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_C_S1, H5S_ALL, H5S_ALL, H5P_DEFAULT, det_name);
+H5Dclose(dataset_id);
+H5Sclose(dataspace_id);
+
+// ---- Save Attributes ----
+attr_dataspace_id = H5Screate(H5S_SCALAR);
+
+// Surface charge
+attr_id = H5Acreate(file_id, "surface_charge", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &setup.impurity_surface);
+H5Aclose(attr_id);
+
+// Self repulsion
+attr_id = H5Acreate(file_id, "self_repulsion", H5T_NATIVE_INT, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+H5Awrite(attr_id, H5T_NATIVE_INT, &do_self_repulsion);
+H5Aclose(attr_id);
+
+H5Sclose(attr_dataspace_id);
+
+// Close the file
+H5Fclose(file_id);
+
+printf("Done writing waveform in HDF5 format\n");
+
   return 0;
 } /* main */
 

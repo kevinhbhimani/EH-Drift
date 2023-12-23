@@ -81,7 +81,7 @@ typedef struct {
   float passivated_thickness; //thickness of the passsivted surface;
 
   // electric fields & weighing potentials
-  float xtal_grid;            // grid size in mm for field files (either 0.5 or 0.1 mm)
+  double xtal_grid;            // grid size in mm for field files (either 0.5 or 0.1 mm)
   float impurity_z0;          // net impurity concentration at Z=0, in 1e10 e/cm3
   float impurity_gradient;    // net impurity gradient, in 1e10 e/cm4
   float impurity_quadratic;   // net impurity difference from linear, at z=L/2, in 1e10 e/cm3
