@@ -1,29 +1,23 @@
-HDF5 file structure
--------------------
-/ (Root Group)
-│
-├── /waveform (Dataset)
-│   └── [Array of waveform data, one-dimensional]
-│
-├── /energy (Dataset)
-│   └── [Single value, representing the energy]
-│
-├── /r (Dataset)
-│   └── [Single value, representing the radius of event]
-│
-├── /z (Dataset)
-│   └── [Single value, representing the height of the event]
-│
-├── /grid (Dataset)
-│   └── [Single value, representing the grid size]
-│
-└── /detector_name (Dataset)
-    └── [String, representing the name of the detector]
+## HDF5 File Structure
 
-Attributes
-----------
-- surface_charge (Attribute)
-  └── [Single value, representing the surface charge in 1e10 e/cm2]
-  
-- self_repulsion (Attribute)
-  └── [Single value, indicating whether self-repulsion is considered]
+This section describes the structure of the HDF5 file used in the project.
+
+### Root Group
+
+The root group `/` contains the following datasets:
+
+- `/waveform`: Array of waveform data (one-dimensional, storing scaled signal values).
+- `/energy`: Single value representing the energy.
+- `/r`: Single value representing the radius of the event.
+- `/z`: Single value representing the height of the event.
+- `/grid`: Single value representing the grid size.
+- `/detector_name`: String representing the name of the detector.
+
+### Attributes
+
+The following attributes are attached to the root group:
+
+- `surface_charge`: Single value representing the surface charge.
+- `self_repulsion`: Single value indicating whether self-repulsion is considered.
+
+This structure allows for efficient storage and retrieval of simulation data, facilitating advanced analysis and visualization techniques.
