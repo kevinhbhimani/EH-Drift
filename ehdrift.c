@@ -549,6 +549,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
    *    the self-consistent field and letting the charge densities diffuse and drift.
    * ----------------------------------------- */
 
+
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n_iter=1;
   double sig[100000] = {0};
@@ -577,8 +578,11 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double prev_signal = 0;
   double signal_diff_threshold = 0.001; // 0.1%
   double max_time_step = 5.0; // maximum time step in ns
-  //save_time*2 to just make sure we run enough time steps to generate time of total time    
-
+  //save_time*2 to just make sure we run enough time steps to generate time of total time
+    
+  printf("\n\n -=-=-=-=-=-Starting Signal Calculations\n-=-=-=-=-=-");
+  printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d\n\n-=-=-=-=-=-", 0.0, sim_time);
+    
   for (n_iter = 1; actual_time_elapsed <= sim_time+(save_time*2); n_iter++) {
       
     if(n_iter%1000==0){
