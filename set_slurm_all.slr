@@ -65,7 +65,7 @@ for sur_ch in "${surface_charge_vals[@]}"
     for e_var in "${e_vals[@]}"
         do
             echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $sur_ch with energy $e_var and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
-            $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $sur_ch -e $e_var -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+            $dir_run/ehdrift $config_file_calc_wp -r $radius -z $zPos -g $detector -s $sur_ch -e $e_var -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
             for z_var in "${z_vals[@]}"
                 do
                 for r_var in "${r_vals[@]}"

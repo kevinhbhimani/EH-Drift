@@ -31,7 +31,7 @@ def main():
         make_png(fname)
 
 def make_png(fname1):
-
+    #change here to your work directory
     file_load = '/work/users/k/b/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0400/self_repulsion_1/P42575A/q=0.00/drift_data_r=1.00_z=4.00/'
     file_save = '/nas/longleaf/home/kbhimani/siggen_ccd/gif_data/gif_r=1.00_z=4.00/'
     plot_title = "Densities at r=1, z=4, surface vel=0.01 bulk vel, grid=20$\mu$"

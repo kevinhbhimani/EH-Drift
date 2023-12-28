@@ -33,11 +33,11 @@
          ~ The passivation layer is typically 0.1 μm thick
          ~ But surface roughness and damage from the passivation process could be
            2-10 μm thick
-  Can be run as ./ehdrift config_files/P42575A.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
-  ./ehdrift config_files/OPPI.config -a 15.00 -z 0.10 -g OPPI -s -0.30 -e 30.20 -v 0 -f 1 -h 0.0200
-  ICPC detector: ./ehdrift config_files/V01386A.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
-  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -a 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
-  ./ehdrift config_files/V01386A_calc_wp.config -a 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  Can be run as ./ehdrift config_files/P42575A.config -r 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  ./ehdrift config_files/OPPI.config -r 15.00 -z 0.10 -g OPPI -s -0.30 -e 30.20 -v 0 -f 1 -h 0.0200
+  ICPC detector: ./ehdrift config_files/V01386A.config -r 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  WP can be calculated as ./ehdrift config_files/P42575A_calc_wp.config -r 15.00 -z 0.10 -g P42575A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
+  ./ehdrift config_files/V01386A_calc_wp.config -r 15.00 -z 5.00 -g V01386A -s 0.00 -e 5000 -v 0 -f 1 -h 0.0200
 */
 
 #include <stdio.h>
@@ -51,20 +51,17 @@
 #include "detector_geometry.h"
 #include "gpu_vars.h"
 #include "calc_signal.h"
-
 #include "cyl_point.h"
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <ctype.h>
 #include <string.h>
-
+#define MAX_ITS 50000     // default max number of iterations for relaxation
 #include <cuda.h>
 #include <cuda_runtime.h>
-
 #include "hdf5.h"
-
-
-#define MAX_ITS 50000     // default max number of iterations for relaxation
+#include <sys/stat.h> // For checking and creating directories
+#include <errno.h>    // For error numbers
 
 int report_config(FILE *fp_out, char *config_file_name);
 int grid_init(MJD_Siggen_Setup *setup);
@@ -106,8 +103,6 @@ int main(int argc, char **argv)
     // Variable declarations
   int write_densities = 0;
   int do_self_repulsion = 1;
-  double interact_energy = 5.0e-7; //default energy is 5 MeV for alphas
-
   MJD_Siggen_Setup setup, setup1, setup2;
   GPU_data gpu_setup;
   float BV;      // bias voltage
@@ -118,16 +113,13 @@ int main(int argc, char **argv)
                  // 1: write out depletion surface to depl_<HV>.dat
   int   i, j;
   FILE  *fp;
+  setup.energy = 5000.00; //default energy is 5000 kev
   double e_over_E = 11.310; // e/epsilon; for 1 mm2, charge units 1e10 e/cm3, espilon = 16*epsilon0
   double **rho_e[4], **rho_h[3];
   double egone=0, hgone=0;
   double  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
   double  alpha_z_mm = 0.1;
-  char det_name[8];
   char fn[512]; // Ensure this is large enough
-  const char *scratch_dir = "/work/users/k/b/kbhimani/siggen_ccd_data";
-  const char *home_dir = "/nas/longleaf/home/kbhimani/siggen_ccd";
-  
         // Configuration setup and command-line argument processing
 
   if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
@@ -137,7 +129,7 @@ int main(int argc, char **argv)
 	   "      -w {0,1}  (do_not/do write the field file)\n"
 	   "      -d {0,1}  (do_not/do write the depletion surface)\n"
 	   "      -p {0,1}  (do_not/do write the WP file)\n"
-	   "      -a <alpha radius in mm>\n"
+	   "      -r <r position in mm>\n"
      "      -z <z position in mm>\n"
      "      -g detector name\n"
      "      -s <surface charge in in 1e10 e/cm2>"
@@ -146,10 +138,10 @@ int main(int argc, char **argv)
      "      -f {0,1}  (do_not/do re-calculate field)"
      "      -h <grid size in mm>"
      "      -m <passivated surface depth size in mm>"
-     "      -r rho_spectrum_file_name\n", argv[0]);
+     "      -a rho_spectrum_file_name\n", argv[0]);
     return 1;
   }
-
+    
   strncpy(setup.config_file_name, argv[1], sizeof(setup.config_file_name));
 
   if (setup.xtal_grid < 0.001) setup.xtal_grid = 0.5;
@@ -168,23 +160,23 @@ int main(int argc, char **argv)
       write_densities = atoi(argv[++i]);               // write-out options
     } else if (strstr(argv[i], "-p")) {
       setup.write_WP = atoi(argv[++i]);   // weighting-potential options
-    } else if (strstr(argv[i], "-a")) {
+    } else if (strstr(argv[i], "-r")) {
       alpha_r_mm = atof(argv[++i]);       // alpha impact radius
     } else if (strstr(argv[i], "-z")) {
       alpha_z_mm = atof(argv[++i]);       // alpha impact z position
     } else if (strstr(argv[i], "-h")) {
       setup.xtal_grid = atof(argv[++i]);  // grid size
     } else if (strstr(argv[i], "-g")) {
-      strcpy(det_name, argv[++i]);        // name of the detector
+      strcpy(setup.detector_name, argv[++i]);        // name of the detector
     } else if (strstr(argv[i], "-s")) {
       setup.impurity_surface =  atof(argv[++i]);  // surface charge
     } else if (strstr(argv[i], "-e")) {      // set the energy of interaction in KeV
-      interact_energy = atof(argv[++i])/10000000000;
+      setup.energy = atof(argv[++i]);
     } else if (strstr(argv[i], "-f")) {      // flag to turn off or on field recalculation
       do_self_repulsion = atof(argv[++i]);
     } else if (strstr(argv[i], "-m")) {
       setup.passivated_thickness=atof(argv[++i]);  // passivated surface thickness in mm
-    }else if (strstr(argv[i], "-r")) {
+    }else if (strstr(argv[i], "-a")) {
       if (!(fp = fopen(argv[++i], "r"))) {   // impurity-profile-spectrum file name
         printf("\nERROR: cannot open impurity profile spectrum file %s\n\n", argv[i+1]);
         return 1;
@@ -205,18 +197,24 @@ int main(int argc, char **argv)
       return 1;
     }
   }
-  if(setup.passivated_thickness == 0.f){
+  if(setup.passivated_thickness < 0.0001){
     setup.passivated_thickness =0.002;
   } //defualt passivation is 2 micron
 
-  printf("\nPassivated surface thickness is %f\n", setup.passivated_thickness);
-
-  if(setup.passivated_thickness>=setup.xtal_grid){
+    if(setup.passivated_thickness>=setup.xtal_grid){
     printf("Grid is %f\n", setup.xtal_grid);
     printf("Passivated surface depth is %f\n",setup.passivated_thickness);
     printf("\n\nPassivated surface cannot be thicker than the grid\n\n");
     return 0;
   }
+    
+  printf("\nHome dir is %s\n", setup.home_dir);
+  printf("\nScratch dir is %s\n", setup.scratch_dir);
+  printf("\nPassivated surface thickness is %f\n", setup.passivated_thickness);
+  printf("\nDetector name is %s\n", setup.detector_name);
+  printf("\nEnergy of Interaction in KeV is %f\n", setup.energy);
+
+
 
  /*
   if (setup.xtal_length/setup.xtal_grid * setup.xtal_radius/setup.xtal_grid > 2500*2500) {
@@ -278,7 +276,7 @@ int main(int argc, char **argv)
   }
     
   char fn_ev[256];
-  sprintf(fn_ev, "%s/fields/ev_fin_grid=%.4f_sc=%.4f.dat",scratch_dir, setup.xtal_grid, setup.impurity_surface); 
+  sprintf(fn_ev, "%s/fields/ev_fin_grid=%.4f_sc=%.4f.dat",setup.scratch_dir, setup.xtal_grid, setup.impurity_surface); 
   strncpy(setup.field_name, fn_ev, 256);
 
   /* add electrons and holes at a specific point location near passivated surface */
@@ -291,8 +289,6 @@ int main(int argc, char **argv)
   int    LL_rho = L;
   int    R  = lrint(setup.xtal_radius/grid)+2;
   int    r, z, rr,zz, k;
-
-  double energy_kev = interact_energy * 10000000000;
 
   /* malloc and clear space for electron density arrays */
   for (j=0; j<4; j++) {
@@ -334,11 +330,11 @@ int main(int argc, char **argv)
 
   /* add electrons and holes */
   //.003: [E in keV]/[.0027 keV per charge pair] = [number of charge pairs] [# of charge pairs]/[grid size^3] = [density of charge pairs]
-  e_dens = interact_energy/0.003 / (grid*grid*grid); // / 1000.0);  // 5 MeV, units of 1e10/cm3
+
+  e_dens = (setup.energy / 1000.0 * 1e-7) / 0.003 / (grid * grid * grid); // energy in keV, converted to MeV, units of 1e10/cm3
   e_dens *= 20.0;                           // these numbers are fudged to get the self-repulsion about right (2D vs. 3D)
   r = alpha_r_mm/grid + 1;  // CHANGEME : starting radius, converted from mm to grid points; see -a command line option
   z = alpha_z_mm/grid + 1; // CHANGEME currently z = 0.1 mm
-  
 // NOT(A or B) = NOT(A) and NOT(B)
 //enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
 
@@ -523,8 +519,8 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 
     if(write_densities){
       char fn_1[256], fn_2[256];
-      sprintf(fn_1, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", scratch_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      sprintf(fn_2, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", scratch_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_1, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+      sprintf(fn_2, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
       write_rho(LL_rho/8, R, grid, rho_e[0], fn_1);
       write_rho(LL_rho/8, R, grid, rho_h[0], fn_2);
     }
@@ -581,8 +577,10 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double prev_signal = 0;
   double signal_diff_threshold = 0.001; // 0.1%
   double max_time_step = 5.0; // maximum time step in ns
-  //save_time*2 to just make sure we run enough time steps to generate time of total time
+  //save_time*2 to just make sure we run enough time steps to generate time of total time    
+
   for (n_iter = 1; actual_time_elapsed <= sim_time+(save_time*2); n_iter++) {
+      
     if(n_iter%1000==0){
         printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
         printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", sig[save_index-1]/1000);
@@ -612,11 +610,18 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
             printf("\n\n Error: Signal collected is NaN at iteration %d. Exiting the program.\n\n", n_iter);
             return -1; // Exit with an error code
         }
+        
+            // Check and adjust the signal to ensure it's never decreasing
+        if (signal_time_n < prev_signal) {
+            signal_time_n = prev_signal; // Set current signal to previous value if it's less
+        }
+        
         // Check if the signal is greater than 1 and adjust if necessary
         if (signal_time_n > 1000) {
             signal_time_n = 1000;
             setup.step_time_calc = 2.0;
         }
+        
         sig[save_index] = signal_time_n;
         last_signal_pos = save_index;
         save_index++;
@@ -627,13 +632,13 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
         // Use sprintf to format the entire string, including scratch_dir
         sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", 
-                scratch_dir, energy_kev, grid, do_self_repulsion, det_name, 
+                setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, 
                 setup.impurity_surface, alpha_r_mm, alpha_z_mm, write_rho_counter);
         write_rho(LL_rho/8, R, grid, rho_e[0], fn);
           
         // Use sprintf to format the entire string, including home_dir
         sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", 
-                scratch_dir, energy_kev, grid, do_self_repulsion, det_name, 
+                setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, 
                 setup.impurity_surface, alpha_r_mm, alpha_z_mm, write_rho_counter);
         write_rho(LL_rho/8, R, grid, rho_h[0], fn);
         write_rho_counter +=1;
@@ -662,7 +667,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         double signal_diff = fabs(signal_time_n - prev_signal) / prev_signal;
         if (signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
             setup.step_time_calc = fmin(setup.step_time_calc * 2, max_time_step);
-            printf("\n\n-=-=-=-=-=-New time step to %f", setup.step_time_calc);
+            printf("\n\n-=-=-=-=-=-Changing time step to %f", setup.step_time_calc);
             printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", signal_time_n/1000);
 
         }
@@ -684,10 +689,12 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (i%20 == 0) printf("\n");
   }
   printf("\n");
+    
+// Use code below to save to text file instead    
 //   printf("Saving waveform\n");
 //   int written = 0;
 //   char filename[1024];
-//   sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",home_dir, energy_kev, grid, do_self_repulsion, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+//   sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",setup.home_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
 //   // printf("The file name is %s\n", filename);
 //   FILE *f = fopen(filename,"w");
 //   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
@@ -704,9 +711,25 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 
 
 printf("Saving waveform in HDF5 format\n");
+
+// Construct the directory path based on the detector name
+char dir_path[1024];
+sprintf(dir_path, "%s/waveforms/%s", setup.home_dir, setup.detector_name);
+
+// Check if the directory exists
+struct stat st = {0};
+if (stat(dir_path, &st) == -1) {
+    // Directory does not exist, create it
+    if (mkdir(dir_path, 0700) == -1) {
+        fprintf(stderr, "Error creating directory %s: %s\n", dir_path, strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Construct the file path
 char hdf5_filename[1024];
-sprintf(hdf5_filename, "%s/waveforms/signal_data_%.2f_keV_grid%.4f_%s_q%.2f_r%.2f_z%.2f.h5", 
-        home_dir, energy_kev, grid, det_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
+sprintf(hdf5_filename, "%s/signal_data_%.2f_keV_grid%.4f_%s_q%.2f_r%.2f_z%.2f.h5", 
+        dir_path, setup.energy, grid, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
 
 hid_t file_id, dataset_id, dataspace_id, attr_id, attr_dataspace_id;  // HDF5 identifiers
 hsize_t dims[1]; // Dimensions of the dataset
@@ -735,7 +758,7 @@ dims[0] = 1;
 // Energy
 dataspace_id = H5Screate_simple(1, dims, NULL);
 dataset_id = H5Dcreate(file_id, "/energy", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &energy_kev);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &setup.energy);
 H5Dclose(dataset_id);
 
 // r
@@ -754,10 +777,10 @@ H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &grid);
 H5Dclose(dataset_id);
 
 // Detector name
-dims[0] = strlen(det_name) + 1; // Include space for null terminator
+dims[0] = strlen(setup.detector_name) + 1; // Include space for null terminator
 dataspace_id = H5Screate_simple(1, dims, NULL);
 dataset_id = H5Dcreate(file_id, "/detector_name", H5T_C_S1, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_C_S1, H5S_ALL, H5S_ALL, H5P_DEFAULT, det_name);
+H5Dwrite(dataset_id, H5T_C_S1, H5S_ALL, H5S_ALL, H5P_DEFAULT, setup.detector_name);
 H5Dclose(dataset_id);
 H5Sclose(dataspace_id);
 

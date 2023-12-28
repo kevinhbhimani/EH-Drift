@@ -50,9 +50,9 @@ dir_run="/nas/longleaf/home/kbhimani/siggen_ccd"
 
 echo "Calculating weighting potential at radius $radius and z position $zPos for detector $detector with surface charge $surface_charge with energy $energy and grid $grid. Write densities=$save_rho and Self repulsion=$self_repulsion"
 
-$dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid
+$dir_run/ehdrift $config_file_calc_wp -r $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid
 
-# echo "time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion"
-# time $dir_run/ehdrift $config_file_calc_wp -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion
+# echo "time $dir_run/ehdrift $config_file_calc_wp -r $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion"
+# time $dir_run/ehdrift $config_file_calc_wp -r $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion
 
 bash $dir_run/set_run.sh $radius $zPos $detector $surface_charge $energy $save_rho $self_repulsion $grid

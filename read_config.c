@@ -62,6 +62,10 @@ int read_config(char *config_file_name, MJD_Siggen_Setup *setup) {
     "max_iterations",
     "write_field",
     "write_WP",
+    "passivated_thickness",
+    "detector_name",  
+    "home_dir",
+    "scratch_dir",
     ""
   };
 
@@ -112,28 +116,49 @@ int read_config(char *config_file_name, MJD_Siggen_Setup *setup) {
 	  name[0] = 0;
 	  ii = iint = 0;
 	  fi = 0;
-	  if (strstr(key_word[i], "_name")) {
-	    /* extract character string for file name */
-	    for (ok=0; ok<256 && *c != ' ' && *c != '\t' && *c != '\n' &&  *c != '\r'; ok++) {
-	      name[ok] = *c;
-	      c++;
-	    }
-	    name[ok] = '\0';	    
-	  } else if (!strncmp("time_steps_calc", key_word[i], l) ||
-		     !strncmp("use_diffusion", key_word[i], l) ||
-		     !strncmp("verbosity_level", key_word[i], l) ||
-		     !strncmp("max_iterations", key_word[i], l) ||
-		     !strncmp("write_field", key_word[i], l) ||
-		     !strncmp("write_WP", key_word[i], l) ||
-		     !strncmp("bulletize_PC", key_word[i], l)) {
+if (strstr(key_word[i], "_name")) {
+    /* extract character string for file name */
+    for (ok=0; ok<256 && *c != ' ' && *c != '\t' && *c != '\n' && *c != '\r'; ok++) {
+        name[ok] = *c;
+        c++;
+    }
+    name[ok] = '\0';
+
+    // Handling for home_dir and scratch_dir
+    if (!strcmp(key_word[i], "home_dir")) {
+        strncpy(setup->home_dir, name, 256);
+    } else if (!strcmp(key_word[i], "scratch_dir")) {
+        strncpy(setup->scratch_dir, name, 256);
+    }
+    
+} else if (!strncmp("time_steps_calc", key_word[i], l) ||
+     !strncmp("use_diffusion", key_word[i], l) ||
+     !strncmp("verbosity_level", key_word[i], l) ||
+     !strncmp("max_iterations", key_word[i], l) ||
+     !strncmp("write_field", key_word[i], l) ||
+     !strncmp("write_WP", key_word[i], l) ||
+     !strncmp("bulletize_PC", key_word[i], l)) {
 	    /* extract integer value */
 	    ok = sscanf(c, "%d", &ii);
 	    iint = 1;
-	  } else {
-	    /* extract float value */
-	    ok = sscanf(c, "%f", &fi);
-            if (diameter) fi /= 2.0;
-	  }
+	  } else if (!strcmp(key_word[i], "home_dir") || !strcmp(key_word[i], "scratch_dir")) {
+    /* extract character string for home_dir and scratch_dir */
+    for (ok=0; ok<256 && *c != ' ' && *c != '\t' && *c != '\n' && *c != '\r'; ok++) {
+        name[ok] = *c;
+        c++;
+    }
+    name[ok] = '\0';
+    if (!strcmp(key_word[i], "home_dir")) {
+        strncpy(setup->home_dir, name, 256);
+    } else if (!strcmp(key_word[i], "scratch_dir")) {
+        strncpy(setup->scratch_dir, name, 256);
+    }
+} else {
+    /* extract float value */
+    ok = sscanf(c, "%f", &fi);
+    if (diameter) fi /= 2.0;
+}
+
 	}
 	if (ok < 1) {
 	  printf("ERROR reading %s from config file %s\n"
@@ -244,7 +269,16 @@ int read_config(char *config_file_name, MJD_Siggen_Setup *setup) {
 	  setup->write_field = ii;
 	} else if (strstr(key_word[i], "write_WP")) {
 	  setup->write_WP = ii;
-	} else {
+	} else if (strstr(key_word[i], "passivated_thickness")) {
+	  setup->passivated_thickness = fi; // fi is the float value parsed from the file
+    } else if (strstr(key_word[i], "detector_name")) {
+      strncpy(setup->detector_name, name, 256);
+    }
+    else if (strstr(key_word[i], "home_dir")) {
+      strncpy(setup->home_dir, name, 256);
+    } else if (strstr(key_word[i], "scratch_dir")) {
+      strncpy(setup->scratch_dir, name, 256);
+    } else {
 	  printf("ERROR; unrecognized keyword %s\n", key_word[i]);
 	  return 1;
 	}

@@ -99,7 +99,9 @@ typedef struct {
   char drift_name[256];       // drift velocity lookup table
   char field_name[256];       // potential/efield file name
   char wp_name[256];          // weighting potential file name
-
+  char scratch_dir[256]; //dir to save density snapshots
+  char home_dir[256]; //dir to save waveforms
+  char detector_name[256]; //detector name
   // signal calculation 
   float xtal_temp;            // crystal temperature in Kelvin
   float preamp_tau;           // integration time constant for preamplifier, in ns
@@ -109,7 +111,7 @@ typedef struct {
   //    nonzero values in the next few lines significantly slow down the code
   float charge_cloud_size;    // initial FWHM of charge cloud, in mm; set to zero for point charges
   int   use_diffusion;        // set to 0/1 for ignore/add diffusion as the charges drift
-  float energy;               // set to energy > 0 to use charge cloud self-repulsion, in keV
+  double energy;               // set to energy > 0 to use charge cloud self-repulsion, in keV
 
   int   coord_type;           // set to CART or CYL for input point coordinate system
   int   ntsteps_out;          // number of time steps in output signal
@@ -144,7 +146,6 @@ typedef struct {
   float dv_dE;     // derivative of drift velocity with field ((mm/ns) / (V/cm))
   float v_over_E;  // ratio of drift velocity to field ((mm/ns) / (V/cm))
   double final_charge_size;     // in mm
-
 } MJD_Siggen_Setup;
 
 enum point_types{PC, HVC, INSIDE, PASSIVE, PINCHOFF, DITCH, DITCH_EDGE, CONTACT_EDGE};
