@@ -85,38 +85,36 @@ It is recommended to first run the program to calculate the weighting potential 
 ```bash
 ./ehdrift config_files/P42575A.config -p 1 -s -0.50 -h 0.0200
 ```
-This caculated and saves the weighting potential of the detector with surface charge of -0.50 using grid of 0.0500. Weighting potential is unique for detector, surface charge and grid, and must be recalculated if any of the parameters are changed.
+This caculated and saves the weighting potential of the detector with surface charge of -0.50 using grid of 0.0500. Weighting potential is unique for detector, surface charge and grid, and must be recalculated if any of the parameters are changed. 
 
-2. Next, run the program to simulate a 5000 KeV event and save the signal:
+2. Next, run the program to simulate a 5000 KeV event at r=15 mm and z=0.10 mm, and save the signal:
 ```bash
 ./ehdrift config_files/P42575A.config -r 15.00 -z 0.10 -p 0 -s -0.50 -e 5000 -h 0.0200
 ```
 ## Saving Outputs
-The output signal from `siggen_ccd` is saved as HDF5 files, with the paths specified in the configuration file. The files adhere to a structured format for easy data retrieval and analysis.
+The output signal from `siggen_ccd` is saved as HDF5 files, with the paths specified in the configuration file.
 
 ### Root Group
 In the root group `/`, the HDF5 file contains several datasets:
 
-- `/waveform`: This is a one-dimensional array that stores the scaled signal values, representing the waveform data.
+- `/waveform`: This is a one-dimensional array that stores the normalized signal values.
 
 - `/energy`: A single value dataset that represents the interaction energy of the event.
 
 - `/r`: A single value indicating the radial position of the event within the detector.
 
-- `/z`: A dataset storing a single value, denoting the height or depth of the event within the detector.
+- `/z`: A dataset storing a single value, denoting the height of the event within the detector.
 
 - `/grid`: Contains a single value representing the grid size used in the simulation.
 
 - `/detector_name`: A string that identifies the name of the detector used in the simulation.
 
 ### Attributes
-Attached to the root group are several attributes providing additional context and settings used during the simulation:
+Attached to the root group are attributes providing additional context and settings used during the simulation:
 
 - `surface_charge`: A single value indicating the surface charge considered in the simulation.
 
 - `self_repulsion`: This attribute holds a boolean value, indicating whether self-repulsion effects were taken into account in the simulation.
-
-
 
 ## Contact and Support
 
