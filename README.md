@@ -76,7 +76,7 @@ Once compiled, the `siggen_ccd` program can be executed from the terminal. The f
 - `-b`: Set bias voltage in volts.
 - `-h`: Specify the grid size in mm.
 - `-m`: Define the passivated surface depth size in mm.
-- `-a`: Input the rho_spectrum_file_name.
+- `-a`: Input the a custom impurity density profile file.
 
 It is recommended to first run the program to calculate the weighting potential (WP) and then reuse it for different r and z values. To do this:
 
@@ -91,6 +91,16 @@ This caculated and saves the weighting potential of the detector with surface ch
 ```bash
 ./ehdrift config_files/P42575A.config -r 15.00 -z 0.10 -p 0 -s -0.50 -e 5000 -h 0.0200
 ```
+
+Rum time for generating 8000ns waveform:
+20 micron grid on A100 GPUs:
+    - Calculate weighting potential: 1m 1s
+    - Generating signal: 5m 7s
+
+10 micron grid on A100 GPUs:
+    - Calculate weighting potential: 4m 41s
+    - Generating signal: 24m 37s
+
 ## Saving Outputs
 The output signal from `siggen_ccd` is saved as HDF5 files, with the paths specified in the configuration file.
 
@@ -105,14 +115,16 @@ In the root group `/`, the HDF5 file contains several datasets:
 
 - `/z`: A dataset storing a single value, denoting the height of the event within the detector.
 
-- `/grid`: Contains a single value representing the grid size used in the simulation.
-
-- `/detector_name`: A string that identifies the name of the detector used in the simulation.
+- `/surface_charge`: A single value indicating the surface charge considered in the simulation. 
 
 ### Attributes
 Attached to the root group are attributes providing additional context and settings used during the simulation:
 
-- `surface_charge`: A single value indicating the surface charge considered in the simulation.
+- `detector_name`: A string that identifies the name of the detector used in the simulation.
+
+- `grid`: Contains a single value representing the grid size used in the simulation.
+
+- `passivated_thickness`: Contains a single value representing the width of passivated surface, where charges are slowed down.
 
 - `self_repulsion`: This attribute holds a boolean value, indicating whether self-repulsion effects were taken into account in the simulation.
 

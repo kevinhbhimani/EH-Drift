@@ -21,20 +21,20 @@ echo "Running simulation at radius $radius and z position $zPos for detector $de
 
 #1> /dev/null supresses output from the command
 
-mkdir -p $dir_save/${energy}_keV 
-mkdir -p $dir_save/${energy}_keV/grid_$grid 
-mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion 
-mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector 
-mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge} 
-mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge}/drift_data_r=${radius}_z=${zPos} 
+# mkdir -p $dir_save/${energy}_keV 
+# mkdir -p $dir_save/${energy}_keV/grid_$grid 
+# mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion 
+# mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector 
+# mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge} 
+# mkdir -p $dir_save/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge}/drift_data_r=${radius}_z=${zPos} 
 
-mkdir -p $dir_run/waveforms 
-mkdir -p $dir_run/waveforms/${energy}_keV 
-mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid 
-mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion 
-mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector 
-mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge} 
+# mkdir -p $dir_run/waveforms 
+# mkdir -p $dir_run/waveforms/${energy}_keV 
+# mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid 
+# mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion 
+# mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector 
+# mkdir -p $dir_run/waveforms/${energy}_keV/grid_$grid/self_repulsion_$self_repulsion/$detector/q=${surface_charge} 
 
-$dir_run/ehdrift $config_file -r $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
+$dir_run/ehdrift $config_file -r $radius -z $zPos -p 0 -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid 1> /dev/null
 #time $dir_run/ehdrift $config_file -r $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion 
 #time $dir_run/ehd_siggen $config_file -r $radius -z $zPos -g $detector -s $surface_charge

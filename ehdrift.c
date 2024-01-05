@@ -571,19 +571,22 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   int last_signal_pos = 0;  
   double actual_time_elapsed = 0.0; // To track the actual simulation time
   double last_save_time = 0.0;
-  int save_index = 0;
+  int save_index = 1; //so that the signal starts with zero
   bool save_rho_init = true;  // Flag to indicate if time step should be changed
   int write_rho_counter = 1;
     
   double prev_signal = 0;
   double signal_diff_threshold = 0.001; // 0.1%
-  double max_time_step = 5.0; // maximum time step in ns
-  //save_time*2 to just make sure we run enough time steps to generate time of total time
+  double max_time_step = 2.0; // maximum time step in ns
+  //save_time*20 to just make sure we run enough time steps to generate time of total time
     
-  printf("\n\n -=-=-=-=-=-Starting Signal Calculations\n-=-=-=-=-=-");
-  printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d\n\n-=-=-=-=-=-", 0.0, sim_time);
+  // Initialize a counter for the number of signal points saved
+  int signal_points_saved = 0;
+  int expected_signal_points = sim_time / save_time;  
+  printf("\n\n -=-=-=-=-=-Starting Signal Calculations-=-=-=-=-=-\n");
+  printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d-=-=-=-=-=-\n\n", 0.0, sim_time);
     
-  for (n_iter = 1; actual_time_elapsed <= sim_time+(save_time*2); n_iter++) {
+  for (n_iter = 1; n_iter++;) {
       
     if(n_iter%1000==0){
         printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
@@ -623,7 +626,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         // Check if the signal is greater than 1 and adjust if necessary
         if (signal_time_n > 1000) {
             signal_time_n = 1000;
-            setup.step_time_calc = 2.0;
+            setup.step_time_calc = 5.0;
         }
         
         sig[save_index] = signal_time_n;
@@ -647,6 +650,16 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         write_rho(LL_rho/8, R, grid, rho_h[0], fn);
         write_rho_counter +=1;
       }
+        // Increment the counter for signal points saved
+        signal_points_saved++;
+
+        // Check if the desired number of signal points has been reached
+        if (signal_points_saved >= expected_signal_points) {
+            printf("Desired number of signal points (%d) reached. Terminating simulation", expected_signal_points);
+            printf(" at time %.2f s\n", actual_time_elapsed);
+
+            break; // Exit the simulation loop
+        }
     }
     if(do_self_repulsion){
       cudaDeviceSynchronize();
@@ -659,21 +672,15 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
       
     // After performing necessary operations, update actual_time_elapsed
     actual_time_elapsed += setup.step_time_calc;
-    // Check if it's time to change the time step
-    // if (!change_time_step && 
-    //     (sig[last_signal_pos] / 1000 > signal_threshold || actual_time_elapsed > time_threshold_ns)) {
-    //     change_time_step = true;
-    //     printf("\n\n-=-=-=-=-=-Updating time step to %f-=-=-=-=-=-\n\n", new_time_step_ns);
-    //     setup.step_time_calc = new_time_step_ns;
-    // }
-        // Check the difference in signal and adjust time step
+    // Check the difference in signal and adjust time step
     if (prev_signal > 0) { // Skip the first iteration as there's no previous signal
         double signal_diff = fabs(signal_time_n - prev_signal) / prev_signal;
-        if (signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
+        // keep time step small for first 100 ns to allow the charges to move to surface
+        if (actual_time_elapsed> 100 && signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
             setup.step_time_calc = fmin(setup.step_time_calc * 2, max_time_step);
             printf("\n\n-=-=-=-=-=-Changing time step to %f", setup.step_time_calc);
+            printf(" at time %.2f s", actual_time_elapsed);
             printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", signal_time_n/1000);
-
         }
     }
     prev_signal = signal_time_n; // Update the previous signal for the next iteration
@@ -690,7 +697,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   printf("signal: \n");
   for (i = 0; i < (sim_time/save_time); i++){
     printf("%.5f ", sig[i]/1000);
-    if (i%20 == 0) printf("\n");
+    if (i !=0 && i%20 == 0) printf("\n");
   }
   printf("\n");
     
@@ -757,7 +764,7 @@ H5Sclose(dataspace_id);
 
 // ---- Save Energy, r, z, grid, and detector name as individual datasets ----
 // Assuming energy, alpha_r_mm, and alpha_z_mm are double
-dims[0] = 1;
+dims[0] = 1; // Single value
 
 // Energy
 dataspace_id = H5Screate_simple(1, dims, NULL);
@@ -775,30 +782,44 @@ dataset_id = H5Dcreate(file_id, "/z", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAU
 H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &alpha_z_mm);
 H5Dclose(dataset_id);
 
-// Grid
-dataset_id = H5Dcreate(file_id, "/grid", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &grid);
-H5Dclose(dataset_id);
-
-// Detector name
-dims[0] = strlen(setup.detector_name) + 1; // Include space for null terminator
+// Surface charge
 dataspace_id = H5Screate_simple(1, dims, NULL);
-dataset_id = H5Dcreate(file_id, "/detector_name", H5T_C_S1, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_C_S1, H5S_ALL, H5S_ALL, H5P_DEFAULT, setup.detector_name);
+dataset_id = H5Dcreate(file_id, "/surface_charge", H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &setup.impurity_surface);
 H5Dclose(dataset_id);
 H5Sclose(dataspace_id);
 
+// // Detector name
+// dims[0] = strlen(setup.detector_name) + 1; // Include space for null terminator
+// dataspace_id = H5Screate_simple(1, dims, NULL);
+// dataset_id = H5Dcreate(file_id, "/detector_name", H5T_C_S1, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+// H5Dwrite(dataset_id, H5T_C_S1, H5S_ALL, H5S_ALL, H5P_DEFAULT, setup.detector_name);
+// H5Dclose(dataset_id);
+// H5Sclose(dataspace_id);
+
 // ---- Save Attributes ----
 attr_dataspace_id = H5Screate(H5S_SCALAR);
-
-// Surface charge
-attr_id = H5Acreate(file_id, "surface_charge", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
-H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &setup.impurity_surface);
+    
+// Grid
+attr_id = H5Acreate(file_id, "grid", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &grid);
 H5Aclose(attr_id);
 
+// Passivated thickness
+attr_id = H5Acreate(file_id, "passivated_thickness", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &setup.passivated_thickness);
+H5Aclose(attr_id);
+    
 // Self repulsion
 attr_id = H5Acreate(file_id, "self_repulsion", H5T_NATIVE_INT, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
 H5Awrite(attr_id, H5T_NATIVE_INT, &do_self_repulsion);
+H5Aclose(attr_id);
+
+// Detector name
+dims[0] = strlen(setup.detector_name) + 1; // Include space for null terminator
+attr_dataspace_id = H5Screate_simple(1, dims, NULL);
+attr_id = H5Acreate(file_id, "detector_name", H5T_C_S1, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+H5Awrite(attr_id, H5T_C_S1, setup.detector_name);
 H5Aclose(attr_id);
 
 H5Sclose(attr_dataspace_id);

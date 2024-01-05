@@ -78,14 +78,14 @@ typedef struct {
   float hole_bullet_radius;   // bulletization radius at bottom of hole
   float Li_thickness;         // depth of full-charge-collection boundary for Li contact
   float vacuum_gap;           // vacuum gap from passivated surface to ground plane (e.g. IR shield)
-  float passivated_thickness; //thickness of the passsivted surface;
+  double passivated_thickness; //thickness of the passsivted surface;
 
   // electric fields & weighing potentials
   double xtal_grid;            // grid size in mm for field files (either 0.5 or 0.1 mm)
   float impurity_z0;          // net impurity concentration at Z=0, in 1e10 e/cm3
   float impurity_gradient;    // net impurity gradient, in 1e10 e/cm4
   float impurity_quadratic;   // net impurity difference from linear, at z=L/2, in 1e10 e/cm3
-  float impurity_surface;     // surface impurity of passivation layer, in 1e10 e/cm2
+  double impurity_surface;     // surface impurity of passivation layer, in 1e10 e/cm2
   float impurity_radial_add;  // additive radial impurity at outside radius, in 1e10 e/cm3
   float impurity_radial_mult; // multiplicative radial impurity at outside radius (neutral=1.0)
   float impurity_rpower;      // power for radial impurity increase with radius
