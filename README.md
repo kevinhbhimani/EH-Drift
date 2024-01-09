@@ -2,30 +2,30 @@
 # `EH-Drift Simulations`
 
 ## Overview
-EH-Drift simulations is a novel approach to simulating surface events in High Purity Germanium (HPGe) detectors. Intially developed by David Radford, these simulations expand upon the Siggen simulations developed for the Majorana Demonstrator (MJD). EH-Drift is distinguished by its ability to simulate diffusion and self-repulsion effects at a granular level, maintaining a pixel-by-pixel account of charge densities. This method enables the modeling of non-spherical charge clouds and the slow drift of charges on detector's passivated surfaces.
+EH-Drift simulations offer a novel approach to simulating surface events in High Purity Germanium (HPGe) detectors, initially developed by David Radford and further expanding upon the Siggen simulations for the Majorana Demonstrator (MJD). EH-Drift is distinguished by its ability to simulate diffusion and self-repulsion effects at a granular level, providing a pixel-by-pixel account of charge densities. This method enables the modeling of non-spherical charge clouds and the slow drift of charges on detector's passivated surfaces.
 
 ## Key Features
 
 - **2D Simulation with φ Symmetry**: `ehdrift` operates in r and z dimensions while assuming φ symmetry. This approach simulates charge movement as a ring, providing a 2D representation that aligns well with the behavior of computationally expensive 3D charge clouds.
 
-- **Diffusion and Self-Repulsion Incorporation**: The program models charge carrier movement in the detector by incorporating both diffusion and electrostatic self-repulsion effects. The diffusion coefficient is calibrated to match known values for 3D charge clouds. Additionally, the total charge in the simulation is modulated to align self-repulsion effects with established simulations, particularly for alpha particle interactions.
+- **Diffusion and Self-Repulsion Incorporation**: The program models charge carrier movement in the detector by incorporating both diffusion and electrostatic self-repulsion effects. The diffusion coefficient is calibrated to match known values for 3D charge clouds. Additionally, the simulation modulates the total charge to align self-repulsion effects with established simulations, particularly for alpha particle interactions.
 
 - **Charge Density Tracking**: `ehdrift` tracks charge densities at each grid point. This enables the accurate simulation of nonspherical charge cloud shapes and movements, offering a high-resolution view of charge distribution within the detector.
 
-- **Surface Charge Effects Integration**: The impact of surface charges, crucial for near-surface event simulations, is integrated. This feature is particularly important for accurately modeling the behavior of surface alpha events on detector's passivated surface.
+- **Surface Charge Effects Integration**: The impact of surface charges, crucial for accurately modeling near-surface events like surface alpha interactions, is fully integrated.
 
-- **Field Recalculations**: Electric potentials are continuously recalculated in response to charge movements. This approach captures the changing electric field within the detector due to movement of large charge clouds.
+- **Field Recalculations**: The simulation continuously recalculates electric potentials in response to charge movements. This approach captures the changing electric field within the detector due to movement of large charge clouds.
 
-- **Optimized CUDA C++ Utilization**: The simulation leverages the power of GPUs through CUDA C++, significantly enhancing computational efficiency. By executing the entire simulation loop on the GPU, `ehdrift` minimizes the need for memory transfers between the CPU and GPU at each step. This GPU-powered approach ensures grid-independent runtime, facilitating the execution of thousands of events required for background modeling simulations.
+- **Optimized CUDA C++ Utilization**: The simulation leverages the power of GPUs through CUDA C++, significantly enhancing computational efficiency. By running the entire simulation loop on the GPU, `ehdrift` minimizes the need for memory transfers between the CPU and GPU at each step. This GPU-powered approach ensures grid-independent runtime, facilitating the execution of thousands of events required for background modeling simulations.
 
 - **Dynamic Time Step Utilization**: The time step is determined by the Courant number, satisfying the CFL condition. The time step is dynamically adjusted when there is no more significant charge collection, enabling the efficient simulation of long signal waveforms.
 
 
 ## Simulation Workflow
-1. **Initial Setup**: Configures the detector grid based on factors such as detector geometry, impurity concentration, surface charge, and bias voltage.
-2. **Grid Division and Charge Distribution**: Divides the detector into a fine grid and sets initial charge densities based on the impact energy of the particle.
+1. **Initial Setup**: Configure the detector grid based on factors such as detector geometry, impurity concentration, surface charge, and bias voltage.
+2. **Grid Division and Charge Distribution**: Divide the detector into a fine grid and set initial charge densities based on the impact energy of the particle.
 3. **Boundary Condition Setting**: Establishes conditions according to the detector geometry, impurity concentration, surface charge, and bias voltage.
-4. **GPU Setup**: Initializes memory for pointers and transfers them to GPU memory. Utilizes modular arithmetic to distribute and index grid points into blocks and threads.
+4. **GPU Setup**: Initialize and transfer memory pointers to the GPU. Utilizes modular arithmetic to distribute and index grid points into blocks and threads.
 5. **Potential Calculation**: Computes electric and weighting potentials using an over-relaxation algorithm, incorporating estimates for capacitance and depletion. This calculation is performed using the Red-Black Successive Over-Relaxation Algorithm on the GPU.
 6. **Charge Drift and Diffusion**: Allows charges to diffuse and drift in the calculated electric field over small time steps. These operations are conducted on the GPU using Atomic Operations.
 7. **Surface Drift Modeling**: Models charges that reach the passivated surface, drifting at a reduced velocity and influencing signal formation.
@@ -33,11 +33,11 @@ EH-Drift simulations is a novel approach to simulating surface events in High Pu
 9. **Data Collection**: Generates signals on the GPU using parallel reduction techniques and stores them at iterations defined in the config file. Snapshots of charge densities at specific time steps can be recorded for creating GIFs of charge cloud movements.
 
 ## Configuration
-The configuration file is required for setting up `siggen_ccd` simulations. It allows users to define a wide range of parameters including detector geometry, electric field characteristics, simulation settings, and file paths. The file adopts a key-value format where each line represents a distinct parameter paired with its corresponding value. Comments can be included using the `#` symbol. Example configuration files are provided to guide users in accurately setting up their simulations. Refer to these examples for a comprehensive understanding of how to customize your simulation environment.
+The configuration file is required for setting up `ehdrift` simulations. It allows users to define a wide range of parameters including detector geometry, electric field characteristics, simulation settings, and file paths. The file uses a key-value format, with each line representing a distinct parameter and its corresponding value. Comments can be included using the `#` symbol. Example configuration files are provided to guide users in accurately setting up their simulations. Refer to these examples for a comprehensive understanding of how to customize your simulation environment.
 
 ## Hardware Requirements
 
-- **CUDA-Enabled GPU**: The core computations in `siggen_ccd` are GPU-accelerated, requiring a CUDA-enabled GPU. Users must specify their GPU architecture in the Makefile to align with their specific hardware capabilities.
+- **CUDA-Enabled GPU**: GPU-accelerates the core computations in `ehdrift`, requiring a CUDA-enabled GPU. Users must specify their GPU architecture in the Makefile to align with their specific hardware capabilities.
 
 - **RAM and Storage**: Adequate RAM is essential for efficient data processing and simulation. The amount of available memory will influence the minimum grid size that can be effectively utilized in simulations. Additionally, ensure sufficient storage capacity for saving the optional density snapshots.
 
@@ -45,7 +45,7 @@ The configuration file is required for setting up `siggen_ccd` simulations. It a
 ## Compiling the Program
 
 ### Compilation Prerequisites
-Before compiling `siggen_ccd`, ensure your system has the following prerequisites:
+Before compiling `ehdrift`, ensure your system has the following prerequisites:
 
 1. **GCC Compiler**: Necessary for compiling C/C++ code.
    - Installation can typically be completed using your operating system's package manager or by visiting the [GCC official website](https://gcc.gnu.org/).
@@ -54,14 +54,14 @@ Before compiling `siggen_ccd`, ensure your system has the following prerequisite
    - Download and installation instructions are available on [NVIDIA's official site](https://developer.nvidia.com/cuda-downloads).
 
 ### Compile the Program
-Compiling `siggen_ccd` is straightforward. Open a terminal, navigate to the directory containing the program's files, and run the following command:
+Compiling `ehdrift` is straightforward. Open a terminal, navigate to the directory containing the program's files, and run the following command:
 
 ```bash
 make
 ```
 
 ## Running the program
-Once compiled, the `siggen_ccd` program can be executed from the terminal. The following command-line flags are available to customize the simulation:
+Once compiled, the `ehdrift` program can be executed from the terminal. The following command-line flags are available to customize the simulation:
 
 - `-r`: Set the r position of event in mm.
 - `-z`: Set the z position of event in mm.
@@ -76,61 +76,114 @@ Once compiled, the `siggen_ccd` program can be executed from the terminal. The f
 - `-b`: Set bias voltage in volts.
 - `-h`: Specify the grid size in mm.
 - `-m`: Define the passivated surface depth size in mm.
-- `-a`: Input the a custom impurity density profile file.
+- `-a`: Input a custom impurity density profile file.
 
-It is recommended to first run the program to calculate the weighting potential (WP) and then reuse it for different r and z values. To do this:
+First, run the program to calculate the weighting potential (WP), which can then be reused for different r and z values. To do this:
 
 1. Run the program with the WP file flag set to one to only calculate the WP and exit:
 
 ```bash
 ./ehdrift config_files/P42575A.config -p 1 -s -0.50 -h 0.0200
 ```
-This caculated and saves the weighting potential of the detector with surface charge of -0.50 using grid of 0.0500. Weighting potential is unique for detector, surface charge and grid, and must be recalculated if any of the parameters are changed. 
+This process calculates and saves the detector's weighting potential with a surface charge of -0.50 using a 0.0500 grid. Weighting potential is unique for detector, surface charge and grid, and must be recalculated if any of the parameters are changed. 
 
 2. Next, run the program to simulate a 5000 KeV event at r=15 mm and z=0.10 mm, and save the signal:
 ```bash
 ./ehdrift config_files/P42575A.config -r 15.00 -z 0.10 -p 0 -s -0.50 -e 5000 -h 0.0200
 ```
 
-Rum time for generating 8000ns waveform:
-20 micron grid on A100 GPUs:
-    - Calculate weighting potential: 1m 1s
-    - Generating signal: 5m 7s
+### Runtime Performance
+The runtime performance of generating 8000ns waveforms on A100 GPUs is summarized below for different grid.
 
-10 micron grid on A100 GPUs:
-    - Calculate weighting potential: 4m 41s
-    - Generating signal: 24m 37s
+#### 20 Micron Grid
+- **Calculate Weighting Potential**: 1 minute and 1 second
+- **Generating Signal**: 5 minutes and 7 seconds
+
+#### 10 Micron Grid
+- **Calculate Weighting Potential**: 4 minutes and 41 seconds
+- **Generating Signal**: 24 minutes and 37 seconds
 
 ## Saving Outputs
-The output signal from `siggen_ccd` is saved as HDF5 files, with the paths specified in the configuration file.
+The output signal is stored in the specified directory in the configuration file. If a file already exists for a given detector, new events are appended to it; otherwise, a new file is created.
 
-### Root Group
-In the root group `/`, the HDF5 file contains several datasets:
+## HDF5 File Structure
+Each HDF5 file may contain multiple groups, each corresponding to a distinct event. The structure within the file is outlined below:
 
-- `/waveform`: This is a one-dimensional array that stores the normalized signal values.
-
-- `/energy`: A single value dataset that represents the interaction energy of the event.
-
-- `/r`: A single value indicating the radial position of the event within the detector.
-
-- `/z`: A dataset storing a single value, denoting the height of the event within the detector.
-
-- `/surface_charge`: A single value indicating the surface charge considered in the simulation. 
+### Groups
+- Each group represents an individual event and is named in the format `/event_engX_rY_zZ_scW`, where `X`, `Y`, `Z`, and `W` are the energy, radial position, height, and surface charge of the event, respectively.
+- Inside each group, the following datasets are included:
+  - `/waveform`: Stores the normalized signal values as a one-dimensional array.
+  - `/energy`: A single value dataset indicating the interaction energy of the event.
+  - `/r`: A single value representing the radial position of the event in the detector.
+  - `/z`: Stores a single value for the height of the event within the detector.
+  - `/surface_charge`: Indicates the surface charge considered in the simulation.
 
 ### Attributes
-Attached to the root group are attributes providing additional context and settings used during the simulation:
+Each group also contains attributes with additional context and settings for that specific event:
+  - `grid`: Represents the grid size used in the simulation.
+  - `passivated_thickness`: The width of the passivated surface.
+  - `self_repulsion`: Indicates whether self-repulsion effects were considered.
+  - `detector_name`: Identifies the detector used in the simulation.
 
-- `detector_name`: A string that identifies the name of the detector used in the simulation.
+## Analysis
+The HDF5 file structure allows for detailed and event-specific data analysis. The following Python code example demonstrates how to iterate over HDF5 files to extract waveform data and associated parameters for each event:
 
-- `grid`: Contains a single value representing the grid size used in the simulation.
+```python
+import os
+import h5py
+import pandas as pd
+from tqdm import tqdm
 
-- `passivated_thickness`: Contains a single value representing the width of passivated surface, where charges are slowed down.
+# Directory containing the waveform files
+directory = '/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/P42575A/'
 
-- `self_repulsion`: This attribute holds a boolean value, indicating whether self-repulsion effects were taken into account in the simulation.
+# Initialize an empty list to store data
+waveforms_data = []
+
+# Iterate over files in the directory
+for filename in tqdm(os.listdir(directory)):
+    if filename.endswith('.h5') or filename.endswith('.hdf5'):
+        with h5py.File(os.path.join(directory, filename), 'r') as file:
+            # Iterate through each group (event) in the file
+            for group_name in file:
+                group = file[group_name]
+
+                # Extract parameters and waveform from each group
+                eng = group['energy'][0]
+                r = group['r'][0]
+                z = group['z'][0]
+                surface_charge = group['surface_charge'][0]
+                waveform = group['waveform'][:]
+
+                # Extract attributes from the group
+                grid = group.attrs['grid']
+                passivated_thickness = group.attrs['passivated_thickness']
+                self_repulsion = group.attrs['self_repulsion']
+                detector_name_bytes = group.attrs['detector_name'][:]
+                detector_name = detector_name_bytes.tobytes().decode('utf-8')
+
+                # Append to the list as a dictionary
+                waveforms_data.append({
+                    'r': r, 
+                    'z': z, 
+                    'eng': eng, 
+                    'sc': surface_charge, 
+                    'grid': grid, 
+                    'pass_thickness': passivated_thickness, 
+                    'self_repulsion': self_repulsion, 
+                    'det': detector_name, 
+                    'wf': waveform
+                })
+
+# Convert the list of dictionaries to a DataFrame
+waveforms_df = pd.DataFrame(waveforms_data)
+
+waveforms_df
+```
 
 ## Contact and Support
 
-If you have any questions, feedback, or would like to contribute to the `siggen_ccd` project, please feel free to reach out. We value your input and collaboration. You can contact us via email:
+For questions, feedback, or contributions to the ehdrift project, please feel free to reach out. You can contact us via email:
 
 - **Kevin Bhimani**
   - Email: [kevin_bhimani@unc.edu](mailto:kevin_bhimani@unc.edu)
