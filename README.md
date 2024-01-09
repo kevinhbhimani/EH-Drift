@@ -181,6 +181,17 @@ waveforms_df = pd.DataFrame(waveforms_data)
 waveforms_df
 ```
 
+## References
+
+1. "Surface Characterization of P-Type Point Contact Germanium Detectors," F. Edzards et al., *Particles*, vol. 4, no. 4, pp. 489-511, 2021. [DOI:10.3390/particles4040036](https://doi.org/10.3390/particles4040036). [arXiv:2105.14487](https://arxiv.org/abs/2105.14487)
+
+2. "Simulation of Semiconductor Detectors in 3D with SolidStateDetectors.jl," I. Abt et al., *Journal of Instrumentation*, vol. 16, no. 08, p. P08007, Aug. 2021. [DOI:10.1088/1748-0221/16/08/P08007](https://doi.org/10.1088/1748-0221/16/08/P08007). GitHub Repository: [SolidStateDetectors.jl](https://github.com/JuliaPhysics/SolidStateDetectors.jl)
+
+3. "The Performance Model for a Parallel SOR Algorithm Using the Red-Black Scheme," I. Epicoco, S. Mocavero, and G. Aloisio, *International Journal of High Performance Systems Architecture*, vol. 4, no. 2, pp. 101-109, 2012. [DOI:10.1504/IJHPSA.2012.050989](https://www.inderscienceonline.com/doi/abs/10.1504/IJHPSA.2012.050989). [Eprint](https://www.inderscienceonline.com/doi/pdf/10.1504/IJHPSA.2012.050989)
+
+4. D.C. Radford, mjd_fieldgen and mjd_siggen Software. GitHub Repository: [icpc_siggen](https://github.com/radforddc/icpc_siggen)
+
+
 ## Contact and Support
 
 For questions, feedback, or contributions to the ehdrift project, please feel free to reach out. You can contact us via email:
