@@ -20,7 +20,6 @@ EH-Drift simulations offer a novel approach to simulating surface events in High
 
 - **Dynamic Time Step Utilization**: The time step is determined by the Courant number, satisfying the CFL condition. The time step is dynamically adjusted when there is no more significant charge collection, enabling the efficient simulation of long signal waveforms.
 
-
 ## Simulation Workflow
 1. **Initial Setup**: Configure the detector grid based on factors such as detector geometry, impurity concentration, surface charge, and bias voltage.
 2. **Grid Division and Charge Distribution**: Divide the detector into a fine grid and set initial charge densities based on the impact energy of the particle.
@@ -37,10 +36,9 @@ The configuration file is required for setting up `ehdrift` simulations. It allo
 
 ## Hardware Requirements
 
-- **CUDA-Enabled GPU**: GPU-accelerates the core computations in `ehdrift`, requiring a CUDA-enabled GPU. Users must specify their GPU architecture in the Makefile to align with their specific hardware capabilities.
+- **CUDA-Enabled GPU**: GPU-accelerates the core computations in `ehdrift`, requiring a CUDA-enabled GPU.
 
 - **RAM and Storage**: Adequate RAM is essential for efficient data processing and simulation. The amount of available memory will influence the minimum grid size that can be effectively utilized in simulations. Additionally, ensure sufficient storage capacity for saving the optional density snapshots.
-
 
 ## Compiling the Program
 
@@ -54,7 +52,7 @@ Before compiling `ehdrift`, ensure your system has the following prerequisites:
    - Download and installation instructions are available on [NVIDIA's official site](https://developer.nvidia.com/cuda-downloads).
 
 ### Compile the Program
-Compiling `ehdrift` is straightforward. Open a terminal, navigate to the directory containing the program's files, and run the following command:
+Users must first specify their GPU architecture in the Makefile. Then compiling `ehdrift` is straightforward. Open a terminal, navigate to the directory containing the program's files, and run the following command:
 
 ```bash
 make
@@ -104,19 +102,14 @@ The runtime performance of generating 8000ns waveforms on A100 GPUs is summarize
 - **Generating Signal**: 24 minutes and 37 seconds
 
 ## Saving Outputs
-The output signal is stored in the specified directory in the configuration file. If a file already exists for a given detector, new events are appended to it; otherwise, a new file is created.
-
-## HDF5 File Structure
-
-## Saving Outputs
 
 The output signal is stored in an HDF5 file format in the specified directory set in the configuration file. For each run, the program checks for an existing HDF5 file for the given detector. If the file exists, new events are appended to it; otherwise, a new file is created.
 
-## HDF5 File Structure
+### HDF5 File Structure
 
 The HDF5 file stores the simulation results in a structured format. The file contains datasets for event data and waveforms, along with attributes that provide additional context and settings.
 
-### Datasets
+#### Datasets
 
 - `event_data`: A compound dataset that includes information about each event. Each entry in this dataset contains the following fields:
   - `energy`: Interaction energy of the event.
@@ -125,7 +118,7 @@ The HDF5 file stores the simulation results in a structured format. The file con
   - `surface_charge`: Surface charge considered in the simulation.
   - `waveform`: A 1D array storing the normalized signal values for the event.
 
-### Attributes
+#### Attributes
 
 The file also contains the following attributes at the root level, providing context for the entire dataset:
 
