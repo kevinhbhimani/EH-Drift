@@ -107,23 +107,37 @@ The runtime performance of generating 8000ns waveforms on A100 GPUs is summarize
 The output signal is stored in the specified directory in the configuration file. If a file already exists for a given detector, new events are appended to it; otherwise, a new file is created.
 
 ## HDF5 File Structure
-Each HDF5 file may contain multiple groups, each corresponding to a distinct event. The structure within the file is outlined below:
 
-### Groups
-- Each group represents an individual event and is named in the format `/event_engX_rY_zZ_scW`, where `X`, `Y`, `Z`, and `W` are the energy, radial position, height, and surface charge of the event, respectively.
-- Inside each group, the following datasets are included:
-  - `/waveform`: Stores the normalized signal values as a one-dimensional array.
-  - `/energy`: A single value dataset indicating the interaction energy of the event.
-  - `/r`: A single value representing the radial position of the event in the detector.
-  - `/z`: Stores a single value for the height of the event within the detector.
-  - `/surface_charge`: Indicates the surface charge considered in the simulation.
+## Saving Outputs
+
+The output signal is stored in an HDF5 file format in the specified directory set in the configuration file. For each run, the program checks for an existing HDF5 file for the given detector. If the file exists, new events are appended to it; otherwise, a new file is created.
+
+## HDF5 File Structure
+
+The HDF5 file stores the simulation results in a structured format. The file contains datasets for event data and waveforms, along with attributes that provide additional context and settings.
+
+### Datasets
+
+- `event_data`: A compound dataset that includes information about each event. Each entry in this dataset contains the following fields:
+  - `energy`: Interaction energy of the event.
+  - `r`: Radial position of the event in the detector.
+  - `z`: Height of the event within the detector.
+  - `surface_charge`: Surface charge considered in the simulation.
+  - `waveform`: A 1D array storing the normalized signal values for the event.
 
 ### Attributes
-Each group also contains attributes with additional context and settings for that specific event:
-  - `grid`: Represents the grid size used in the simulation.
-  - `passivated_thickness`: The width of the passivated surface.
-  - `self_repulsion`: Indicates whether self-repulsion effects were considered.
-  - `detector_name`: Identifies the detector used in the simulation.
+
+The file also contains the following attributes at the root level, providing context for the entire dataset:
+
+- `grid`: Grid size used in the simulation.
+- `passivated_thickness`: Width of the passivated surface.
+- `self_repulsion`: Indicates whether self-repulsion effects were considered.
+- `detector_name`: Name of the detector used in the simulation.
+
+### Accessing Data
+
+You can access the event data and waveform for each event by iterating through the `event_data` dataset. Each entry in this dataset corresponds to a unique event, with its waveform and other parameters.
+
 
 ## Analysis
 The HDF5 file structure allows for detailed and event-specific data analysis. The following Python code example demonstrates how to iterate over HDF5 files to extract waveform data and associated parameters for each event:
@@ -144,23 +158,23 @@ waveforms_data = []
 for filename in tqdm(os.listdir(directory)):
     if filename.endswith('.h5') or filename.endswith('.hdf5'):
         with h5py.File(os.path.join(directory, filename), 'r') as file:
-            # Iterate through each group (event) in the file
-            for group_name in file:
-                group = file[group_name]
+            # Check for 'event_data' dataset and 'waveforms' dataset in the file
+            event_data = file['event_data']
+            waveforms = event_data['waveform']
+            # Extract file-level attributes
+            grid = file.attrs['grid']
+            passivated_thickness = file.attrs['passivated_thickness']
+            self_repulsion = file.attrs['self_repulsion']
+            detector_name_bytes = file.attrs['detector_name'][:]
+            detector_name = detector_name_bytes.tobytes().decode('utf-8')
 
-                # Extract parameters and waveform from each group
-                eng = group['energy'][0]
-                r = group['r'][0]
-                z = group['z'][0]
-                surface_charge = group['surface_charge'][0]
-                waveform = group['waveform'][:]
+            # Iterate through each event in the file
+            for i in range(event_data.shape[0]):
+                # Extract parameters for each event
+                eng, r, z, surface_charge = event_data[i]['energy'], event_data[i]['radius'], event_data[i]['height'], event_data[i]['surface_charge']
 
-                # Extract attributes from the group
-                grid = group.attrs['grid']
-                passivated_thickness = group.attrs['passivated_thickness']
-                self_repulsion = group.attrs['self_repulsion']
-                detector_name_bytes = group.attrs['detector_name'][:]
-                detector_name = detector_name_bytes.tobytes().decode('utf-8')
+                # Extract waveform for each event
+                waveform = waveforms[i]
 
                 # Append to the list as a dictionary
                 waveforms_data.append({
@@ -174,11 +188,33 @@ for filename in tqdm(os.listdir(directory)):
                     'det': detector_name, 
                     'wf': waveform
                 })
-
+                
 # Convert the list of dictionaries to a DataFrame
 waveforms_df = pd.DataFrame(waveforms_data)
+# Remove null character from 'det' column
+waveforms_df['det'] = waveforms_df['det'].apply(lambda x: x.strip('\x00'))
+waveforms_df.head()
+```
+Waveform dataframe can now be used for plotting or quering
+```python
+# Example: Query for a specific waveform
+r_exp= 15.00
+z_exp=0.1
+sc_exp=-0.5
+eng_exp= 5000
+det_exp = 'P42575A'
+grid_exp = 0.05
 
-waveforms_df
+query = f"r == {r_exp} and z == {z_exp} and sc == {sc_exp} and eng == {eng_exp} and det == '{det_exp}'  and grid == {grid_exp}"
+specific_waveform_row = waveforms_df.query(query).iloc[0]['wf']
+
+sim_time=8000
+step_time_out = 10
+time = np.linspace(start=step_time_out, stop= sim_time, num= (int) (sim_time/step_time_out))
+
+plt.plot(time, specific_waveform_row)
+plt.xlabel('Time (ns)')
+plt.ylabel('Normalized Signal')
 ```
 
 ## References

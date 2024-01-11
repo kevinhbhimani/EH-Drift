@@ -97,6 +97,10 @@ void get_potential(int L, int R, MJD_Siggen_Setup *setup, GPU_data *gpu_setup);
 #define TELL_NORMAL_EHD if (setup->verbosity >= NORMAL) tell_ehd_2
 #define TELL_CHATTY_EHD if (setup->verbosity >= CHATTY) tell_ehd_2
 
+herr_t attr_exists(hid_t loc_id, const char *name) {
+    return H5Aexists(loc_id, name);
+}
+
 /* -------------------------------------- main ------------------- */
 int main(int argc, char **argv)
 {
@@ -121,6 +125,7 @@ int main(int argc, char **argv)
   double  alpha_z_mm = 0.1;
   char fn[512]; // Ensure this is large enough
         // Configuration setup and command-line argument processing
+  int sim_time = 8000; //run time in nano seconds
 
   if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
     printf("Usage: %s <config_file_name> [options]\n"
@@ -540,7 +545,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   if(courant_number >0.f){
     setup.step_time_calc = setup.step_time_calc/ courant_number;
   } 
-  printf("Time step is set at %f\n", setup.step_time_calc);    
+  printf("Time step is set at %f ns\n", setup.step_time_calc);    
     
   gpu_init(&setup, LL_rho, rho_e, rho_h, &gpu_setup);
 
@@ -557,7 +562,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n_iter=1;
   double sig[100000] = {0};
-  int sim_time = 8000; //run time in nano seconds
 
   double courant_num_vec[100000] = {0};
   int num_threads = 1024;
@@ -588,12 +592,12 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   int signal_points_saved = 0;
   int expected_signal_points = sim_time / save_time;  
   printf("\n\n -=-=-=-=-=-Starting Signal Calculations-=-=-=-=-=-\n");
-  printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d-=-=-=-=-=-\n\n", 0.0, sim_time);
+  printf("\n\n -=-=-=-=-=- Running at time %.2f ns out of %d ns-=-=-=-=-=-\n\n", 0.0, sim_time);
     
   for (n_iter = 1; n_iter++;) {
       
     if(n_iter%1000==0){
-        printf("\n\n -=-=-=-=-=- Running at time %.2f out of %d", actual_time_elapsed, sim_time);
+        printf("\n\n -=-=-=-=-=- Running at time %.2f ns out of %d ns", actual_time_elapsed, sim_time);
         printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", sig[save_index-1]/1000);
     }    
     cudaDeviceSynchronize();
@@ -662,7 +666,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         // Check if the desired number of signal points has been reached
         if (signal_points_saved >= expected_signal_points) {
             printf("Desired number of signal points (%d) reached. Terminating simulation", expected_signal_points);
-            printf(" at time %.2f s\n", actual_time_elapsed);
+            printf(" at time %.2f ns\n", actual_time_elapsed);
 
             break; // Exit the simulation loop
         }
@@ -684,8 +688,8 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         // keep time step small for first 100 ns to allow the charges to move to surface
         if (actual_time_elapsed> 100 && signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
             setup.step_time_calc = fmin(setup.step_time_calc * 2, max_time_step);
-            printf("\n\n-=-=-=-=-=-Changing time step to %f", setup.step_time_calc);
-            printf(" at time %.2f s", actual_time_elapsed);
+            printf("\n\n-=-=-=-=-=-Changing time step to %f ns", setup.step_time_calc);
+            printf(" at time %.2f ns", actual_time_elapsed);
             printf(" -=-=-=-=-=- Signal collected=%.4f -=-=-=-=-=-\n\n", signal_time_n/1000);
         }
     }
@@ -724,136 +728,164 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 //   fclose(f);
 //   printf("Done writting waveform\n");
     
+printf("Writing waveform in HDF5 format\n");
 
+hid_t file_id, dataset_id, dataspace_id, memspace_id, compound_datatype_id;
 
-printf("Saving waveform in HDF5 format\n");
+// Prepare scaled waveform data
+double scaled_sig[sim_time/save_time];
+for (int i = 0; i < sim_time/save_time; i++) {
+    scaled_sig[i] = sig[i] / 1000.0; // Assuming 'sig' is your waveform data
+}
 
-// Declare HDF5 identifiers
-hid_t file_id, group_id, dataset_id, dataspace_id;
-hid_t attr_dataspace_id, attr_id;
-
-// Construct the directory path based on the detector name
-char dir_path[1024];
+// Construct the directory path and file path
+char dir_path[1024], hdf5_filename[1024];
 sprintf(dir_path, "%s/waveforms/%s", setup.home_dir, setup.detector_name);
+sprintf(hdf5_filename, "%s/%s_waveforms.h5", dir_path, setup.detector_name);
 
-// Check if the directory exists
-struct stat st = {0};
+// Check if the directory exists, create if not
+struct stat st;
 if (stat(dir_path, &st) == -1) {
-    // Directory does not exist, create it
-    if (mkdir(dir_path, 0700) == -1) {
-        fprintf(stderr, "Error creating directory %s: %s\n", dir_path, strerror(errno));
-        exit(EXIT_FAILURE);
+    mkdir(dir_path, 0700);
+}
+
+// Check if the file exists
+struct stat buffer;
+int file_exists = (stat(hdf5_filename, &buffer) == 0);
+
+if (file_exists) {
+    // Open existing file
+    file_id = H5Fopen(hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+    if (file_id < 0) {
+        fprintf(stderr, "Failed to open existing HDF5 file: %s\n", hdf5_filename);
+        exit(1);
+    }
+} else {
+    // Create a new file
+    file_id = H5Fcreate(hdf5_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    if (file_id < 0) {
+        fprintf(stderr, "Failed to create new HDF5 file: %s\n", hdf5_filename);
+        exit(1);
     }
 }
 
-// Construct the file path
-char hdf5_filename[1024];
-sprintf(hdf5_filename, "%s/%s_waveforms.h5", dir_path, setup.detector_name);
+typedef struct {
+    double energy;
+    double r;
+    double z;
+    double surface_charge;
+    double waveform[sim_time/save_time];
+} event_data_t;
 
-// Open or create file
-if (access(hdf5_filename, F_OK) != -1) {
-    // File exists, open it in append mode
-    file_id = H5Fopen(hdf5_filename, H5F_ACC_RDWR, H5P_DEFAULT);
+event_data_t data;
+data.energy = setup.energy;
+data.r = alpha_r_mm;
+data.z = alpha_z_mm;
+data.surface_charge = setup.impurity_surface;
+memcpy(data.waveform, scaled_sig, sim_time/save_time * sizeof(double)); // Copy scaled_sig to data.waveform
+
+compound_datatype_id = H5Tcreate(H5T_COMPOUND, sizeof(event_data_t));
+H5Tinsert(compound_datatype_id, "energy", HOFFSET(event_data_t, energy), H5T_NATIVE_DOUBLE);
+H5Tinsert(compound_datatype_id, "radius", HOFFSET(event_data_t, r), H5T_NATIVE_DOUBLE);
+H5Tinsert(compound_datatype_id, "height", HOFFSET(event_data_t, z), H5T_NATIVE_DOUBLE);
+H5Tinsert(compound_datatype_id, "surface_charge", HOFFSET(event_data_t, surface_charge), H5T_NATIVE_DOUBLE);
+H5Tinsert(compound_datatype_id, "waveform", HOFFSET(event_data_t, waveform), H5Tarray_create(H5T_NATIVE_DOUBLE, 1, (hsize_t[]){sim_time/save_time}));
+
+// Create or open the dataset
+hsize_t dims[1] = {0}, max_dims[1] = {H5S_UNLIMITED};
+dataspace_id = H5Screate_simple(1, dims, max_dims);
+hid_t prop_id = H5Pcreate(H5P_DATASET_CREATE);
+hsize_t chunk_dims[1] = {1}; // Chunk size can be adjusted
+H5Pset_chunk(prop_id, 1, chunk_dims);
+
+dataset_id;
+if (H5Lexists(file_id, "event_data", H5P_DEFAULT) > 0) {
+    dataset_id = H5Dopen(file_id, "event_data", H5P_DEFAULT);
+    dataspace_id = H5Dget_space(dataset_id);
+    hsize_t current_dims[1];
+    H5Sget_simple_extent_dims(dataspace_id, current_dims, NULL);
+    dims[0] = current_dims[0] + 1; // Increment the number of records
+    H5Sclose(dataspace_id); // Close the old dataspace
 } else {
-    // File does not exist, create a new file
-    file_id = H5Fcreate(hdf5_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    dims[0] = 1; // Starting with the first record
+    dataset_id = H5Dcreate(file_id, "event_data", compound_datatype_id, dataspace_id, H5P_DEFAULT, prop_id, H5P_DEFAULT);
+}
+H5Pclose(prop_id);
+
+// Extend dataset
+H5Dset_extent(dataset_id, dims);
+
+// Open the new dataspace and select hyperslab
+dataspace_id = H5Dget_space(dataset_id);
+hsize_t start[1] = {dims[0] - 1}, count[1] = {1};
+H5Sselect_hyperslab(dataspace_id, H5S_SELECT_SET, start, NULL, count, NULL);
+
+// Define memory space
+memspace_id = H5Screate_simple(1, count, NULL);
+
+// Write data
+if (H5Dwrite(dataset_id, compound_datatype_id, memspace_id, dataspace_id, H5P_DEFAULT, &data) < 0) {
+    fprintf(stderr, "Failed to write data to the dataset\n");
+    exit(1);
 }
 
-// Prepare scaled waveform data
-hsize_t dims[1] = {sim_time / save_time};
-double scaled_sig[dims[0]];
-for (int i = 0; i < dims[0]; i++) {
-    scaled_sig[i] = sig[i] / 1000.0;  // Divide each signal value by 1000
+// Close resources for waveform dataset
+H5Sclose(memspace_id);
+H5Sclose(dataspace_id);
+H5Dclose(dataset_id);
+H5Tclose(compound_datatype_id);
+
+// Function to check if an attribute exists
+herr_t attr_exists(hid_t loc_id, const char *name) {
+    return H5Aexists(loc_id, name);
 }
 
-// Define a unique group name for each event
-char group_name[1024];
-sprintf(group_name, "/event_eng%.2f_r%.2f_z%.2f_sc%.2f", setup.energy, alpha_r_mm, alpha_z_mm, setup.impurity_surface);
-
-// Create a group for the event
-group_id = H5Gcreate(file_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
-
-// Create dataset for the waveform inside the group
-char waveform_dataset_name[1024];
-sprintf(waveform_dataset_name, "%s/waveform", group_name);
-dataspace_id = H5Screate_simple(1, dims, NULL);
-dataset_id = H5Dcreate(file_id, waveform_dataset_name, H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, scaled_sig);
-H5Dclose(dataset_id);
-H5Sclose(dataspace_id);
-
-// Create datasets for energy, r, z, and surface charge inside the group
-hsize_t param_dims[1] = {1}; // For scalar values
-
-// Energy
-char energy_dataset_name[1024];
-sprintf(energy_dataset_name, "%s/energy", group_name);
-dataspace_id = H5Screate_simple(1, param_dims, NULL);
-dataset_id = H5Dcreate(file_id, energy_dataset_name, H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &setup.energy);
-H5Dclose(dataset_id);
-
-// r
-char r_dataset_name[1024];
-sprintf(r_dataset_name, "%s/r", group_name);
-dataspace_id = H5Screate_simple(1, param_dims, NULL);
-dataset_id = H5Dcreate(file_id, r_dataset_name, H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &alpha_r_mm);
-H5Dclose(dataset_id);
-H5Sclose(dataspace_id);
-
-// z
-char z_dataset_name[1024];
-sprintf(z_dataset_name, "%s/z", group_name);
-dataspace_id = H5Screate_simple(1, param_dims, NULL);
-dataset_id = H5Dcreate(file_id, z_dataset_name, H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &alpha_z_mm);
-H5Dclose(dataset_id);
-H5Sclose(dataspace_id);
-    
-// Surface charge
-char surface_charge_dataset_name[1024];
-sprintf(surface_charge_dataset_name, "%s/surface_charge", group_name);
-dataspace_id = H5Screate_simple(1, param_dims, NULL);
-dataset_id = H5Dcreate(file_id, surface_charge_dataset_name, H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &setup.impurity_surface);
-H5Dclose(dataset_id);
-H5Sclose(dataspace_id);
-
-// // Close the group
-// H5Gclose(group_id);
-    
-// ---- Save Attributes at Group Level ----
-attr_dataspace_id = H5Screate(H5S_SCALAR);
+// Save attributes at the file level
+hid_t attr_dataspace_id, attr_id;
 
 // Grid
-attr_id = H5Acreate(group_id, "grid", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
-H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &grid);
-H5Aclose(attr_id);
+if (!attr_exists(file_id, "grid")) {
+    attr_dataspace_id = H5Screate(H5S_SCALAR);
+    attr_id = H5Acreate(file_id, "grid", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+    H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &setup.xtal_grid);
+    H5Aclose(attr_id);
+    H5Sclose(attr_dataspace_id);
+}
 
 // Passivated thickness
-attr_id = H5Acreate(group_id, "passivated_thickness", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
-H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &setup.passivated_thickness);
-H5Aclose(attr_id);
+if (!attr_exists(file_id, "passivated_thickness")) {
+    attr_dataspace_id = H5Screate(H5S_SCALAR);
+    attr_id = H5Acreate(file_id, "passivated_thickness", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+    H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &setup.passivated_thickness);
+    H5Aclose(attr_id);
+    H5Sclose(attr_dataspace_id);
+}
 
 // Self repulsion
-attr_id = H5Acreate(group_id, "self_repulsion", H5T_NATIVE_INT, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
-H5Awrite(attr_id, H5T_NATIVE_INT, &do_self_repulsion);
-H5Aclose(attr_id);
+if (!attr_exists(file_id, "self_repulsion")) {
+    attr_dataspace_id = H5Screate(H5S_SCALAR);
+    attr_id = H5Acreate(file_id, "self_repulsion", H5T_NATIVE_INT, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+    H5Awrite(attr_id, H5T_NATIVE_INT, &do_self_repulsion);
+    H5Aclose(attr_id);
+    H5Sclose(attr_dataspace_id);
+}
 
 // Detector name
-dims[0] = strlen(setup.detector_name) + 1; // Include space for null terminator
-attr_dataspace_id = H5Screate_simple(1, dims, NULL);
-attr_id = H5Acreate(group_id, "detector_name", H5T_C_S1, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
-H5Awrite(attr_id, H5T_C_S1, setup.detector_name);
-H5Aclose(attr_id);
+if (!attr_exists(file_id, "detector_name")) {
+    hsize_t attr_dims[1] = {strlen(setup.detector_name) + 1}; // Include space for null terminator
+    attr_dataspace_id = H5Screate_simple(1, attr_dims, NULL);
+    attr_id = H5Acreate(file_id, "detector_name", H5T_C_S1, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+    H5Awrite(attr_id, H5T_C_S1, setup.detector_name);
+    H5Aclose(attr_id);
+    H5Sclose(attr_dataspace_id);
+}
 
-// Close the group
-H5Gclose(group_id);
+// Close file
+H5Fclose(file_id);
 
 printf("Done writing waveform in HDF5 format\n");
 
+    
   return 0;
 } /* main */
 
