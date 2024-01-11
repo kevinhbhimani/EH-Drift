@@ -203,7 +203,7 @@ z_exp=0.1
 sc_exp=-0.5
 eng_exp= 5000
 det_exp = 'P42575A'
-grid_exp = 0.05
+grid_exp = 0.02
 
 query = f"r == {r_exp} and z == {z_exp} and sc == {sc_exp} and eng == {eng_exp} and det == '{det_exp}'  and grid == {grid_exp}"
 specific_waveform_row = waveforms_df.query(query).iloc[0]['wf']
