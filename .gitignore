@@ -1,4 +1,6 @@
-waveforms
-giff_data
-Analysis
-Logs
+waveforms/
+giff_data/
+Analysis/
+logs/
+.ipynb_checkpoints/
+.DS_Store
