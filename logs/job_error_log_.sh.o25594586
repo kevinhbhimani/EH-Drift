@@ -1,0 +1,646 @@
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3457913 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3457959 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3457993 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458035 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458082 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458122 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458164 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458214 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458244 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458291 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458341 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458377 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458424 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458461 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458496 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458546 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458584 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458629 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458671 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458704 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458838 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458885 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458920 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458964 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3458994 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459040 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459090 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459126 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459170 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459199 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459478 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3459766 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460134 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460260 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460293 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460334 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460379 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460419 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460476 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460526 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460554 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460597 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460648 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460683 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460727 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460764 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460798 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460847 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460891 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460926 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460967 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3460998 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461046 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461092 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461133 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461169 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461205 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461249 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461300 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461335 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461382 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461419 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461459 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461508 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461545 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461589 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461623 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461662 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461708 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461747 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461789 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461826 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461862 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461906 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461956 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3461999 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462034 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462072 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462111 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462153 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462198 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462241 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462275 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462314 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462351 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462400 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462440 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462478 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462514 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462557 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462607 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462642 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462685 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462723 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462763 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462807 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462849 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462892 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462933 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3462970 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463010 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463059 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463091 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463138 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463174 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463209 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463331 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463365 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463409 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463532 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463573 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463624 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3463669 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464105 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464287 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464569 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464778 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464824 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464856 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464922 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464950 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3464993 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465044 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465079 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465123 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465161 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465192 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465241 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465285 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465328 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465363 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465402 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465443 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465486 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465528 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465572 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465601 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465640 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465694 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465736 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465779 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465812 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465851 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465895 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465944 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3465977 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466022 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466059 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466093 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466145 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466180 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466223 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466263 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466294 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466342 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466388 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466422 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466465 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466496 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466537 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466588 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466622 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466665 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466703 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466755 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466806 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466850 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466886 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466933 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3466972 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467009 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467057 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467089 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467134 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467171 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467213 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467255 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467299 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467345 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467384 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467424 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467472 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467508 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467542 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467577 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467624 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467658 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467701 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467733 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467770 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467805 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467839 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467889 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467939 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3467986 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468026 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468064 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468120 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468171 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468307 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468376 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468421 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468461 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468510 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468558 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468609 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468652 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468699 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468755 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468805 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468848 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468890 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468935 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3468983 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  after reduction step 1: cudaErrorInvalidDeviceFunction: invalid device function
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 38: 3469041 Aborted                 (core dumped) $dir_run/ehdrift $config_file -a $radius -z $zPos -g $detector -s $surface_charge -e $energy -v $save_rho -f $self_repulsion -h $grid > /dev/null
+slurmstepd: error: *** JOB 25594586 ON g0308 CANCELLED AT 2023-12-14T12:08:05 ***

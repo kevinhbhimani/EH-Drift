@@ -74,6 +74,10 @@ Once compiled, the `ehdrift` program can be executed from the terminal. The foll
 - `-b`: Set bias voltage in volts.
 - `-h`: Specify the grid size in mm.
 - `-m`: Define the passivated surface depth size in mm.
+<<<<<<< HEAD
+=======
+- `-c`: Specify the velocity in surface compared to the bulk
+>>>>>>> 7a51b11 (Updates on anlysis)
 - `-a`: Input a custom impurity density profile file.
 
 First, run the program to calculate the weighting potential (WP), which can then be reused for different r and z values. To do this:
@@ -87,7 +91,11 @@ This process calculates and saves the detector's weighting potential with a surf
 
 2. Next, run the program to simulate a 5000 KeV event at r=15 mm and z=0.10 mm, and save the signal:
 ```bash
+<<<<<<< HEAD
 ./ehdrift config_files/P42575A.config -r 15.00 -z 0.10 -p 0 -s -0.50 -e 5000 -h 0.0200
+=======
+./ehdrift config_files/P42575A.config -r 15.00 -z 0.02 -p 0 -s -0.50 -e 5000 -h 0.0200
+>>>>>>> 7a51b11 (Updates on anlysis)
 ```
 
 ### Runtime Performance
@@ -124,6 +132,10 @@ The file also contains the following attributes at the root level, providing con
 
 - `grid`: Grid size used in the simulation.
 - `passivated_thickness`: Width of the passivated surface.
+<<<<<<< HEAD
+=======
+- `surface_bulk_vel_factor`: How fast the charges move on the passivated surface compared to the bulk.
+>>>>>>> 7a51b11 (Updates on anlysis)
 - `self_repulsion`: Indicates whether self-repulsion effects were considered.
 - `detector_name`: Name of the detector used in the simulation.
 
@@ -142,7 +154,11 @@ import pandas as pd
 from tqdm import tqdm
 
 # Directory containing the waveform files
+<<<<<<< HEAD
 directory = '/nas/longleaf/home/kbhimani/siggen_ccd/waveforms/P42575A/'
+=======
+directory = '/path/to/waveforms'
+>>>>>>> 7a51b11 (Updates on anlysis)
 
 # Initialize an empty list to store data
 waveforms_data = []
@@ -160,7 +176,11 @@ for filename in tqdm(os.listdir(directory)):
             self_repulsion = file.attrs['self_repulsion']
             detector_name_bytes = file.attrs['detector_name'][:]
             detector_name = detector_name_bytes.tobytes().decode('utf-8')
+<<<<<<< HEAD
 
+=======
+            surface_bulk_vel_factor= file.attrs['surface_bulk_vel_factor']
+>>>>>>> 7a51b11 (Updates on anlysis)
             # Iterate through each event in the file
             for i in range(event_data.shape[0]):
                 # Extract parameters for each event
@@ -180,6 +200,10 @@ for filename in tqdm(os.listdir(directory)):
                     'self_repulsion': self_repulsion, 
                     'det': detector_name, 
                     'wf': waveform
+<<<<<<< HEAD
+=======
+                    'sf_drift':surface_bulk_vel_factor
+>>>>>>> 7a51b11 (Updates on anlysis)
                 })
                 
 # Convert the list of dictionaries to a DataFrame
@@ -192,7 +216,11 @@ Waveform dataframe can now be used for plotting or quering
 ```python
 # Example: Query for a specific waveform
 r_exp= 15.00
+<<<<<<< HEAD
 z_exp=0.1
+=======
+z_exp=0.02
+>>>>>>> 7a51b11 (Updates on anlysis)
 sc_exp=-0.5
 eng_exp= 5000
 det_exp = 'P42575A'

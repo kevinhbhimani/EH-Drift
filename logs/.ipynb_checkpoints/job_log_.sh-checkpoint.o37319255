@@ -1,0 +1,21 @@
+rm -f *.o core* *[~%] *.trace
+rm -f ehdrift
+nvcc -std=c++14 -rdc=true -lhdf5 -gencode=arch=compute_70,code=compute_70 -o ehdrift ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu rho_sum_calc.cu read_config.c detector_geometry.c cyl_point.c -lm
+Calculating weighting potential, wp=1, det=P42575A, sc=0.550, grid=0.0200
+Running simulation at r=27.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0030, wd=0, sr=1, count=0
+Running simulation at r=29.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0030, wd=0, sr=1, count=1
+Running simulation at r=31.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0030, wd=0, sr=1, count=2
+Running simulation at r=33.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0030, wd=0, sr=1, count=3
+Running simulation at r=27.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=4
+Running simulation at r=29.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=5
+Running simulation at r=31.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=6
+Running simulation at r=33.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=7
+Running simulation at r=27.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0020, wd=0, sr=1, count=8
+Running simulation at r=29.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0020, wd=0, sr=1, count=9
+Running simulation at r=31.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0020, wd=0, sr=1, count=10
+Running simulation at r=33.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0020, wd=0, sr=1, count=11
+Running simulation at r=27.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=12
+Running simulation at r=29.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=13
+Running simulation at r=31.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=14
+Running simulation at r=33.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0025, wd=0, sr=1, count=15
+Running simulation at r=27.00, z=0.02, det=P42575A, sc=0.550, eng=5000.00, grid=0.0200, sd=0.0015, wd=0, sr=1, count=16

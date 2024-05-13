@@ -1,0 +1,2 @@
+/nas/longleaf/home/kbhimani/siggen_ccd/set_run.sh: line 39: n/ehdrift: No such file or directory
+slurmstepd: error: *** JOB 25634925 ON g141607 CANCELLED AT 2023-12-20T00:57:54 ***

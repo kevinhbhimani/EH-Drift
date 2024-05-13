@@ -136,7 +136,13 @@ __global__ void reset_rho(double *rho, double *surface_rho, int max_threads){
     deltaer_array[((R+1)*z)+r] = deltaer;
   
   }
+<<<<<<< HEAD
 
+=======
+/* 
+Uses the coefficients calculated before to perfrom diffusion and saves the densities at rho[1][r][z]
+*/
+>>>>>>> 7a51b11 (Updates on anlysis)
 __global__ void diff_update(double *rho, char *point_type, double *s1, double *s2, double *deltaez_array, double *deltaer_array, double *surface_rho){
 
   int r = blockIdx.x%R;
@@ -170,8 +176,13 @@ __global__ void diff_update(double *rho, char *point_type, double *s1, double *s
 
   }
   // if z==1 we want the charges to diffuse to surface, only if the region is pasivated
+<<<<<<< HEAD
   if(point_type[((R+1)*z)+r] == PASSIVE && point_type[((R+1)*(z-1))+r] != DITCH){
     atomicAdd(&surface_rho[(R+1)+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez* surface_drift_vel_factor);
+=======
+  if(point_type[((R+1)*z)+r] == PASSIVE){
+    atomicAdd(&surface_rho[(R+1)+r], rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez);
+>>>>>>> 7a51b11 (Updates on anlysis)
     atomicAdd(&rho[(1*(L+1)*(R+1))+((R+1)*z)+r], -rho[(0*(L+1)*(R+1))+((R+1)*z)+r]*deltaez);
   }
 
@@ -195,7 +206,7 @@ __global__ void diff_update(double *rho, char *point_type, double *s1, double *s
 }
 
 /* 
-  Sees where the charge would drift in the field and stores the new location
+  Sees where the charge would drift in the field and stores the new location as k_drift, i_drift
  */
 __global__ void gpu_self_repulsion(double *rho, double *v, char *point_type,  double *dr, double *dz, 
   double *s1, double *s2, double *drift_offset, double *drift_slope, double *fr_array, double *fz_array, 
@@ -288,7 +299,7 @@ __global__ void gpu_self_repulsion(double *rho, double *v, char *point_type,  do
     i_array[((R+1)*z)+r]= r;
     fr_array[((R+1)*z)+r] = 1.0;
   } else {
-    i_array[((R+1)*z)+r]= (double) r + dre;
+    i_array[((R+1)*z)+r] = (int) r + dre;
     fr_array[((R+1)*z)+r] = ceil(dre) - dre;
   }
   if (i_array[((R+1)*z)+r]<1) {
@@ -312,15 +323,17 @@ __global__ void gpu_self_repulsion(double *rho, double *v, char *point_type,  do
     k_array[((R+1)*z)+r]= z;
     fz_array[((R+1)*z)+r] = 1.0;
   } else {
-    k_array[((R+1)*z)+r]= (double) z + dze;
+    k_array[((R+1)*z)+r]= (int) z + dze;
     fz_array[((R+1)*z)+r] = ceil(dze) - dze;
   }
-
 
   //handles charges drifting to the surface
   double z_loc = (double) z + dze;
   if (point_type[((R+1)*(int)ceil(z_loc))+i_array[((R+1)*z)+r]]==PASSIVE){
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7a51b11 (Updates on anlysis)
     //case 1 passivated surface in z=1
     if(ceil(z_loc) == 1){
       if (z_loc<=0.0){
@@ -347,7 +360,11 @@ __global__ void gpu_self_repulsion(double *rho, double *v, char *point_type,  do
         k_array[((R+1)*z)+r]= 0;
         fz_array[((R+1)*z)+r] = 1.0;
       }
+<<<<<<< HEAD
       if (z_loc>pass_base && z_loc<=pass_base+passivated_surface_thickness_gpu && dze!=0.0){
+=======
+      if (z_loc>pass_base && z_loc<=pass_base+passivated_surface_thickness_gpu){
+>>>>>>> 7a51b11 (Updates on anlysis)
         //check if the point drifting to would be passivated surface 
         k_array[((R+1)*z)+r]=0;
         double top_edge = z_loc + pass_base + 0.5;
@@ -380,7 +397,11 @@ __global__ void gpu_self_repulsion(double *rho, double *v, char *point_type,  do
 }
 
 /* 
+<<<<<<< HEAD
   Moves the charges in bulk to the new location
+=======
+  Moves the charges in bulk to the new location, and save the densities at rho[2][r][z]
+>>>>>>> 7a51b11 (Updates on anlysis)
  */
 __global__ void gpu_sr_update(double *rho, double *fr_array, double *fz_array, int *i_array, int *k_array, double *surface_rho){
 
@@ -446,7 +467,11 @@ __global__ void gpu_sr_update(double *rho, double *fr_array, double *fz_array, i
     }
    }
 }
+<<<<<<< HEAD
 /* 
+=======
+ /* 
+>>>>>>> 7a51b11 (Updates on anlysis)
   Handles the drift of charges on surface to the new location
  */
 __global__ void surface_drift_calc(double *rho, double *velocity_drift_r, double *velocity_drift_z, double *field_r, double *field_z, double *fr_array, double *fz_array, int *i_array, int *k_array, double *surface_rho, char *point_type){
@@ -479,7 +504,7 @@ __global__ void surface_drift_calc(double *rho, double *velocity_drift_r, double
     i_drift = r;
     fr = 1.0;
   } else {
-    i_drift = (double) r + dre;
+    i_drift = (int) r + dre;
     fr = ceil(dre) - dre;
   }
   if (i_drift<1) {
@@ -503,7 +528,7 @@ __global__ void surface_drift_calc(double *rho, double *velocity_drift_r, double
     k_drift = 0;
     fz = 1.0;
   } else {
-    k_drift = dze;
+    k_drift = (int) dze;
     fz = ceil(dze) - dze;
   }
 
@@ -516,13 +541,21 @@ __global__ void surface_drift_calc(double *rho, double *velocity_drift_r, double
 
   if (point_type[((R+1)*(int)ceil(z_loc))+i_drift]==PASSIVE){
 
+<<<<<<< HEAD
     //case 1 passivated surface in z=1
+=======
+    //case 1 passivated surface in z=1, normal situation 
+>>>>>>> 7a51b11 (Updates on anlysis)
     if(ceil(z_loc) == 1){
       if (z_loc<=0.0){
         k_drift= 0;
         fz = 1.0;
       }
+<<<<<<< HEAD
       if (z_loc>0.0 && z_loc<=passivated_surface_thickness_gpu && dze!=0.0){
+=======
+      if (z_loc>0.0 && z_loc<=passivated_surface_thickness_gpu){
+>>>>>>> 7a51b11 (Updates on anlysis)
         //check if the point drifting to would be passivated surface 
         
         k_drift=0;

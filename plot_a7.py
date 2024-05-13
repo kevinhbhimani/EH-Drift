@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.colors as colors
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
 # To make gif using cluster:
 # add matplotlib.use('Agg') to top
 # module load python/2.7.12
@@ -32,6 +32,7 @@ def main():
 
 def make_png(fname1):
     #change here to your work directory
+<<<<<<< HEAD
     file_load = '/work/users/k/b/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0400/self_repulsion_1/P42575A/q=0.00/drift_data_r=1.00_z=4.00/'
     file_save = '/nas/longleaf/home/kbhimani/siggen_ccd/gif_data/gif_r=1.00_z=4.00/'
     plot_title = "Densities at r=1, z=4, surface vel=0.01 bulk vel, grid=20$\mu$"
@@ -42,6 +43,30 @@ def make_png(fname1):
     fig_x=6
     fig_y=4
     
+=======
+    r_int = 15.00
+    z_int= 0.02
+    sc_int= -0.50 #0.00 #-0.50
+    eng_int=2000.00
+    grid_int=0.0200
+    file_load = f'/work/users/k/b/kbhimani/siggen_ccd_data/density_r={r_int:.2f}_z={z_int:.2f}_eng={eng_int:.2f}_sc={sc_int:.2f}_grid={grid_int:.4f}/'
+    plot_title = f"Event at r={r_int}mm, z={z_int}mm, surface charge={sc_int} grid={grid_int}mm"
+    
+    
+    r_1, r_2, z_1, z_2 = 3, 28, 0, 2
+    fig_x, fig_y = 8, 4
+    
+    file_save_base = '/nas/longleaf/home/kbhimani/siggen_ccd/giff_data/'
+    dir_name = f"density_r={r_int:.2f}_z={z_int:.2f}_eng={eng_int:.2f}_sc={sc_int:.2f}_grid={grid_int:.4f}/"
+    # Create the full directory path
+    file_save = file_save_base + dir_name
+    
+    # Check if the directory exists, create if not
+    if not os.path.exists(file_save):
+        os.makedirs(file_save)
+        
+        
+>>>>>>> 7a51b11 (Updates on anlysis)
     z_index = 2
     # get max value of z to plot, if required
     max_z = None

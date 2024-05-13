@@ -1,0 +1,2489 @@
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5S.c line 489 in H5Sclose(): not a dataspace
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5S.c line 489 in H5Sclose(): not a dataspace
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5S.c line 489 in H5Sclose(): not a dataspace
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5S.c line 489 in H5Sclose(): not a dataspace
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5S.c line 489 in H5Sclose(): not a dataspace
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5G.c line 683 in H5Gclose(): not a group
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 263 in H5Acreate2(): not a location
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+  #001: ../../src/H5Gloc.c line 246 in H5G_loc(): invalid object ID
+    major: Invalid arguments to routine
+    minor: Bad value
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5G.c line 683 in H5Gclose(): not a group
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 279 in H5Acreate2(): unable to create attribute
+    major: Attribute
+    minor: Unable to initialize object
+  #001: ../../src/H5Aint.c line 165 in H5A__create(): attribute already exists
+    major: Attribute
+    minor: Object already exists
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 615 in H5Awrite(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5A.c line 1523 in H5Aclose(): not an attribute
+    major: Invalid arguments to routine
+    minor: Inappropriate type
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5D.c line 906 in H5Dset_extent(): unable to set extend dataset
+    major: Dataset
+    minor: Unable to initialize object
+  #001: ../../src/H5Dint.c line 2753 in H5D__set_extent(): dataset has contiguous storage
+    major: Invalid arguments to routine
+    minor: Out of range
+HDF5-DIAG: Error detected in HDF5 (1.10.5) thread 0:
+  #000: ../../src/H5Dio.c line 322 in H5Dwrite(): could not get a validated dataspace from file_space_id
+    major: Invalid arguments to routine
+    minor: Bad value
+  #001: ../../src/H5S.c line 254 in H5S_get_validated_dataspace(): selection + offset not within extent
+    major: Dataspace
+    minor: Out of range
+slurmstepd: error: *** JOB 27120825 ON g141608 CANCELLED AT 2024-01-10T20:47:08 ***
