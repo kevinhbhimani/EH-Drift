@@ -181,13 +181,9 @@ int main(int argc, char **argv)
       do_self_repulsion = atof(argv[++i]);
     } else if (strstr(argv[i], "-m")) {
       setup.passivated_thickness=atof(argv[++i]);  // passivated surface thickness in mm
-<<<<<<< HEAD
-    }else if (strstr(argv[i], "-a")) {
-=======
     } else if (strstr(argv[i], "-c")) {
       setup.surface_drift_vel_factor=atof(argv[++i]);  // surface drift compared to bulk
     } else if (strstr(argv[i], "-a")) {
->>>>>>> 7a51b11 (Updates on anlysis)
       if (!(fp = fopen(argv[++i], "r"))) {   // impurity-profile-spectrum file name
         printf("\nERROR: cannot open impurity profile spectrum file %s\n\n", argv[i+1]);
         return 1;
@@ -220,13 +216,9 @@ int main(int argc, char **argv)
   }
 
   sprintf(setup.wp_name, "%s/wp_%s_sc%.2f_grid%.4f.dat", setup.wp_name, setup.detector_name, setup.impurity_surface, setup.xtal_grid);
-<<<<<<< HEAD
-
-=======
   char fn_ev[256];
   sprintf(fn_ev, "%s/fields/ev_fin_%s_grid=%.4f_sc=%.4f.dat",setup.scratch_dir,setup.detector_name, setup.xtal_grid, setup.impurity_surface); 
   strncpy(setup.field_name, fn_ev, 256);
->>>>>>> 7a51b11 (Updates on anlysis)
     
   printf("\nHome dir is %s\n", setup.home_dir);
   printf("\nScratch dir is %s\n", setup.scratch_dir);
@@ -234,10 +226,7 @@ int main(int argc, char **argv)
   printf("\nPassivated surface thickness is %f\n", setup.passivated_thickness);
   printf("\nDetector name is %s\n", setup.detector_name);
   printf("\nEnergy of Interaction in KeV is %f\n", setup.energy);
-<<<<<<< HEAD
-=======
   printf("\nSurface to bulk velocity is %f\n", setup.surface_drift_vel_factor);
->>>>>>> 7a51b11 (Updates on anlysis)
 
 
 
@@ -300,13 +289,6 @@ int main(int argc, char **argv)
     return 1;
   }
     
-<<<<<<< HEAD
-  char fn_ev[256];
-  sprintf(fn_ev, "%s/fields/ev_fin_grid=%.4f_sc=%.4f.dat",setup.scratch_dir, setup.xtal_grid, setup.impurity_surface); 
-  strncpy(setup.field_name, fn_ev, 256);
-=======
-
->>>>>>> 7a51b11 (Updates on anlysis)
 
   /* add electrons and holes at a specific point location near passivated surface */
   double e_dens, esum1=0, esum2=0, ecentr=0, ermsr=0, ecentz=0, ermsz=0;
@@ -546,14 +528,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   if (setup.write_WP) return 0;
     /* we need **v to have electric potential, not WP, so we quit here */
 
-<<<<<<< HEAD
-    if(write_densities){
-      char fn_1[256], fn_2[256];
-      sprintf(fn_1, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed000.dat", setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      sprintf(fn_2, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd000.dat", setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-      write_rho(LL_rho/8, R, grid, rho_e[0], fn_1);
-      write_rho(LL_rho/8, R, grid, rho_h[0], fn_2);
-=======
     if (write_densities) {
         char base_dir[256], fn_1[256], fn_2[256];
 
@@ -577,7 +551,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         // Write densities to files
         write_rho(LL_rho/8, R, grid, rho_e[0], fn_1);
         write_rho(LL_rho/8, R, grid, rho_h[0], fn_2);
->>>>>>> 7a51b11 (Updates on anlysis)
     }
 
   /* -------------- read weighting potential */
@@ -690,24 +663,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         prev_signal = signal_time_n; // Update the previous signal for the next iteration
 
         
-<<<<<<< HEAD
-      if(write_densities){
-        cudaDeviceSynchronize();
-        get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
-        // Use sprintf to format the entire string, including scratch_dir
-        sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/ed%3.3d.dat", 
-                setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, 
-                setup.impurity_surface, alpha_r_mm, alpha_z_mm, write_rho_counter);
-        write_rho(LL_rho/8, R, grid, rho_e[0], fn);
-          
-        // Use sprintf to format the entire string, including home_dir
-        sprintf(fn, "%s/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/drift_data_r=%.2f_z=%.2f/hd%3.3d.dat", 
-                setup.scratch_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, 
-                setup.impurity_surface, alpha_r_mm, alpha_z_mm, write_rho_counter);
-        write_rho(LL_rho/8, R, grid, rho_h[0], fn);
-        write_rho_counter +=1;
-      }
-=======
     if(write_densities){
         cudaDeviceSynchronize();
         get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
@@ -729,7 +684,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         write_rho_counter += 1; // Increment the counter for the next set of density files
     }
 
->>>>>>> 7a51b11 (Updates on anlysis)
         // Increment the counter for signal points saved
         signal_points_saved++;
 
@@ -845,10 +799,7 @@ typedef struct {
     double z;
     double surface_charge;
     double waveform[sim_time/save_time];
-<<<<<<< HEAD
-=======
     double surface_drift_out;
->>>>>>> 7a51b11 (Updates on anlysis)
 } event_data_t;
 
 event_data_t data;
@@ -856,10 +807,7 @@ data.energy = setup.energy;
 data.r = alpha_r_mm;
 data.z = alpha_z_mm;
 data.surface_charge = setup.impurity_surface;
-<<<<<<< HEAD
-=======
 data.surface_drift_out = setup.surface_drift_vel_factor;
->>>>>>> 7a51b11 (Updates on anlysis)
 memcpy(data.waveform, scaled_sig, sim_time/save_time * sizeof(double)); // Copy scaled_sig to data.waveform
 
 compound_datatype_id = H5Tcreate(H5T_COMPOUND, sizeof(event_data_t));
@@ -867,10 +815,7 @@ H5Tinsert(compound_datatype_id, "energy", HOFFSET(event_data_t, energy), H5T_NAT
 H5Tinsert(compound_datatype_id, "radius", HOFFSET(event_data_t, r), H5T_NATIVE_DOUBLE);
 H5Tinsert(compound_datatype_id, "height", HOFFSET(event_data_t, z), H5T_NATIVE_DOUBLE);
 H5Tinsert(compound_datatype_id, "surface_charge", HOFFSET(event_data_t, surface_charge), H5T_NATIVE_DOUBLE);
-<<<<<<< HEAD
-=======
 H5Tinsert(compound_datatype_id, "surface_bulk_vel_factor", HOFFSET(event_data_t, surface_drift_out), H5T_NATIVE_DOUBLE);
->>>>>>> 7a51b11 (Updates on anlysis)
 H5Tinsert(compound_datatype_id, "waveform", HOFFSET(event_data_t, waveform), H5Tarray_create(H5T_NATIVE_DOUBLE, 1, (hsize_t[]){sim_time/save_time}));
 
 // Create or open the dataset
@@ -943,8 +888,6 @@ if (!attr_exists(file_id, "passivated_thickness")) {
     H5Sclose(attr_dataspace_id);
 }
 
-<<<<<<< HEAD
-=======
 // // Surface drift velocity factor
 // double surface_drift_out = setup.surface_drift_vel_factor;
 // if (!attr_exists(file_id, "surface_bulk_vel_factor")) {
@@ -955,7 +898,6 @@ if (!attr_exists(file_id, "passivated_thickness")) {
 //     H5Sclose(attr_dataspace_id);
 // }
 
->>>>>>> 7a51b11 (Updates on anlysis)
 // Self repulsion
 if (!attr_exists(file_id, "self_repulsion")) {
     attr_dataspace_id = H5Screate(H5S_SCALAR);

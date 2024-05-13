@@ -32,18 +32,6 @@ def main():
 
 def make_png(fname1):
     #change here to your work directory
-<<<<<<< HEAD
-    file_load = '/work/users/k/b/kbhimani/siggen_ccd_data/5000.00_keV/grid_0.0400/self_repulsion_1/P42575A/q=0.00/drift_data_r=1.00_z=4.00/'
-    file_save = '/nas/longleaf/home/kbhimani/siggen_ccd/gif_data/gif_r=1.00_z=4.00/'
-    plot_title = "Densities at r=1, z=4, surface vel=0.01 bulk vel, grid=20$\mu$"
-    r_1=0
-    r_2=35
-    z_1=0
-    z_2=6
-    fig_x=6
-    fig_y=4
-    
-=======
     r_int = 15.00
     z_int= 0.02
     sc_int= -0.50 #0.00 #-0.50
@@ -66,7 +54,6 @@ def make_png(fname1):
         os.makedirs(file_save)
         
         
->>>>>>> 7a51b11 (Updates on anlysis)
     z_index = 2
     # get max value of z to plot, if required
     max_z = None
