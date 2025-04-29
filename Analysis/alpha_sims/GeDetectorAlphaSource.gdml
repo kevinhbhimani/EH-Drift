@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+    <!-- Definitions -->
+    <define>
+        <!-- Default Origin and Rotation -->
+        <position name="origin" x="0" y="0" z="0"/>
+        <rotation name="noRotation" x="0" y="0" z="0"/>
+        
+        <!-- World Dimensions -->
+        <quantity name="worldX" type="length" value="200" unit="mm"/>
+        <quantity name="worldY" type="length" value="200" unit="mm"/>
+        <quantity name="worldZ" type="length" value="400" unit="mm"/>
+
+        <!-- Detector Dimensions -->
+        <quantity name="geR" type="length" value="34.5" unit="mm"/>
+        <quantity name="geH" type="length" value="50.5" unit="mm"/>
+
+        <!-- Detector Position -->
+        <position name="detectorPosition" x="0" y="0" z="0" unit="mm"/>
+    </define>
+
+    <!-- Materials -->
+    <materials>
+        <material name="Germanium" state="solid">
+            <D value="5.323" unit="g/cm3"/>
+            <fraction n="1.0" ref="G4_Ge"/>
+        </material>
+        <material name="Air" state="gas">
+            <D value="0.001225" unit="g/cm3"/>
+            <fraction n="0.78" ref="G4_N"/>
+            <fraction n="0.21" ref="G4_O"/>
+            <fraction n="0.01" ref="G4_Ar"/>
+        </material>
+    </materials>
+
+    <!-- Solids -->
+    <solids>
+        <box name="worldSolid" x="worldX" y="worldY" z="worldZ"/>
+        <tube name="geDetector" rmin="0" rmax="geR" z="geH" startphi="0" deltaphi="2*pi"/>
+    </solids>
+
+    <!-- Structure -->
+    <structure>
+        <!-- Detector Volume -->
+        <volume name="GeVolume">
+            <materialref ref="G4_Ge"/>
+            <solidref ref="geDetector"/>
+        </volume>
+
+        <!-- World Volume -->
+        <volume name="World">
+            <materialref ref="G4_Galactic"/>
+            <solidref ref="worldSolid"/>
+
+            <!-- Place Detector -->
+            <physvol>
+                <volumeref ref="GeVolume"/>
+                <positionref ref="detectorPosition"/>
+                <rotationref ref="noRotation"/>
+            </physvol>
+        </volume>
+    </structure>
+
+    <!-- Setup -->
+    <setup name="Default" version="1.0">
+        <world ref="World"/>
+    </setup>
+</gdml>

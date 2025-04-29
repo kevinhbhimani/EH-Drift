@@ -1,0 +1,54 @@
+/run/verbose 1
+#/event/verbose 1
+#/tracking/verbose 1
+
+/g4simple/setRandomSeed true
+
+# Set the physics list
+/g4simple/setReferencePhysList LBE
+
+# Set GDML file name
+/g4simple/setDetectorGDML GeDetectorAlphaSource.gdml true
+
+# Set output format
+/g4simple/setOutputFormat csv
+
+# Configure output options
+/g4simple/setOutputOption stepwise
+/g4simple/addOutput event
+/g4simple/addOutput pid
+/g4simple/addOutput energy_deposition
+/g4simple/addOutput position
+
+# Change the name of the output file
+/analysis/setFileName /nas/longleaf/home/kbhimani/EH-Drift/Analysis/alpha_sims/g4simple_out_k_42
+
+# Steps are only written out if they are in a volume that matches a pattern set
+# via the setVolID command
+/g4simple/setVolID GeVolume_PV 1
+
+
+/run/initialize
+
+/g4simple/listPhysVols
+# Set circular emission source at z = -0.001 mm
+
+# Configure alpha particle source
+# /gps/particle alpha
+# /gps/energy 5 MeV
+
+/gps/particle ion
+/gps/ion 19 42 0 0
+/gps/energy 0 MeV
+
+
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 0 0 -100.0 mm
+/gps/pos/radius 34.5 mm  # Outer radius of the detector
+
+# Configure isotropic emission
+/gps/ang/type iso
+
+# Generate events
+/run/beamOn 1000000
