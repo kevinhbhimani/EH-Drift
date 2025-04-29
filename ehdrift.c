@@ -78,7 +78,16 @@ int write_rho(int L, int R, float grid, double **rho, char *fname);
 int drift_rho(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, double *gone);
 int read_rho(int L, int R, float grid, double **rho, char *fname);
 void tell_ehd_2(const char *format, ...);
-
+int compute_max_diffusion_and_drift(
+    MJD_Siggen_Setup *setup,
+    int L,
+    int R,
+    float grid,
+    double **rho,
+    int q,
+    int iteration,
+    double time_elapsed_ns
+);
 int gpu_drift(MJD_Siggen_Setup *setup, int L, int R, float grid, double ***rho, int q, GPU_data *gpu_setup, int n_iter);
 void set_rho_zero_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads);
 void update_impurities_gpu(GPU_data *gpu_setup, int L, int R, int num_blocks, int num_threads, double e_over_E, float grid);
@@ -122,41 +131,42 @@ int main(int argc, char **argv)
   double **rho_e[4], **rho_h[3];
   double egone=0, hgone=0;
   double  alpha_r_mm = 10.0;  // impact radius of alpha on passivated surface; change with -a option
-  double  alpha_z_mm = 0.1;
+  double  alpha_z_mm = 5.0;
   char fn[512]; // Ensure this is large enough
         // Configuration setup and command-line argument processing
-  int sim_time = 8000; //run time in nano seconds
 
-  if (argc < 2 || argc%2 != 0 || read_config(argv[1], &setup)) {
+    // Add declarations for the new variables
+    int sim_time = 16000; //run time in nano seconds
+    int save_time = 16; // Time interval to save the signal in nanoseconds
+
+  if (argc < 2 || argc % 2 != 0 || read_config(argv[1], &setup)) {
     printf("Usage: %s <config_file_name> [options]\n"
            "   Possible options:\n"
-	   "      -b bias_volts\n"
-	   "      -w {0,1}  (do_not/do write the field file)\n"
-	   "      -d {0,1}  (do_not/do write the depletion surface)\n"
-	   "      -p {0,1}  (do_not/do write the WP file)\n"
-	   "      -r <r position in mm>\n"
-     "      -z <z position in mm>\n"
-     "      -g detector name\n"
-     "      -s <surface charge in in 1e10 e/cm2>"
-     "      -e <Intereaction energy in KeV>"
-     "      -v {0,1}  (do_not/do write the density files)"
-     "      -f {0,1}  (do_not/do re-calculate field)"
-     "      -h <grid size in mm>"
-     "      -m <passivated surface depth size in mm>"
-     "      -a rho_spectrum_file_name\n", argv[0]);
+           "      -b bias_volts\n"
+           "      -w {0,1}  (do_not/do write the field file)\n"
+           "      -d {0,1}  (do_not/do write the depletion surface)\n"
+           "      -p {0,1}  (do_not/do write the WP file)\n"
+           "      -r <r position in mm>\n"
+           "      -z <z position in mm>\n"
+           "      -g detector name\n"
+           "      -s <surface charge in 1e10 e/cm2>\n"
+           "      -c <surface to bulk drift ration, eg 0.001"
+           "      -e <Interaction energy in KeV>\n"
+           "      -v {0,1}  (do_not/do write the density files)\n"
+           "      -f {0,1}  (do_not/do re-calculate field)\n"
+           "      -h <grid size in mm>\n"
+           "      -m <passivated surface depth size in mm>\n"
+           "      -t <simulation time in ns>\n"
+           "      -u <save interval in ns>\n"
+           "      -a rho_spectrum_file_name\n", argv[0]);
     return 1;
   }
-    
+
   strncpy(setup.config_file_name, argv[1], sizeof(setup.config_file_name));
 
-  if (setup.xtal_grid < 0.001) setup.xtal_grid = 0.5;
-  BV = setup.xtal_HV;
-  WV = setup.write_field;
-  setup.rho_z_spe[0] = 0;
-
-  for (i=2; i<argc-1; i++) {
+  for (i = 2; i < argc - 1; i++) {
     if (strstr(argv[i], "-b")) {
-      BV = setup.xtal_HV = atof(argv[++i]);   // bias volts
+      setup.xtal_HV = atof(argv[++i]);   // bias volts
     } else if (strstr(argv[i], "-w")) {
       WV = atoi(argv[++i]);               // write-out options
     } else if (strstr(argv[i], "-d")) {
@@ -174,36 +184,36 @@ int main(int argc, char **argv)
     } else if (strstr(argv[i], "-g")) {
       strcpy(setup.detector_name, argv[++i]);        // name of the detector
     } else if (strstr(argv[i], "-s")) {
-      setup.impurity_surface =  atof(argv[++i]);  // surface charge
-    } else if (strstr(argv[i], "-e")) {      // set the energy of interaction in KeV
-      setup.energy = atof(argv[++i]);
-    } else if (strstr(argv[i], "-f")) {      // flag to turn off or on field recalculation
-      do_self_repulsion = atof(argv[++i]);
-    } else if (strstr(argv[i], "-m")) {
-      setup.passivated_thickness=atof(argv[++i]);  // passivated surface thickness in mm
+      setup.impurity_surface = atof(argv[++i]);  // surface charge
+    } else if (strstr(argv[i], "-e")) {
+      setup.energy = atof(argv[++i]);    // interaction energy in KeV
+    } else if (strstr(argv[i], "-f")) {
+      do_self_repulsion = atof(argv[++i]); // field recalculation flag
     } else if (strstr(argv[i], "-c")) {
       setup.surface_drift_vel_factor=atof(argv[++i]);  // surface drift compared to bulk
+    } else if (strstr(argv[i], "-m")) {
+      setup.passivated_thickness = atof(argv[++i]);  // passivated surface thickness in mm
+    } else if (strstr(argv[i], "-t")) {
+      sim_time = atoi(argv[++i]);         // simulation runtime
+    } else if (strstr(argv[i], "-u")) {
+      save_time = atoi(argv[++i]);        // time interval to save the signal
     } else if (strstr(argv[i], "-a")) {
       if (!(fp = fopen(argv[++i], "r"))) {   // impurity-profile-spectrum file name
         printf("\nERROR: cannot open impurity profile spectrum file %s\n\n", argv[i+1]);
         return 1;
       }
-      fread(setup.rho_z_spe, 36, 1, fp);
-      for (j=0; j<1024; j++) setup.rho_z_spe[i] = 0;
       fread(setup.rho_z_spe, sizeof(setup.rho_z_spe), 1, fp);
       fclose(fp);
-      printf(" z(mm)   rho\n");
-      for (j=0; j < 200 && setup.rho_z_spe[j] != 0.0f; j++)
-        printf(" %3d  %7.3f\n", j, setup.rho_z_spe[j]);
     } else {
-      printf("Possible options:\n"
-	     "      -b bias_volts\n"
-	     "      -w {0,1,2} (for WV options)\n"
-	     "      -p {0,1}   (for WP options)\n"
-             "      -r rho_spectrum_file_name\n");
+      printf("Invalid option: %s\n", argv[i]);
       return 1;
     }
   }
+
+  // Print out the new flags for confirmation
+  printf("Simulation runtime: %d ns\n", sim_time);
+  printf("Save interval: %d ns\n", save_time);
+    
   if(setup.passivated_thickness < 0.0001){
     setup.passivated_thickness =0.002;
   } //defualt passivation is 2 micron
@@ -228,7 +238,7 @@ int main(int argc, char **argv)
   printf("\nEnergy of Interaction in KeV is %f\n", setup.energy);
   printf("\nSurface to bulk velocity is %f\n", setup.surface_drift_vel_factor);
 
-
+  BV = setup.xtal_HV;
 
  /*
   if (setup.xtal_length/setup.xtal_grid * setup.xtal_radius/setup.xtal_grid > 2500*2500) {
@@ -527,13 +537,12 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
 
   if (setup.write_WP) return 0;
     /* we need **v to have electric potential, not WP, so we quit here */
-
     if (write_densities) {
         char base_dir[256], fn_1[256], fn_2[256];
 
         // Construct the base directory path with compact naming convention
-        sprintf(base_dir, "%s/density_r=%.2f_z=%.2f_eng=%.2f_sc=%.2f_grid=%.4f", 
-                setup.scratch_dir, alpha_r_mm, alpha_z_mm, setup.energy, setup.impurity_surface, grid);
+        sprintf(base_dir, "%s/density_det=%s_r=%.2f_z=%.2f_eng=%.2f_sc=%.2f_sd=%.4f_grid=%.4f", setup.scratch_dir, setup.detector_name, alpha_r_mm, alpha_z_mm, setup.energy, setup.impurity_surface, setup.surface_drift_vel_factor, grid);
+
 
         // Check if the directory exists, create if not
         struct stat st = {0};
@@ -552,7 +561,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         write_rho(LL_rho/8, R, grid, rho_e[0], fn_1);
         write_rho(LL_rho/8, R, grid, rho_h[0], fn_2);
     }
-
   /* -------------- read weighting potential */
   if (!setup.write_WP) {
     if (ehd_field_setup_2(&setup)) return 1;
@@ -577,7 +585,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
    *    the self-consistent field and letting the charge densities diffuse and drift.
    * ----------------------------------------- */
 
-
   // Below we use modular arithymatic to divide r and z value into blocks and grids.
   int n_iter=1;
   double sig[100000] = {0};
@@ -585,7 +592,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double courant_num_vec[100000] = {0};
   int num_threads = 1024;
   int num_blocks = R * (ceil(LL_rho/num_threads)+1);
-  int save_time = setup.step_time_out; // Time interval to save the signal in nanoseconds
   //for 0.2 time step, 10 would correspond to interval of 2 ns
   double total_hole_density[100000] = {0};
   double hole_density_surface[100000] = {0};
@@ -594,17 +600,17 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   double new_time_step_ns = 0.5;  // New time step in ns after conditions are met
   double signal_threshold = 0.95;
   double time_threshold_ns = 400.0;
-  int save_init_rho = 1; //time in ns to save the inital number of densiies for siganl calculations  
   int last_signal_pos = 0;  
   double actual_time_elapsed = 0.0; // To track the actual simulation time
   double last_save_time = 0.0;
   int save_index = 1; //so that the signal starts with zero
+  int save_init_rho = 1.0; //time in ns to save the inital number of densiies for siganl calculations  
   bool save_rho_init = true;  // Flag to indicate if time step should be changed
   int write_rho_counter = 1;
-    
+  bool change_tail_time_step = true;  // Flag to indicate if time step should be changed  
   double prev_signal = 0;
   double signal_diff_threshold = 0.001; // 0.1%
-  double max_time_step = 2.0; // maximum time step in ns
+  double max_time_step = 1.0; // maximum time step in ns
   //save_time*20 to just make sure we run enough time steps to generate time of total time
     
   // Initialize a counter for the number of signal points saved
@@ -612,8 +618,18 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
   int expected_signal_points = sim_time / save_time;  
   printf("\n\n -=-=-=-=-=-Starting Signal Calculations-=-=-=-=-=-\n");
   printf("\n\n -=-=-=-=-=- Running at time %.2f ns out of %d ns-=-=-=-=-=-\n\n", 0.0, sim_time);
-    
+   
+
+  if (alpha_r_mm<=setup.pc_length){
+      save_init_rho = 0.1;
+  }
   for (n_iter = 1; n_iter++;) {
+      
+    // Uncomment the two lines below to calculate the components of EH-Drift PDE to verify that the time step can be set
+    // drift components.
+//     get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);  
+//     compute_max_diffusion_and_drift(&setup, LL_rho, R, grid, rho_h[0], 1, n_iter, actual_time_elapsed);
+ 
       
     if(n_iter%1000==0){
         printf("\n\n -=-=-=-=-=- Running at time %.2f ns out of %d ns", actual_time_elapsed, sim_time);
@@ -627,7 +643,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     cudaDeviceSynchronize();
       
       
-    if (actual_time_elapsed - last_save_time >= save_rho_init) {
+    if (actual_time_elapsed - last_save_time >= save_init_rho) {
         if(save_rho_init){
             get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, true);
             save_rho_init = false;
@@ -635,10 +651,17 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     }
       
     signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);        
-
+    
+    // at 8 us enough charge would have been collected so we don't need to recalculate the field anymore
+    if (actual_time_elapsed > 8000 && change_tail_time_step){
+        printf("Turning off self-repulsion to speed up the simulations\n");
+        do_self_repulsion = 0;
+        change_tail_time_step = false;
+        
+    }  
     // Save signal logic
     if (actual_time_elapsed - last_save_time >= save_time) {
-   
+        
         signal_time_n = get_signal_gpu(&setup, &gpu_setup, LL_rho, R, actual_time_elapsed, grid, save_time, num_threads, false);        
         if (isnan(signal_time_n)) {  // Check if signal is NaN
             printf("\n\n Error: Signal collected is NaN at iteration %d. Exiting the program.\n\n", n_iter);
@@ -653,7 +676,8 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         // Check if the signal is greater than 1 and adjust if necessary
         if (signal_time_n > 1000) {
             signal_time_n = 1000;
-            setup.step_time_calc = 5.0;
+            setup.step_time_calc = setup.step_time_out;
+            do_self_repulsion = 0;
         }
         
         sig[save_index] = signal_time_n;
@@ -663,35 +687,32 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
         prev_signal = signal_time_n; // Update the previous signal for the next iteration
 
         
-    if(write_densities){
-        cudaDeviceSynchronize();
-        get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
+        if(write_densities){
+            cudaDeviceSynchronize();
+            get_densities(LL_rho, R, rho_e, rho_h, &gpu_setup);
 
-        char base_dir[256], fn_e[256], fn_h[256];
+            char base_dir[256], fn_e[256], fn_h[256];
+            // Construct the base directory path
+            sprintf(base_dir, "%s/density_det=%s_r=%.2f_z=%.2f_eng=%.2f_sc=%.2f_sd=%.4f_grid=%.4f", setup.scratch_dir, setup.detector_name, alpha_r_mm, alpha_z_mm, setup.energy, setup.impurity_surface, setup.surface_drift_vel_factor, grid);
 
-        // Construct the base directory path
-        sprintf(base_dir, "%s/density_r=%.2f_z=%.2f_eng=%.2f_sc=%.2f_grid=%.4f", 
-                setup.scratch_dir, alpha_r_mm, alpha_z_mm, setup.energy, setup.impurity_surface, grid);
+            // Construct file paths for electron and hole density data with an incremented counter
+            sprintf(fn_e, "%s/ed%03d.dat", base_dir, write_rho_counter); // Electron density file
+            sprintf(fn_h, "%s/hd%03d.dat", base_dir, write_rho_counter); // Hole density file
 
-        // Construct file paths for electron and hole density data with an incremented counter
-        sprintf(fn_e, "%s/ed%03d.dat", base_dir, write_rho_counter); // Electron density file
-        sprintf(fn_h, "%s/hd%03d.dat", base_dir, write_rho_counter); // Hole density file
+            // Write densities to files
+            write_rho(LL_rho/8, R, grid, rho_e[0], fn_e);
+            write_rho(LL_rho/8, R, grid, rho_h[0], fn_h);
 
-        // Write densities to files
-        write_rho(LL_rho/8, R, grid, rho_e[0], fn_e);
-        write_rho(LL_rho/8, R, grid, rho_h[0], fn_h);
-
-        write_rho_counter += 1; // Increment the counter for the next set of density files
-    }
+            write_rho_counter += 1; // Increment the counter for the next set of density files
+        }
 
         // Increment the counter for signal points saved
         signal_points_saved++;
 
-        // Check if the desired number of signal points has been reached
+            // Check if the desired number of signal points has been reached
         if (signal_points_saved >= expected_signal_points) {
             printf("Desired number of signal points (%d) reached. Terminating simulation", expected_signal_points);
             printf(" at time %.2f ns\n", actual_time_elapsed);
-
             break; // Exit the simulation loop
         }
     }
@@ -710,7 +731,7 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (prev_signal > 0) { // Skip the first iteration as there's no previous signal
         double signal_diff = fabs(signal_time_n - prev_signal) / prev_signal;
         // keep time step small for first 100 ns to allow the charges to move to surface
-        if (actual_time_elapsed> 100 && signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
+        if (actual_time_elapsed> 250 && signal_diff < signal_diff_threshold && setup.step_time_calc < max_time_step) {
             setup.step_time_calc = fmin(setup.step_time_calc * 2, max_time_step);
             printf("\n\n-=-=-=-=-=-Changing time step to %f ns", setup.step_time_calc);
             printf(" at time %.2f ns", actual_time_elapsed);
@@ -733,24 +754,6 @@ printf("EVENT LOCATION NOT INSIDE ACTIVE VOLUME OF THE DECTOR\n");
     if (i !=0 && i%20 == 0) printf("\n");
   }
   printf("\n");
-    
-// Use code below to save to text file instead    
-//   printf("Saving waveform\n");
-//   int written = 0;
-//   char filename[1024];
-//   sprintf(filename, "%s/waveforms/%.2f_keV/grid_%.4f/self_repulsion_%d/%s/q=%.2f/signal_r=%.2f_phi=0.00_z=%.2f.txt",setup.home_dir, setup.energy, grid, do_self_repulsion, setup.detector_name, setup.impurity_surface, alpha_r_mm, alpha_z_mm);
-//   // printf("The file name is %s\n", filename);
-//   FILE *f = fopen(filename,"w");
-//   //written = fwrite(sig, sizeof(float), sizeof(sig), f);
-//   for(i = 0; i < (sim_time/save_time); i++){
-//     written = fprintf(f,"%f\n",sig[i]/1000);
-//     if (written == 0) {
-//     printf("Error during writing to file!");
-//     break;
-//     }
-//   }
-//   fclose(f);
-//   printf("Done writting waveform\n");
     
 printf("Writing waveform in HDF5 format\n");
 
@@ -887,16 +890,6 @@ if (!attr_exists(file_id, "passivated_thickness")) {
     H5Aclose(attr_id);
     H5Sclose(attr_dataspace_id);
 }
-
-// // Surface drift velocity factor
-// double surface_drift_out = setup.surface_drift_vel_factor;
-// if (!attr_exists(file_id, "surface_bulk_vel_factor")) {
-//     attr_dataspace_id = H5Screate(H5S_SCALAR);
-//     attr_id = H5Acreate(file_id, "surface_bulk_vel_factor", H5T_NATIVE_DOUBLE, attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
-//     H5Awrite(attr_id, H5T_NATIVE_DOUBLE, &surface_drift_out);
-//     H5Aclose(attr_id);
-//     H5Sclose(attr_dataspace_id);
-// }
 
 // Self repulsion
 if (!attr_exists(file_id, "self_repulsion")) {
@@ -1132,6 +1125,10 @@ int read_rho(int L, int R, float grid, double **rho, char *fname) {
   return 0;
 }
 
+/* 
+-------------------------------------- read_rho -------------------
+Calculates the Courant number for CFL condition for a given time step
+*/
 
 double calculate_courant_cpu(MJD_Siggen_Setup *setup, int L, int R, float grid, int q) {
 
@@ -1163,7 +1160,6 @@ double calculate_courant_cpu(MJD_Siggen_Setup *setup, int L, int R, float grid, 
 			    0.1025,0.1036,0.1041,0.1045,0.1047,0.1047};
   float drift_slope_h[20];
   float *drift_offset, *drift_slope;
-
 
   for (i=0; i<20; i++) {
     drift_offset_e[i] /= grid;   // drift velocities in units of grid length
@@ -1274,8 +1270,110 @@ double calculate_courant_cpu(MJD_Siggen_Setup *setup, int L, int R, float grid, 
       if(cournat-cournat_numb>0.000001){
         cournat_numb= cournat;
       }
-
     }
     }
   return cournat_numb;
+}
+
+// The function below enables claculating the drift and diffusion components in the EH-Drift PDE
+
+int compute_max_diffusion_and_drift(
+    MJD_Siggen_Setup *setup,
+    int L,
+    int R,
+    float grid,
+    double **rho,
+    int q,
+    int iteration,
+    double time_elapsed_ns
+) {
+  float drift_E[20] = {
+    0.000, 100., 160., 240., 300., 500., 600.,
+    750., 1000., 1250., 1500., 1750., 2000., 2500.,
+    3000., 3500., 4000., 4500., 5000., 1e10
+  };
+
+  float drift_offset_e[20] = {0.0, 0.027, 0.038, 0.049, 0.055, 0.074, 0.081,
+                               0.089, 0.101, 0.109, 0.116, 0.119, 0.122, 0.125,
+                               0.1275, 0.1283, 0.1288, 0.1291, 0.1293, 0.1293};
+  float drift_offset_h[20] = {0.0, 0.036, 0.047, 0.056, 0.060, 0.072, 0.077,
+                               0.081, 0.086, 0.089, 0.0925, 0.095, 0.097, 0.100,
+                               0.1025, 0.1036, 0.1041, 0.1045, 0.1047, 0.1047};
+  float drift_slope[20];
+  float *drift_offset = (q < 0) ? drift_offset_e : drift_offset_h;
+
+  for (int i = 0; i < 20; i++) drift_offset[i] /= grid;
+  for (int i = 0; i < 19; i++) {
+    drift_slope[i] = (drift_offset[i+1] - drift_offset[i]) /
+                     (drift_E[i+1] - drift_E[i]);
+  }
+
+  float time_step = setup->step_time_calc;
+  float f = 1.2e6 * time_step / 4000.0;
+  f *= 0.02 / grid * 0.02 / grid;
+
+  int new = 0;
+  float E_r, E_z;
+  double ve_r = 0, ve_z = 0;
+  double deltaer = 0.0, deltaez = 0.0;
+  double maxDgradR = 0.0, maxDgradZ = 0.0;
+  double maxVrR = 0.0, maxVrZ = 0.0;
+
+  static FILE *fp = NULL;
+  if (fp == NULL) {
+    fp = fopen("max_drift_diffusion.log", "w");
+    if (!fp) {
+      fprintf(stderr, "Cannot open max_drift_diffusion.log\n");
+      return -1;
+    }
+    fprintf(fp, "# iter time(ns) max_DgradR max_DgradZ max_vRrho max_vZrho\n");
+  }
+
+  for (int z = 3; z < L - 2; z++) {
+    for (int r = 2; r < R - 2; r++) {
+
+      E_r = (setup->v[new][z][r-1] - setup->v[new][z][r+1]) / (0.2f * grid);
+      E_z = (setup->v[new][z-1][r] - setup->v[new][z+1][r]) / (0.2f * grid);
+
+      double Eabs_r = fabs(E_r), Eabs_z = fabs(E_z);
+      ve_r = ve_z = 0.0;
+      deltaer = deltaez = 0.0;
+      int i;
+
+      if (Eabs_r > 1.0) {
+        for (i = 0; Eabs_r > drift_E[i+1] && i < 19; i++);
+        ve_r = (E_r < 0 ? -1 : 1) * (drift_offset[i] + drift_slope[i] * (Eabs_r - drift_E[i]));
+        deltaer = grid * fabs(ve_r) * f / Eabs_r;
+      }
+      if (Eabs_z > 1.0) {
+        for (i = 0; Eabs_z > drift_E[i+1] && i < 19; i++);
+        ve_z = (E_z < 0 ? -1 : 1) * (drift_offset[i] + drift_slope[i] * (Eabs_z - drift_E[i]));
+        deltaez = grid * fabs(ve_z) * f / Eabs_z;
+      }
+
+      double gradR = (rho[z][r+1] - rho[z][r-1]) / (2.0 * grid);
+        double gradZ;
+        if (z == 1) {
+          gradZ = (rho[z+1][r] - 0.0) / (2.0 * grid);  // Boundary condition: rho at z=0 is 0
+        } else {
+          gradZ = (rho[z+1][r] - rho[z-1][r]) / (2.0 * grid);
+        }
+
+      double valDgradR = fabs(deltaer * gradR);
+      double valDgradZ = fabs(deltaez * gradZ);
+      double vrrho = fabs(ve_r * rho[z][r]);
+      double vzrho = fabs(ve_z * rho[z][r]);
+
+      if (valDgradR > maxDgradR) maxDgradR = valDgradR;
+      if (valDgradZ > maxDgradZ) maxDgradZ = valDgradZ;
+      if (vrrho > maxVrR) maxVrR = vrrho;
+      if (vzrho > maxVrZ) maxVrZ = vzrho;
+    }
+  }
+
+  fprintf(fp, "%d %.3f %.10e %.10e %.10e %.10e\n",
+          iteration, time_elapsed_ns,
+          maxDgradR, maxDgradZ, maxVrR, maxVrZ);
+  fflush(fp);
+  return 0;
 }

@@ -1,5 +1,5 @@
 /*
-    This program is called to calculate electric field in each tme step of the signal.
+    This program is called to recalculate electric field in each tme step of the signal.
     author:           Kevin H Bhimani
     first written:    Nov 2021
 */

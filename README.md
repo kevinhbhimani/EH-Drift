@@ -1,4 +1,3 @@
-
 # `EH-Drift Simulations`
 
 ## Overview
@@ -32,7 +31,7 @@ EH-Drift simulations offer a novel approach to simulating surface events in High
 9. **Data Collection**: Generates signals on the GPU using parallel reduction techniques and stores them at iterations defined in the config file. Snapshots of charge densities at specific time steps can be recorded for creating GIFs of charge cloud movements.
 
 ## Configuration
-The configuration file is required for setting up `ehdrift` simulations. It allows users to define a wide range of parameters including detector geometry, electric field characteristics, simulation settings, and file paths. The file uses a key-value format, with each line representing a distinct parameter and its corresponding value. Comments can be included using the `#` symbol. Example configuration files are provided to guide users in accurately setting up their simulations. Refer to these examples for a comprehensive understanding of how to customize your simulation environment.
+The configuration file is required for setting up `ehdrift` simulations. It allows users to define a wide range of parameters including detector geometry, electric field characteristics, simulation settings, and file paths. The file uses a key-value format, with each line representing a distinct parameter and its corresponding value. Comments can be included using the `#` symbol. Example configuration files are provided to guide users in accurately setting up their simulations. Refer to these examples for a comprehensive understanding of how to customize your simulation environment. In config file, the home directory is the location where the waveforms will be saved, and scratch directory is location where the density snapshots will be saved.
 
 ## Hardware Requirements
 
@@ -76,6 +75,8 @@ Once compiled, the `ehdrift` program can be executed from the terminal. The foll
 - `-m`: Define the passivated surface depth size in mm.
 - `-c`: Specify the velocity in surface compared to the bulk
 - `-a`: Input a custom impurity density profile file.
+- `-t`: Set the total run time of simulations in ns e.g 16000
+- `-u`: Set the frequency of output signal, eg 16 means signal will be stored every 16 ns
 
 First, run the program to calculate the weighting potential (WP), which can then be reused for different r and z values. To do this:
 
@@ -88,15 +89,18 @@ This process calculates and saves the detector's weighting potential with a surf
 
 2. Next, run the program to simulate a 5000 KeV event at r=15 mm and z=0.10 mm, and save the signal:
 ```bash
-./ehdrift config_files/P42575A.config -r 15.00 -z 0.02 -p 0 -s -0.50 -e 5000 -h 0.0200
+./ehdrift config_files/P42575A.config -r 15.00 -z 0.02 -p 0 -s -0.50 -e 5000 -t 16000 -u 16 -h 0.0200
 ```
 
+### GIFs
+The plot_giff file allows the user to go through the saved density snapshots to create frames for animations.
+
 ### Runtime Performance
-The runtime performance of generating 8000ns waveforms on A100 GPUs is summarized below for different grid.
+The runtime performance of generating 16000ns waveforms on A100 GPUs is summarized below for different grid.
 
 #### 20 Micron Grid
 - **Calculate Weighting Potential**: 1 minute and 1 second
-- **Generating Signal**: 5 minutes and 7 seconds
+- **Generating Signal**: 5 minutes and 18 seconds
 
 #### 10 Micron Grid
 - **Calculate Weighting Potential**: 4 minutes and 41 seconds
@@ -138,80 +142,63 @@ You can access the event data and waveform for each event by iterating through t
 The HDF5 file structure allows for detailed and event-specific data analysis. The following Python code example demonstrates how to iterate over HDF5 files to extract waveform data and associated parameters for each event:
 
 ```python
-import os
-import h5py
-import pandas as pd
-from tqdm import tqdm
+def load_waveform_data(directory):
+    """
+    Load waveform data from HDF5 files in the specified directory and remove duplicates
+    Parameters:
+    - directory: Path to the directory containing the HDF5 waveform files.
 
-# Directory containing the waveform files
-directory = '/path/to/waveforms'
-
-# Initialize an empty list to store data
-waveforms_data = []
-
-# Iterate over files in the directory
-for filename in tqdm(os.listdir(directory)):
-    if filename.endswith('.h5') or filename.endswith('.hdf5'):
-        with h5py.File(os.path.join(directory, filename), 'r') as file:
-            # Check for 'event_data' dataset and 'waveforms' dataset in the file
-            event_data = file['event_data']
-            waveforms = event_data['waveform']
-            # Extract file-level attributes
-            grid = file.attrs['grid']
-            passivated_thickness = file.attrs['passivated_thickness']
-            self_repulsion = file.attrs['self_repulsion']
-            detector_name_bytes = file.attrs['detector_name'][:]
-            detector_name = detector_name_bytes.tobytes().decode('utf-8')
-            surface_bulk_vel_factor= file.attrs['surface_bulk_vel_factor']
-            # Iterate through each event in the file
-            for i in range(event_data.shape[0]):
-                # Extract parameters for each event
-                eng, r, z, surface_charge = event_data[i]['energy'], event_data[i]['radius'], event_data[i]['height'], event_data[i]['surface_charge']
-
-                # Extract waveform for each event
-                waveform = waveforms[i]
-
-                # Append to the list as a dictionary
-                waveforms_data.append({
-                    'r': r, 
-                    'z': z, 
-                    'eng': eng, 
-                    'sc': surface_charge, 
-                    'grid': grid, 
-                    'pass_thickness': passivated_thickness, 
-                    'self_repulsion': self_repulsion, 
-                    'det': detector_name, 
-                    'wf': waveform
-                    'sf_drift':surface_bulk_vel_factor
-                })
-                
-# Convert the list of dictionaries to a DataFrame
-waveforms_df = pd.DataFrame(waveforms_data)
-# Remove null character from 'det' column
-waveforms_df['det'] = waveforms_df['det'].apply(lambda x: x.strip('\x00'))
+    Returns:
+    - A pandas DataFrame containing the loaded waveform data without duplicates.
+    """
+    waveforms_data = []  # Initialize an empty list to store data
+    # Iterate over files in the directory
+    for filename in tqdm(os.listdir(directory)):
+        if filename.endswith('.h5') or filename.endswith('.hdf5'):
+            with h5py.File(os.path.join(directory, filename), 'r') as file:
+                # Check for 'event_data' dataset and 'waveforms' dataset in the file
+                event_data = file['event_data']
+                waveforms = event_data['waveform']
+                # Extract file-level attributes
+                grid = file.attrs['grid']
+                passivated_thickness = file.attrs['passivated_thickness']
+                self_repulsion = file.attrs['self_repulsion']
+                detector_name_bytes = file.attrs['detector_name'][:]
+                detector_name = detector_name_bytes.tobytes().decode('utf-8')
+                # Iterate through each event in the file
+                for i in range(event_data.shape[0]):
+                    # Extract parameters for each event
+                    eng, r, z, surface_charge, vel_fact = event_data[i]['energy'], event_data[i]['radius'], event_data[i]['height'], event_data[i]['surface_charge'], event_data[i]['surface_bulk_vel_factor']
+                    # Extract waveform for each event
+                    waveform = waveforms[i]
+                    # Append to the list as a dictionary
+                    waveforms_data.append({
+                        'r': r, 
+                        'z': z, 
+                        'eng': eng, 
+                        'sc': surface_charge,
+                        'sf_drift': round(vel_fact,5),
+                        'grid': grid, 
+                        'pass_thickness': passivated_thickness, 
+                        'self_repulsion': self_repulsion, 
+                        'det': detector_name, 
+                        'wf': waveform,
+                    })
+    
+    # Convert the list of dictionaries to a DataFrame
+    waveforms_df = pd.DataFrame(waveforms_data)
+    # Handle null characters in 'det' column
+    waveforms_df['det'] = waveforms_df['det'].apply(lambda x: x.strip('\x00'))
+    # Remove duplicate rows considering all columns except 'wf'
+    columns_to_consider = [col for col in waveforms_df.columns if col != 'wf']
+    waveforms_df = waveforms_df.drop_duplicates(subset=columns_to_consider)
+    return waveforms_df
+waveforms_df = load_waveform_data(directory)
 waveforms_df.head()
 ```
-Waveform dataframe can now be used for plotting or quering
-```python
-# Example: Query for a specific waveform
-r_exp= 15.00
-z_exp=0.02
-sc_exp=-0.5
-eng_exp= 5000
-det_exp = 'P42575A'
-grid_exp = 0.02
 
-query = f"r == {r_exp} and z == {z_exp} and sc == {sc_exp} and eng == {eng_exp} and det == '{det_exp}'  and grid == {grid_exp}"
-specific_waveform_row = waveforms_df.query(query).iloc[0]['wf']
-
-sim_time=8000
-step_time_out = 10
-time = np.linspace(start=step_time_out, stop= sim_time, num= (int) (sim_time/step_time_out))
-
-plt.plot(time, specific_waveform_row)
-plt.xlabel('Time (ns)')
-plt.ylabel('Normalized Signal')
-```
+A walk-through Jupyter notebook illustrating typical post-processing tasks (loading events, making activeness maps, plotting waveforms, etc.) is provided in
+Analysis/Analysis.ipynb.
 
 ## References
 

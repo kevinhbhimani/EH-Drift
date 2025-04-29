@@ -1,5 +1,5 @@
 /*
-  Allocated memory for pointers on GPU memory that are stored in GPU struct. The pointer are then assigned values from CPU memory.
+  This program allocates memory for pointers on GPU memory that are stored in GPU struct. The pointer are then assigned values from CPU memory.
   author:           Kevin H Bhimani
   first written:    Nov 2021
 

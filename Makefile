@@ -11,7 +11,7 @@ CPP = g++
 NVCC := nvcc
 
 
-CFLAGS = -O3 -Wall 
+CFLAGS = -O3 -Wall
 
 # The gencode flag depends on the GPU used and need to be modified if the GPU is changed
 # gencode and code flags are for following GPUs:
@@ -19,7 +19,7 @@ CFLAGS = -O3 -Wall
 #-gencode=arch=compute_70,code=sm_70 for DGX-1 with Volta, Tesla V100, GTX 1180 (GV104), Titan V, Quadro GV100
 #-gencode=arch=compute_80,code=compute_80 for A100 GPUs
 
-NVCCFLAGS = -std=c++14 -rdc=true -lhdf5 -gencode=arch=compute_70,code=compute_70
+NVCCFLAGS =-std=c++14 -rdc=true -lhdf5 -gencode=arch=compute_80,code=compute_80
 
 # NVCCFLAGS = -std=c++14 -rdc=true -I/global/homes/k/kbhimani/.conda/envs/myenv/include -L/global/homes/k/kbhimani/.conda/envs/myenv/lib -lhdf5 -gencode=arch=compute_80,code=sm_80
 

@@ -1,5 +1,8 @@
 /*
-  gpu drift perform diffusion and drift in electric field of electron and hole signals.
+  This file contians the code to perfrom gpu drift perform diffusion and drift in electric field of electron and hole signals.
+  It might help to look at the earlier CPU implementation:
+  https://github.com/kevinhbhimani/EH-Drift/blob/15d5c02d4cf84431ddf8fafe9684471fc5109e14/ehdrift.c#L565
+  
   author:           Kevin H Bhimani
   first written:    Nov 2021
 */
@@ -560,10 +563,21 @@ __global__ void surface_drift_calc(double *rho, double *velocity_drift_r, double
     k_drift = L-1;
     fz = 0.0;
   }
+    
   if (dze < 0 && r > idid && r < idod && k_drift < idd) { // ditch depth
     k_drift   = idd;
     fr  = 1.0;
   }
+    
+//     if (i_array[((R+1)*z)+r] < 1/grid) { // Detect drift to r = 0
+//       i_array[((R+1)*z)+r] = 1.5/grid;     // Prevent r from becoming 0
+//       fr_array[((R+1)*z)+r] = 1.0;  // Full drift fraction in radial direction
+
+//       if (k_array[((R+1)*z)+r] > 1) { // Check if z position is above the bottom
+//         k_array[((R+1)*z)+r] -= 1;    // Push charge deeper in z
+//       }
+//     }
+
 
   fr_array[((R+1)*z)+r]=fr;
   fz_array[((R+1)*z)+r]=fz;
