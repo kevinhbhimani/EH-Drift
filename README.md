@@ -216,7 +216,7 @@ Analysis/Analysis.ipynb.
 For questions, feedback, or contributions to the ehdrift project, please feel free to reach out. You can contact us via email:
 
 - **Kevin Bhimani**
-  - Email: [kevin_bhimani@unc.edu](mailto:kevinhbhimani@gmail.com)
+  - Email: [kevinhbhimani@gmail.com](mailto:kevinhbhimani@gmail.com)
   - For: Technical queries, bug reports, and development contributions.
 
 - **Julieta Gruszko**
