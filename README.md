@@ -50,12 +50,46 @@ Before compiling `ehdrift`, ensure your system has the following prerequisites:
 2. **NVIDIA CUDA Toolkit**: Essential for compiling CUDA code and executing GPU-accelerated computations.
    - Download and installation instructions are available on [NVIDIA's official site](https://developer.nvidia.com/cuda-downloads).
 
-### Compile the Program
-Users must first specify their GPU architecture in the Makefile. Then compiling `ehdrift` is straightforward. Open a terminal, navigate to the directory containing the program's files, and run the following command:
+## Compiling the Program
 
-```bash
-make
-```
+### Compilation Prerequisites
+Before compiling `ehdrift`, ensure your system has the following prerequisites:
+
+1. **GCC Compiler**: Necessary for compiling C/C++ code.
+   - Installation can typically be completed using your operating system's package manager or by visiting the [GCC official website](https://gcc.gnu.org/).
+
+2. **NVIDIA CUDA Toolkit**: Essential for compiling CUDA code and executing GPU-accelerated computations.
+   - Download and installation instructions are available on [NVIDIA's official site](https://developer.nvidia.com/cuda-downloads).
+
+### Compile the Program
+
+1. **Load the required NERSC modules**
+   ```bash
+   module load craype-accel-nvidia80    # or the module matching your GPU family
+   module load cudatoolkit
+   module load cray-mpich
+   module load cray-hdf5-parallel
+   ```
+
+2. **Set your GPU compute capability**  
+   In the top of the **Makefile**, locate the `NVCCFLAGS` definition and modify the `-gencode` line to match your GPU. For example, for NVIDIA A100:
+   
+   ```makefile
+   NVCCFLAGS := -std=c++14 -rdc=true \
+                -gencode=arch=compute_80,code=compute_80 \
+                -I$(CUDA_INC) \
+                -I$(HDF5_INC) \
+                -I$(MPI_INC)
+    ```
+
+3. **Build the executable**  
+   From within the directory containing `ehdrift.c`, your other source files, and the updated Makefile, run:
+   
+   ```bash
+   make
+   ``` 
+
+   If all paths and flags are correct, this will generate the ehdrift binary.```
 
 ## Running the program
 Once compiled, the `ehdrift` program can be executed from the terminal. The following command-line flags are available to customize the simulation:
