@@ -226,13 +226,14 @@ int main(int argc, char **argv)
   }
 
   sprintf(setup.wp_name, "%s/wp_%s_sc%.2f_grid%.4f.dat", setup.wp_name, setup.detector_name, setup.impurity_surface, setup.xtal_grid);
-  char fn_ev[256];
-  sprintf(fn_ev, "%s/fields/ev_fin_%s_grid=%.4f_sc=%.4f.dat",setup.scratch_dir,setup.detector_name, setup.xtal_grid, setup.impurity_surface); 
-  strncpy(setup.field_name, fn_ev, 256);
+  char tmp[1024];
+  snprintf(tmp, sizeof(tmp),"%s/field_%s_sc%.2f_grid%.4f.dat", setup.field_name, setup.detector_name, setup.impurity_surface, setup.xtal_grid);
+  strncpy(setup.field_name, tmp, sizeof(setup.field_name));
     
   printf("\nHome dir is %s\n", setup.home_dir);
   printf("\nScratch dir is %s\n", setup.scratch_dir);
   printf("\nWP file is %s\n", setup.wp_name);
+  printf("\nField file is %s\n", setup.field_name);
   printf("\nPassivated surface thickness is %f\n", setup.passivated_thickness);
   printf("\nDetector name is %s\n", setup.detector_name);
   printf("\nEnergy of Interaction in KeV is %f\n", setup.energy);
@@ -767,7 +768,7 @@ for (int i = 0; i < sim_time/save_time; i++) {
 
 // Construct the directory path and file path
 char dir_path[1024], hdf5_filename[1024];
-sprintf(dir_path, "%s/waveforms/%s", setup.home_dir, setup.detector_name);
+sprintf(dir_path, "%s/%s", setup.home_dir, setup.detector_name);
 sprintf(hdf5_filename, "%s/%s_waveforms.h5", dir_path, setup.detector_name);
 
 // Check if the directory exists, create if not
@@ -914,7 +915,6 @@ if (!attr_exists(file_id, "detector_name")) {
 H5Fclose(file_id);
 
 printf("Done writing waveform in HDF5 format\n");
-
     
   return 0;
 } /* main */

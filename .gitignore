@@ -3,3 +3,7 @@ giff_data/
 logs/
 .ipynb_checkpoints/
 .DS_Store
+Analysis/figs/
+Analysis/mpp_input/
+Analysis/siggen_activeness/icpc_siggen
+jobs/logs

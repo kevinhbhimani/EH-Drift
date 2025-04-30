@@ -63,6 +63,8 @@ Before compiling `ehdrift`, ensure your system has the following prerequisites:
 
 ### Compile the Program
 
+The Makefile is set for compilation on NERSC. If using the UNC cluster, delete the Makefile and rename Makefile_unc to Makefile
+
 1. **Load the required NERSC modules**
    ```bash
    module load craype-accel-nvidia80    # or the module matching your GPU family
@@ -90,6 +92,21 @@ Before compiling `ehdrift`, ensure your system has the following prerequisites:
    ``` 
 
    If all paths and flags are correct, this will generate the ehdrift binary.```
+
+
+4. **Configure file-path parameters**  
+   In your detector config file (e.g. `MyDetector.config`), set the following paths and make sure the directories exist:
+
+   ```ini
+   # file names
+   detector_name  MyDetector
+   drift_name     /path/to/drift_vel_lookup.tab         # a single .tab file
+   field_name     /path/to/field_output_directory       # directory where EH-Drift writes electric-field files
+   wp_name        /path/to/wp_output_directory          # directory where EH-Drift writes weighting-potential files
+   home_dir       /path/to/eh-drift_waveforms           # directory under which HDF5 waveforms will be saved
+   scratch_dir    /path/to/eh-drift_scratch             # directory under which optional density snapshots will be saved
+    ```
+
 
 ## Running the program
 Once compiled, the `ehdrift` program can be executed from the terminal. The following command-line flags are available to customize the simulation:
@@ -119,6 +136,7 @@ First, run the program to calculate the weighting potential (WP), which can then
 ```bash
 ./ehdrift config_files/P42575A.config -p 1 -s -0.50 -h 0.0200
 ```
+
 This process calculates and saves the detector's weighting potential with a surface charge of -0.50 using a 0.0500 grid. Weighting potential is unique for detector, surface charge and grid, and must be recalculated if any of the parameters are changed. 
 
 2. Next, run the program to simulate a 5000 KeV event at r=15 mm and z=0.10 mm, and save the signal:
