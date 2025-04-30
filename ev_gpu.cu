@@ -20,6 +20,7 @@
 
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <thrust/extrema.h>
 
 #include <thrust/copy.h>
 #include <thrust/fill.h>
