@@ -1,39 +1,61 @@
 # Makefile for signal generation from PPC detectors
 #   - uses .c library codes by Karin Lagergren, heavily modified by David Radford
-#	- uses nvcc cuda library to compile and link GPU code, modified by Kevin Bhimani
+#   - uses nvcc cuda library to compile and link GPU code, modified by Kevin Bhimani
 #   Nov 2021
-#
-# [-lreadline option required for readline, addhistory...]
 
-CC = gcc 
-CPP = g++
+CC        := gcc
+CPP       := g++
+NVCC      := nvcc
 
-NVCC := nvcc
+CFLAGS    := -O3 -Wall
 
+# Detect your CUDA install based on nvcc's location:
+CUDA_DIR  := $(shell dirname $(shell dirname $(shell which nvcc)))
+CUDA_INC  := $(CUDA_DIR)/include
 
-CFLAGS = -O3 -Wall
+# Point at the Cray-HDF5 and MPI installs provided by the modules
+HDF5_DIR  ?= $(CRAY_HDF5_DIR)
+HDF5_INC   = $(HDF5_DIR)/include
+HDF5_LIB   = $(HDF5_DIR)/lib
 
-# The gencode flag depends on the GPU used and need to be modified if the GPU is changed
-# gencode and code flags are for following GPUs:
-#-gencode=arch=compute_61,code=sm_61 for GTX 1080, GTX 1070, GTX 1060, GTX 1050, GTX 1030, Titan Xp, Tesla P40, Tesla P4
-#-gencode=arch=compute_70,code=sm_70 for DGX-1 with Volta, Tesla V100, GTX 1180 (GV104), Titan V, Quadro GV100
-#-gencode=arch=compute_80,code=compute_80 for A100 GPUs
+MPI_DIR   ?= $(CRAY_MPICH_DIR)
+MPI_INC    = $(MPI_DIR)/include
+MPI_LIB    = $(MPI_DIR)/lib
 
-NVCCFLAGS =-std=c++14 -rdc=true -lhdf5 -gencode=arch=compute_80,code=compute_80
+# GPU architecture
+NVCCFLAGS := -std=c++14 -rdc=true \
+             -gencode=arch=compute_80,code=compute_80 \
+             -I$(CUDA_INC) \
+             -I$(HDF5_INC) \
+             -I$(MPI_INC)
 
-# NVCCFLAGS = -std=c++14 -rdc=true -I/global/homes/k/kbhimani/.conda/envs/myenv/include -L/global/homes/k/kbhimani/.conda/envs/myenv/lib -lhdf5 -gencode=arch=compute_80,code=sm_80
+LDFLAGS   := -L$(HDF5_LIB) -lhdf5 \
+             -L$(MPI_LIB)  -lmpi
 
-RM = rm -f
+RM        := rm -f
 
-All: ehdrift 
+SOURCES   := ehdrift.c \
+             ehd_subs.c \
+             ev_gpu.cu \
+             gpu_subs.cu \
+             charge_drift.cu \
+             field_calc.cu \
+             rho_sum_calc.cu \
+             read_config.c \
+             detector_geometry.c \
+             cyl_point.c
 
-# interactive interface for signal calculation code
+HEADERS   := mjd_siggen.h \
+             detector_geometry.h \
+             cyl_point.c \
+             gpu_vars.h
 
-ehdrift: ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu read_config.c detector_geometry.c rho_sum_calc.cu mjd_siggen.h detector_geometry.h cyl_point.c gpu_vars.h
-	$(NVCC) $(NVCCFLAGS) -o $@ ehdrift.c ehd_subs.c ev_gpu.cu gpu_subs.cu charge_drift.cu field_calc.cu rho_sum_calc.cu read_config.c detector_geometry.c cyl_point.c -lm
+.PHONY: All clean
 
-FORCE:
+All: ehdrift
 
-clean: 
-	$(RM) *.o core* *[~%] *.trace
-	$(RM) ehdrift
+ehdrift: $(SOURCES) $(HEADERS)
+	$(NVCC) $(NVCCFLAGS) -o $@ $(SOURCES) $(LDFLAGS) -lm
+
+clean:
+	$(RM) *.o core* *[~%] *.trace ehdrift
